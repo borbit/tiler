@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Demo</title>
+    
+    <style>
+        body {
+            display:block;
+            overflow:hidden;
+            margin:0;
+            padding:0;
+            text-align:center;
+            font-family:Georgia;
+            font-size:11px;
+        }
+        #viewport {
+            position:absolute;
+            height:100%;
+            width:100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="viewport"></div>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
+    <script src="https://raw.github.com/borbit/jquery.scraggable/master/jquery.scraggable.min.js"></script>
+    <script src="https://raw.github.com/borbit/jquery.tiler/master/jquery.tiler.js"></script>
+    <script src="https://raw.github.com/borbit/jquery.tiler/master/row.js"></script>
+    
+    <script>
+        var url = 'http://www.panoramio.com/map/get_panoramas.php?set=public&size=small&callback=?';
+        var offset = 0;
+        
+        function sync(toSync, callback) {
+            var from = '&from=' + offset;
+            var to = '&to=' + (offset += toSync.length);
+            
+            $.getJSON(url + from + to, function(json) {
+                var count = json.photos.length;
+                var result = [];
+                $.each(json.photos, function(index, photo) {
+                    
+                    var image = new Image();
+                    image.src = photo.photo_file_url;
+                    image.onload = function() {
+                        result.push({
+                            x: toSync[index].x,
+                            y: toSync[index].y,
+                            data: photo.photo_file_url
+                        });
+                        
+                        if (--count == 0) {
+                            callback(result);
+                        }
+                    };
+                    
+                });
+            });
+        }
+        
+        $(function() {
+            $('#viewport').tiler({
+                size: 400,
+                capture: 3,
+                sync: sync,
+                
+                tile: function(data) {
+                    var image = $('<img/>');
+                    image.attr('src', data);
+                    return image;
+                }
+            });
+            
+            $('#viewport .tilerBinder').draggable();
+            $('#viewport .tilerBinder').scraggable({sensitivity: 10});
+        });
+    </script>
+</body>
+</html>
