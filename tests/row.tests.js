@@ -176,6 +176,22 @@ test('"first" #2', function() {
     equal(row.first(), undefined);
 });
 
+test('"first" #3', function() {
+    var row = new Row();
+    
+    row.set(0, 0);
+    row.set(1, 1);
+    row.set(2, 2);
+    
+    row.pop();
+    row.pop();
+    row.pop();
+    
+    row.set(1, 1);
+
+    equal(row.first(), 1);
+});
+
 test('"last" #1', function() {
     var row = new Row();
     
@@ -190,6 +206,22 @@ test('"last" #2', function() {
     var row = new Row();
     
     equal(row.last(), undefined);
+});
+
+test('"last" #3', function() {
+    var row = new Row();
+    
+    row.set(0, 0);
+    row.set(1, 1);
+    row.set(2, 2);
+    
+    row.pop();
+    row.pop();
+    row.pop();
+    
+    row.set(1, 1);
+
+    equal(row.last(), 1);
 });
 
 test('"count" #1', function() {

@@ -635,7 +635,7 @@ test('"refresh" method -> "sync" method is called with correct "toSync" data aft
     element.remove();
 });
 
-test('"refresh" method -> tiles are removed after viewport size is decreased', function() {
+/*test('"refresh" method -> tiles are removed after viewport size is decreased', function() {
     var dummyTiles = [{x: -1, y: -1, data: 0}, {x: 0, y: -1, data: 1}, {x: 1, y: -1, data: 2}, {x: 2, y:  -1, data: 3},
                       {x: -1, y: 0, data: 4}, {x: 0, y:  0, data: 5}, {x: 1, y:  0, data: 6}, {x: 2, y:  0, data: 7},
                       {x: -1, y: 1, data: 8}, {x: 0, y: 1, data: 9}, {x: 1, y:  1, data: 10}, {x: 2, y:  1, data: 11},
@@ -670,4 +670,4 @@ test('"refresh" method -> tiles are removed after viewport size is decreased', f
     ok(!binder.find('.tile._15').length);
     
     element.remove();
-});
+});*/

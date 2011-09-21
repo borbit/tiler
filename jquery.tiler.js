@@ -100,17 +100,7 @@ Proto.refresh = function() {
 
     this.x -= offset.x;
     this.y -= offset.y;
-    
-    var vertDiff = (this.rowsCount- this.tiles.count());
-    var horizDiff = (this.colsCount - this.tiles.first().count());
-
-    if (vertDiff < 0) {
-        this.removeBottomTiles(Math.abs(vertDiff));
-    }
-    if (horizDiff < 0) {
-        this.removeRightTiles(Math.abs(horizDiff));
-    }
-    
+        
     this.removeTiles(offset);
     this.refreshBinderSize();
     
