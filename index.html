@@ -1,3 +1,4 @@
+
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -29,47 +30,31 @@
     <script src="https://raw.github.com/borbit/jquery.tiler/master/jquery.tiler.js"></script>
     <script src="https://raw.github.com/borbit/jquery.tiler/master/row.js"></script>
     
-    <script>
-        var url = 'http://www.panoramio.com/map/get_panoramas.php?set=public&size=small&callback=?';
-        var offset = 0;
-        
-        function sync(toSync, callback) {
-            var from = '&from=' + offset;
-            var to = '&to=' + (offset += toSync.length);
-            
-            $.getJSON(url + from + to, function(json) {
-                var count = json.photos.length;
-                var result = [];
-                $.each(json.photos, function(index, photo) {
-                    
-                    var image = new Image();
-                    image.src = photo.photo_file_url;
-                    image.onload = function() {
-                        result.push({
-                            x: toSync[index].x,
-                            y: toSync[index].y,
-                            data: photo.photo_file_url
-                        });
-                        
-                        if (--count == 0) {
-                            callback(result);
-                        }
-                    };
-                    
-                });
-            });
-        }
+    <script>        
+        var count = 0;
         
         $(function() {
             $('#viewport').tiler({
-                size: 400,
-                capture: 3,
-                sync: sync,
+                size: 100,
+                capture: 4,
+                
+                sync: function(tiles, callback) {
+                    for(var i = tiles.length; i--;) {
+                        tiles[i].data = count++;
+                    }
+                    setTimeout(function() {
+                        callback(tiles);
+                    }, 500);
+                },
                 
                 tile: function(data) {
-                    var image = $('<img/>');
-                    image.attr('src', data);
+                    var image = $('<div/>');
+                    image.html(data);
                     return image;
+                },
+                
+                holder: function() {
+                    return $('<div>loading</div>');
                 }
             });
             
