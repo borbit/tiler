@@ -1,3 +1,4 @@
+
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -39,8 +40,7 @@
                 
                 sync: function(tiles, callback) {
                     for(var i = tiles.length; i--;) {
-                        tiles[i].data = 'x: <strong>' + tiles[i].x + '</strong>';
-                        tiles[i].data += ' y: <strong>' + tiles[i].y + '</strong>';
+                        tiles[i].push('x: <strong>' + tiles[i][0] + '</strong> y: <strong>' + tiles[i][1] + '</strong>');
                     }
                     setTimeout(function() {
                         callback(tiles);
