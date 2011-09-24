@@ -8,9 +8,9 @@ var dummyOptions = {
     x: 0, y: 0
 };
 
-var dummyTiles = [{x: -1, y: -1, data: 0}, {x: 0, y: -1, data: 1}, {x: 1, y: -1, data: 2},
-                  {x: -1, y:  0, data: 3}, {x: 0, y:  0, data: 4}, {x: 1, y:  0, data: 5},
-                  {x: -1, y:  1, data: 6}, {x: 0, y:  1, data: 7}, {x: 1, y:  1, data: 8}];
+var dummyTiles = [[-1, -1, 0], [0, -1, 1], [1, -1, 2],
+                  [-1,  0, 3], [0,  0, 4], [1,  0, 5],
+                  [-1,  1, 6], [0,  1, 7], [1,  1, 8]];
                   
 function createTiler(options) {
     var pNumber = 0, tNumber = 0, syncs = 0;
@@ -150,9 +150,9 @@ test('holder callback is called after initialization', 9, function() {
 });
 
 test('sync callback is called with correct arguments', 2, function() {
-    var expected = [{x: -1, y: -1}, {x: 0, y: -1}, {x: 1, y: -1},
-                    {x: -1, y:  0}, {x: 0, y:  0}, {x: 1, y:  0},
-                    {x: -1, y:  1}, {x: 0, y:  1}, {x: 1, y:  1}];
+    var expected = [[-1, -1], [0, -1], [1, -1],
+                    [-1,  0], [0,  0], [1,  0],
+                    [-1,  1], [0,  1], [1,  1]];
                     
     var element = createTiler({sync: function(toSync, callback) {
         deepEqual(toSync, expected, 'first argument is an array of coordinates for tiles to sync');
@@ -166,7 +166,7 @@ test('tile callback is called with correct arguments', 9, function() {
     var calls = 0;
     var element = createTiler({
         tile: function(data) {
-            deepEqual(data, dummyTiles[calls++].data);
+            deepEqual(data, dummyTiles[calls++][2]);
             return $('<div class="tile">' + data + '</div>');
         }
     });
@@ -577,8 +577,7 @@ test('"refresh" method -> holders are inserted after viewport size is increased'
 });
 
 test('"refresh" method -> tiles are synced and inserted after viewport size is increased', function() {
-    var newDummyTiles = [{x: 2, y:  -1, data: 3}, {x: 2, y:  0, data: 7}, {x: 2, y:  1, data: 11}, {x: -1, y: 2, data: 12},
-                         {x: 0, y: 2, data: 13}, {x: 1, y: 2, data: 14}, {x: 2, y: 2, data: 15}];
+    var newDummyTiles = [[2, -1, 3], [2, 0, 7], [2, 1, 11], [-1, 2, 12], [0, 2, 13], [1, 2, 14], [2, 2, 15]];
                       
     var calls = 0;
     var element = createTiler({
@@ -612,7 +611,7 @@ test('"refresh" method -> tiles are synced and inserted after viewport size is i
 });
 
 test('"refresh" method -> "sync" method is called with correct "toSync" data after viewport size is increased', 1, function() {
-    var expected = [{x: 2, y:  -1}, {x: 2, y:  0}, {x: 2, y:  1}, {x: -1, y: 2}, {x: 0, y: 2}, {x: 1, y: 2}, {x: 2, y: 2}];
+    var expected = [[2, -1], [2, 0], [2, 1], [-1, 2], [0, 2], [1, 2], [2, 2]];
                       
     var calls = 0;
     var element = createTiler({

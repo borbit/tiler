@@ -72,22 +72,14 @@ Proto.calcBinderOffset = function(newPosition) {
 };
 
 Proto.refreshBinderSize = function() {
-    this.binder.css({
-        'height': this.rowsCount * this.options.size,
-        'width': this.colsCount * this.options.size
-    });
+    this.binder.height(this.rowsCount * this.options.size);
+    this.binder.width(this.colsCount * this.options.size);
 };
 
 Proto.shiftBinderPosition = function(offset) {
     var position = this.binder.position();
-    
-    if (offset.y != 0) {
-        position.top -= offset.y * this.options.size;
-    }
-    if (offset.x != 0) {
-        position.left -= offset.x * this.options.size;
-    }
-    
+    if (offset.y != 0) { position.top -= offset.y * this.options.size; }
+    if (offset.x != 0) { position.left -= offset.x * this.options.size; }
     this.binder.css(position);
 };
 
@@ -183,7 +175,7 @@ Proto.getTilesToSync = function() {
     for(var y = this.y - op.capture, i = this.rowsCount; i--; y++) {
     for(var x = this.x - op.capture, j = this.colsCount; j--; x++) {
         if (!this.tiles.get(y) || !this.tiles.get(y).get(x)) {
-            toSync.push({x: x, y: y});
+            toSync.push([x, y]);
         }
     }}
     
@@ -209,8 +201,8 @@ Proto.showTiles = function(tiles) {
     var fragment = document.createDocumentFragment();
     
     for(var i = 0, l = tiles.length; i < l; i++) {
-        var x = tiles[i].x;
-        var y = tiles[i].y;
+        var x = tiles[i][0];
+        var y = tiles[i][1];
         
         if (y < this.y - this.options.capture || y > this.y - this.options.capture + this.rowsCount ||
             x < this.x - this.options.capture || x > this.x - this.options.capture + this.colsCount) {
@@ -218,7 +210,7 @@ Proto.showTiles = function(tiles) {
         }
         
         var row = (this.tiles.get(y) || this.tiles.set(y, new Row()));
-        var tile = this.options.tile(tiles[i].data);
+        var tile = this.options.tile(tiles[i][2]);
         fragment.appendChild(tile.get(0));
         
         if (row.get(x)) {
@@ -236,8 +228,8 @@ Proto.showHolders = function(tiles) {
     
     for(var i = 0, l = tiles.length; i < l; i++) {
         var holder = this.options.holder();
-        var x = tiles[i].x; 
-        var y = tiles[i].y;
+        var x = tiles[i][0]; 
+        var y = tiles[i][1];
         
         fragment.appendChild(holder.get(0));
         
