@@ -22,7 +22,7 @@ function createTiler(options) {
         tile: function(data) {
             return $('<div class="tile _' + tNumber + '">' + tNumber++ + '</div>');
         },
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             if (syncs++ == 0) {
                 callback(dummyTiles);
             }
@@ -149,14 +149,15 @@ test('holder callback is called after initialization', 9, function() {
     element.remove();
 });
 
-test('sync callback is called with correct arguments', 2, function() {
+test('sync callback is called with correct arguments', 3, function() {
     var expected = [[-1, -1], [0, -1], [1, -1],
                     [-1,  0], [0,  0], [1,  0],
                     [-1,  1], [0,  1], [1,  1]];
                     
-    var element = createTiler({sync: function(toSync, callback) {
-        deepEqual(toSync, expected, 'first argument is an array of coordinates for tiles to sync');
-        ok($.isFunction(callback), 'second argument is a callback to call after tiles synced');
+    var element = createTiler({sync: function(toSync, removed, callback) {
+        deepEqual(toSync, expected);
+        deepEqual(removed, []);
+        ok($.isFunction(callback));
     }});
     
     element.remove();
@@ -182,7 +183,7 @@ test('tile callback is called with correct arguments', 27, function() {
 test('binder is filled by holders #1', 18, function() {
     var number = 0;
     var element = createTiler({
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             setTimeout(function() { callback(dummyTiles); })
         }
     });
@@ -381,7 +382,7 @@ test('binder dragging -> tiles are removed (top and left)', function() {
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             if (calls++ == 0) {
                 callback(dummyTiles);
             }
@@ -407,7 +408,7 @@ test('binder dragging -> tiles are removed (bottom and right)', function() {
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             if (calls++ == 0) {
                 callback(dummyTiles);
             }
@@ -434,7 +435,7 @@ test('binder dragging -> tiles are moved (top and left)', function() {
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             if (calls++ == 0) {
                 callback(dummyTiles);
             }
@@ -458,7 +459,7 @@ test('binder dragging -> tiles are moved (bottom and right)', function() {
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             if (calls++ == 0) {
                 callback(dummyTiles);
             }
@@ -482,7 +483,7 @@ test('binder dragging -> holders are inserted on empty space (top and left)', fu
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             if (calls++ == 0) {
                 callback(dummyTiles);
             }
@@ -507,7 +508,7 @@ test('binder dragging -> holders are inserted on empty space (bottom and right)'
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             if (calls++ == 0) {
                 callback(dummyTiles);
             }
@@ -528,11 +529,67 @@ test('binder dragging -> holders are inserted on empty space (bottom and right)'
     element.remove();
 });
 
+test('binder dragging -> coordinates of removed tiles are passed to the "sync" method (top and left)', function() {
+    var calls = 0;
+    var element = createTiler({
+        capture: 1,
+        sync: function(toSync, removed, callback) {
+            if (calls == 0) {
+                callback(dummyTiles);
+            }
+            if (calls == 1) {
+                deepEqual(removed, [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]);
+            }
+            calls++;
+        }
+    });
+    
+    var binder = element.find('.tilerBinder');
+    binder.css('left', -200);
+    binder.css('top', -200);
+    binder.trigger('dragstop');
+    
+    element.remove();
+});
+
+test('binder dragging -> coordinates of removed tiles are passed to the "sync" method (bottom and right)', function() {
+    var calls = 0;
+    var element = createTiler({
+        capture: 1,
+        sync: function(toSync, removed, callback) {
+            if (calls == 0) {
+                callback(dummyTiles);
+            }
+            if (calls == 1) {
+                deepEqual(removed, [[-1, 1], [0, 1], [1, 1], [1, -1], [1, 0]]);
+            }
+            calls++;
+        }
+    });
+    
+    var binder = element.find('.tilerBinder');
+    binder.css('left', 0);
+    binder.css('top', 0);
+    binder.trigger('dragstop');
+    
+    element.remove();
+});
+
+test('"binder" method -> method returns reference to the "binder"', function() {
+    var element = createTiler();
+    
+    var binder = element.tiler('binder');
+    
+    ok(binder.hasClass('tilerBinder'));
+    
+    element.remove();
+});
+
 test('"refresh" method -> binder is resized after viewport is resized', function() {
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             calls++;
             if (calls == 1) {
                 callback(dummyTiles);
@@ -556,7 +613,7 @@ test('"refresh" method -> holders are inserted after viewport size is increased'
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             calls++;
             if (calls == 1) {
                 callback(dummyTiles);
@@ -587,7 +644,7 @@ test('"refresh" method -> tiles are synced and inserted after viewport size is i
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             calls++;
             if (calls == 1) {
                 callback(dummyTiles);
@@ -621,7 +678,7 @@ test('"refresh" method -> "sync" method is called with correct "toSync" data aft
     var calls = 0;
     var element = createTiler({
         capture: 1,
-        sync: function(toSync, callback) {
+        sync: function(toSync, removed, callback) {
             calls++;
             if (calls == 1) {
                 callback(dummyTiles);

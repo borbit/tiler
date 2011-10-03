@@ -20,6 +20,10 @@ $.widget('ui.tiler', {
     
     refresh: function() {
         this.tiler.refresh();
+    },
+    
+    binder: function() {
+        return this.tiler.binder;
     }
 });
 
@@ -59,7 +63,7 @@ function Tiler(element, options) {
     this.refreshBinderSize();
     
     this.binder.bind('dragstop', $.proxy(this, 'refresh'));
-    this.syncTiles();
+    this.syncTiles(this.getTilesToSync());
 }
 
 var Proto = Tiler.prototype;
@@ -93,67 +97,104 @@ Proto.refresh = function() {
     this.x -= offset.x;
     this.y -= offset.y;
         
-    this.removeTiles(offset);
-    this.refreshBinderSize();
+    var removed = this.removeTiles(offset);
+    var tosync = this.getTilesToSync();
     
+    this.refreshBinderSize();
     this.shiftBinderPosition(offset);
     this.shiftTilesPosition(offset);
-    this.syncTiles();
+    this.syncTiles(tosync, removed);
 };
 
 Proto.removeTiles = function(offset) {
+    var removed = [];
+    
     if (offset.y > 0) {
-        this.removeBottomTiles(Math.abs(offset.y));
+        $.merge(removed, this.removeBottomTiles(Math.abs(offset.y)));
     } else if (offset.y < 0) {
-        this.removeTopTiles(Math.abs(offset.y));
+        $.merge(removed, this.removeTopTiles(Math.abs(offset.y)));
     }
     if (offset.x > 0) {
-        this.removeRightTiles(Math.abs(offset.x));
+        $.merge(removed, this.removeRightTiles(Math.abs(offset.x)));
     } else if (offset.x < 0) {
-        this.removeLeftTiles(Math.abs(offset.x));
+        $.merge(removed, this.removeLeftTiles(Math.abs(offset.x)));
     }
+    
+    return removed;
 };
 
 Proto.removeTopTiles = function(cnt) {
+    var removed = [];
     var all = this.tiles.count();
+    
     for (var i = 0; i < cnt && i < all; i++) {
+        
+        var y = this.tiles.firstIndex;
         var first = this.tiles.shift().rewind();
+        
         while (first.hasNext()) {
+            var x = first.currentIndex;
             first.next().remove();
+            removed.push([x, y]);
         }
     }
+    return removed;
 };
 
 Proto.removeBottomTiles = function(cnt) {
+    var removed = [];
     var all = this.tiles.count();
+    
     for (var i = 0; i < cnt && i < all; i++) {
+        
+        var y = this.tiles.lastIndex;
         var last = this.tiles.pop().rewind();
+        
         while (last.hasNext()) {
+            var x = last.currentIndex;
             last.next().remove();
+            removed.push([x, y]);
         }
     }
+    return removed;
 };
 
 Proto.removeLeftTiles = function(cnt) {
+    var removed = [];
     this.tiles.rewind();
+    
     while (this.tiles.hasNext()) {
+        
+        var y = this.tiles.currentIndex;
         var row = this.tiles.next();
         var all = row.count();
+        
         for (var i = 0; i < cnt && i < all; i++) {
+            var x = row.firstIndex;
             row.shift().remove();
+            removed.push([x, y]);
         }
     }
+    return removed;
 };
 
 Proto.removeRightTiles = function(cnt) {
+    var removed = [];
     this.tiles.rewind();
+    
     while (this.tiles.hasNext()) {
+        
+        var y = this.tiles.currentIndex;
         var row = this.tiles.next();
         var all = row.count();
+        
         for (var i = 0; i < cnt && i < all; i++) {
+            var x = row.lastIndex;
             row.pop().remove();
+            removed.push([x, y]);
         }
     }
+    return removed;
 };
 
 Proto.shiftTilesPosition = function(offset) {
@@ -182,18 +223,17 @@ Proto.getTilesToSync = function() {
     return toSync;
 };
 
-Proto.syncTiles = function() {
-    var tiles = this.getTilesToSync();
+Proto.syncTiles = function(tosync, removed) {
+    removed = removed || [];
     
-    if (tiles.length < 0) {
+    if (tosync.length < 0) {
         return;
-    }
-    
+    }    
     if ($.isFunction(this.options.holder)) {
-        this.showHolders(tiles);
+        this.showHolders(tosync);
     }
     if ($.isFunction(this.options.sync)) {
-        this.options.sync(tiles, $.proxy(this, 'showTiles'));
+        this.options.sync(tosync, removed, $.proxy(this, 'showTiles'));
     }
 };
 
