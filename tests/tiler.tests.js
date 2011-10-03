@@ -162,11 +162,16 @@ test('sync callback is called with correct arguments', 2, function() {
     element.remove();
 });
 
-test('tile callback is called with correct arguments', 9, function() {
+test('tile callback is called with correct arguments', 27, function() {
     var calls = 0;
     var element = createTiler({
-        tile: function(data) {
-            deepEqual(data, dummyTiles[calls++][2]);
+        tile: function(data, x, y) {
+            deepEqual(data, dummyTiles[calls][2]);
+            equal(x, dummyTiles[calls][0]);
+            equal(y, dummyTiles[calls][1]);
+            
+            calls++;
+            
             return $('<div class="tile">' + data + '</div>');
         }
     });

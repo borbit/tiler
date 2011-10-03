@@ -210,7 +210,7 @@ Proto.showTiles = function(tiles) {
         }
         
         var row = (this.tiles.get(y) || this.tiles.set(y, new Row()));
-        var tile = this.options.tile(tiles[i][2]);
+        var tile = this.options.tile(tiles[i][2], x, y);
         fragment.appendChild(tile.get(0));
         
         if (row.get(x)) {
