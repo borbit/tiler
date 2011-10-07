@@ -226,7 +226,7 @@ Proto.getTilesToSync = function() {
 Proto.syncTiles = function(tosync, removed) {
     removed = removed || [];
     
-    if (tosync.length < 0) {
+    if (tosync.length == 0) {
         return;
     }    
     if ($.isFunction(this.options.holder)) {
