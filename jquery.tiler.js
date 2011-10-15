@@ -30,7 +30,7 @@ $.widget('ui.tiler', {
 function Tiler(element, options) {
     this.element = element;
     this.options = options;
-    this.tiles = new Row();
+    this.tiles = new Grid();
     this.x = options.x;
     this.y = options.y;
     
@@ -215,7 +215,7 @@ Proto.getTilesToSync = function() {
 
     for(var y = this.y - op.capture, i = this.rowsCount; i--; y++) {
     for(var x = this.x - op.capture, j = this.colsCount; j--; x++) {
-        if (!this.tiles.get(y) || !this.tiles.get(y).get(x)) {
+        if (!this.tiles.getCell(x, y)) {
             toSync.push([x, y]);
         }
     }}
@@ -227,14 +227,12 @@ Proto.syncTiles = function(tosync, removed) {
     removed = removed || [];
     
     if (tosync.length == 0) {
-        return;
-    }    
+        return; }
+        
     if ($.isFunction(this.options.holder)) {
-        this.showHolders(tosync);
-    }
+        this.showHolders(tosync); }
     if ($.isFunction(this.options.sync)) {
-        this.options.sync(tosync, removed, $.proxy(this, 'showTiles'));
-    }
+        this.options.sync(tosync, removed, $.proxy(this, 'showTiles')); }
 };
 
 Proto.showTiles = function(tiles) {
@@ -249,14 +247,13 @@ Proto.showTiles = function(tiles) {
             return;
         }
         
-        var row = (this.tiles.get(y) || this.tiles.set(y, new Row()));
         var tile = this.options.tile(tiles[i][2], x, y);
         fragment.appendChild(tile.get(0));
         
-        if (row.get(x)) {
-            row.get(x).remove();
-        }
-        row.set(x, tile);
+        if (this.tiles.getCell(x, y)) {
+            this.tiles.getCell(x, y).remove(); }
+            
+        this.tiles.setCell(x, y, tile);
     }
     
     this.binder.append(fragment);
@@ -272,9 +269,7 @@ Proto.showHolders = function(tiles) {
         var y = tiles[i][1];
         
         fragment.appendChild(holder.get(0));
-        
-        var row = (this.tiles.get(y) || this.tiles.set(y, new Row()));
-        row.set(x, holder);
+        this.tiles.setCell(x, y, holder);
     }
     
     this.binder.append(fragment);
