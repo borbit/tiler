@@ -337,3 +337,15 @@ test('"hasNext" #4', function() {
     row.shift();
     equal(row.hasNext(), false);
 });
+
+test('"on"', function() {
+    var row = new Row();
+    
+    row.set(-1, 0);
+    row.set(0, 1);
+    row.set(1, 2);
+    
+    equal(row.on(0), 0);
+    equal(row.on(1), 1);
+    equal(row.on(2), 2);
+});

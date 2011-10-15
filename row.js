@@ -19,6 +19,10 @@ Row.prototype.get = function(index) {
     return this.items[index];
 };
 
+Row.prototype.on = function(number) {
+    return this.items[this.firstIndex + number];
+};
+
 Row.prototype.next = function() {
     if (this.currentIndex === null) {
         this.currentIndex = this.firstIndex;
