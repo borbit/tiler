@@ -68,3 +68,47 @@ test('"onCell"', function() {
     equal(grid.onCell(1, 1), 5);
     equal(grid.onCell(2, 1), 6);
 });
+
+test('"removeCell" #1', function() {
+    var grid = new Grid();
+    
+    grid.setCell(0, 0, 1);
+    grid.setCell(1, 0, 2);
+    grid.setCell(2, 0, 3);
+    
+    grid.removeCell(1, 0);
+    grid.removeCell(2, 0);
+    
+    equal(grid.getCell(0, 0), 1);
+    equal(grid.getCell(1, 0), undefined);
+    equal(grid.getCell(2, 0), undefined);
+});
+
+test('"removeCell" #2', function() {
+    var grid = new Grid();
+    
+    grid.setCell(0, 0, 1);
+    grid.setCell(1, 0, 2);
+    grid.setCell(2, 0, 3);
+    
+    grid.removeCell(0, 0);
+    grid.removeCell(1, 0);
+    grid.removeCell(2, 0);
+    
+    equal(grid.get(0), undefined);
+});
+
+test('"flatten"', function() {
+    var grid = new Grid();
+    
+    grid.setCell(0, -1, 1);
+    grid.setCell(1, -1, 2);
+    grid.setCell(2, -1, 3);
+    
+    grid.setCell(0, 0, 4);
+    grid.setCell(1, 0, 5);
+    grid.setCell(2, 0, 6);
+        
+    deepEqual(grid.flatten(), [[0, -1, 1], [1, -1, 2], [2, -1, 3],
+            [0, 0, 4], [1, 0, 5], [2, 0, 6]]);
+});

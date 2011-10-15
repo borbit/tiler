@@ -83,6 +83,22 @@ Row.prototype.shift = function() {
     return deleted;
 };
 
+Row.prototype.remove = function(index) {
+    delete this.items[index];
+    
+    if (this.firstIndex == index) {
+        this.firstIndex++;
+    }
+    if (this.lastIndex == index) {
+        this.lastIndex--;
+    }
+    if (!this.count()) {
+        this.currentIndex = null;
+        this.firstIndex = null;
+        this.lastIndex = null;
+    }
+};
+
 Row.prototype.unshift = function(value) {
     return this.set(--this.firstIndex, value);
 };

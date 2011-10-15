@@ -198,28 +198,23 @@ Proto.removeRightTiles = function(cnt) {
 };
 
 Proto.shiftTilesPosition = function(offset) {
-    this.tiles.rewind();
-    while (this.tiles.hasNext()) {
-        var row = this.tiles.next().rewind();
-        while (row.hasNext()) {
-            var tile = row.next();
-            var position = tile.position();
-            tile.css('left', position.left + this.options.size * offset.x);
-            tile.css('top', position.top + this.options.size * offset.y);
-        }
+    var tiles = this.tiles.flatten();
+    for (var i = tiles.length; i--;) {
+        var tile = tiles[i][2];
+        var position = tile.position();
+        tile.css({'left': position.left + this.options.size * offset.x,
+                  'top': position.top + this.options.size * offset.y});
     }
 };
 
 Proto.getTilesToSync = function() {
     var toSync = [], op = this.options;
-
     for(var y = this.y - op.capture, i = this.rowsCount; i--; y++) {
     for(var x = this.x - op.capture, j = this.colsCount; j--; x++) {
         if (!this.tiles.getCell(x, y)) {
             toSync.push([x, y]);
         }
     }}
-    
     return toSync;
 };
 

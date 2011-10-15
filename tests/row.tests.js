@@ -349,3 +349,15 @@ test('"on"', function() {
     equal(row.on(1), 1);
     equal(row.on(2), 2);
 });
+
+test('"remove"', function() {
+    var row = new Row();
+    
+    row.set(0, 0);
+    row.set(1, 1);
+    row.set(2, 2);
+    
+    equal(row.remove(0), undefined);
+    equal(row.remove(1), undefined);
+    equal(row.remove(2), undefined);
+});

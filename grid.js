@@ -20,3 +20,29 @@ Grid.prototype.getCell = function(x, y, cell) {
 Grid.prototype.onCell = function(xNum, yNum, cell) {
     return this.on(yNum) ? this.on(yNum).on(xNum) : undefined;
 };
+
+Grid.prototype.removeCell = function(x, y) {
+    var row;
+    if (row = this.get(y)) {
+        row.remove(x);
+        
+        if (!row.count()) { this.remove(y); }
+    }
+};
+
+Grid.prototype.flatten = function() {
+    var result = [];
+    
+    this.rewind();
+    while (this.hasNext()) {
+        var y = this.currentIndex;
+        var row = this.next().rewind();
+        while (row.hasNext()) {
+            var x = row.currentIndex;
+            var cell = row.next();
+            result.push([x, y, cell]);
+        }
+    }
+    
+    return result;
+};
