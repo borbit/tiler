@@ -46,3 +46,25 @@ Grid.prototype.flatten = function() {
     
     return result;
 };
+
+Grid.prototype.related = function(x, y) {
+    var coords = [
+        [x-1, y-1], [x, y-1], [x+1, y-1],
+        [x-1, y], [x+1, y], [x-1, y+1],
+        [x, y+1], [x+1, y+1]
+    ];
+            
+    var related = [];
+    var cell;
+    
+    for (var i = 0; i < 8; i++) {
+        var rx = coords[i][0];
+        var ry = coords[i][1];
+        
+        if (cell = this.getCell(rx, ry)) {
+            related.push([rx, ry, cell]);
+        }
+    }
+    
+    return related;
+};

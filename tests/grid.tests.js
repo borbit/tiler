@@ -112,3 +112,58 @@ test('"flatten"', function() {
     deepEqual(grid.flatten(), [[0, -1, 1], [1, -1, 2], [2, -1, 3],
             [0, 0, 4], [1, 0, 5], [2, 0, 6]]);
 });
+
+test('"related" #1', function() {
+    var grid = new Grid();
+    
+    grid.setCell(0, 0, 1);
+    grid.setCell(1, 0, 2);
+    grid.setCell(2, 0, 3);
+    
+    grid.setCell(0, 1, 4);
+    grid.setCell(1, 1, 5);
+    grid.setCell(2, 1, 6);
+    
+    grid.setCell(0, 2, 7);
+    grid.setCell(1, 2, 8);
+    grid.setCell(2, 2, 9);
+        
+    deepEqual(grid.related(1, 1), [[0, 0, 1], [1, 0, 2], [2, 0, 3],
+        [0, 1, 4], [2, 1, 6], [0, 2, 7], [1, 2, 8], [2, 2, 9]]);
+});
+
+test('"related" #2', function() {
+    var grid = new Grid();
+    
+    grid.setCell(0, 0, 1);
+    grid.setCell(1, 0, 2);
+    grid.setCell(2, 0, 3);
+    
+    grid.setCell(0, 1, 4);
+    grid.setCell(1, 1, 5);
+    grid.setCell(2, 1, 6);
+    
+    grid.setCell(0, 2, 7);
+    grid.setCell(1, 2, 8);
+    grid.setCell(2, 2, 9);
+        
+    deepEqual(grid.related(1, 0), [[0, 0, 1], [2, 0, 3], [0, 1, 4], [1, 1, 5], [2, 1, 6]]);
+});
+
+test('"related" #3', function() {
+    var grid = new Grid();
+    
+    grid.setCell(0, 0, 1);
+    grid.setCell(1, 0, 2);
+    grid.setCell(2, 0, 3);
+    
+    grid.setCell(0, 1, 4);
+    grid.setCell(1, 1, 5);
+    grid.setCell(2, 1, 6);
+    
+    grid.setCell(0, 2, 7);
+    grid.setCell(1, 2, 8);
+    grid.setCell(2, 2, 9);
+        
+    deepEqual(grid.related(1, 2), [[0, 1, 4], [1, 1, 5], [2, 1, 6], [0, 2, 7], [2, 2, 9]]);
+});
