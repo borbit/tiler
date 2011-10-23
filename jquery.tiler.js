@@ -200,7 +200,7 @@ Proto.removeRightTiles = function(cnt) {
 Proto.shiftTilesPosition = function(offset) {
     var tiles = this.tiles.flatten();
     for (var i = tiles.length; i--;) {
-        var tile = tiles[i][2];
+        var tile = tiles[i][0];
         var position = tile.position();
         tile.css({'left': position.left + this.options.size * offset.x,
                   'top': position.top + this.options.size * offset.y});

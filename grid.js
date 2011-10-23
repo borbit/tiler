@@ -40,7 +40,7 @@ Grid.prototype.flatten = function() {
         while (row.hasNext()) {
             var x = row.currentIndex;
             var cell = row.next();
-            result.push([x, y, cell]);
+            result.push([cell, x, y]);
         }
     }
     
@@ -62,7 +62,7 @@ Grid.prototype.related = function(x, y) {
         var ry = coords[i][1];
         
         if (cell = this.getCell(rx, ry)) {
-            related.push([rx, ry, cell]);
+            related.push([cell, rx, ry]);
         }
     }
     
