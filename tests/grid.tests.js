@@ -167,3 +167,21 @@ test('"related" #3', function() {
         
     deepEqual(grid.related(1, 2), [[4, 0, 1], [5, 1, 1], [6, 2, 1], [7, 0, 2], [9, 2, 2]]);
 });
+
+test('"each"', 9, function() {
+    var grid = new Grid();
+    var cells = [[0, 0, 1], [1, 0, 2], [2, 0, 3]];
+    
+    grid.setCell(cells[0][0], cells[0][1], cells[0][2]);
+    grid.setCell(cells[1][0], cells[1][1], cells[1][2]);
+    grid.setCell(cells[2][0], cells[2][1], cells[2][2]);
+    
+    var iteration = 0;
+    
+    grid.each(function(cell, x, y) {
+        equal(cell, cells[iteration][2]);
+        equal(x, cells[iteration][0]);
+        equal(y, cells[iteration][1]);
+        iteration++;
+    });
+});

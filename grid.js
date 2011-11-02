@@ -47,6 +47,14 @@ Grid.prototype.flatten = function() {
     return result;
 };
 
+Grid.prototype.each = function(iterator) {
+    var list = this.flatten();
+    
+    for (var i = 0, len = list.length; i < len; i++) {
+        iterator.apply(null, list[i]);
+    }
+};
+
 Grid.prototype.related = function(x, y) {
     var coords = [
         [x-1, y-1], [x, y-1], [x+1, y-1],
@@ -55,13 +63,13 @@ Grid.prototype.related = function(x, y) {
     ];
             
     var related = [];
-    var cell;
     
     for (var i = 0; i < 8; i++) {
         var rx = coords[i][0];
         var ry = coords[i][1];
+        var cell = this.getCell(rx, ry);
         
-        if (cell = this.getCell(rx, ry)) {
+        if (typeof(cell) != 'undefined') {
             related.push([cell, rx, ry]);
         }
     }
