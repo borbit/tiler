@@ -27,10 +27,10 @@
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
-    <script src="http://furf.com/exp/touch-punch/js/ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
     <script src="https://raw.github.com/borbit/jquery.scraggable/master/jquery.scraggable.min.js"></script>
     <script src="https://raw.github.com/borbit/jquery.tiler/master/jquery.tiler.js"></script>
     <script src="https://raw.github.com/borbit/jquery.tiler/master/row.js"></script>
+    <script src="https://raw.github.com/borbit/jquery.tiler/master/grid.js"></script>
     
     <script>        
         $(function() {
@@ -38,19 +38,17 @@
                 size: 100,
                 capture: 4,
                 
-                sync: function(tiles, callback) {
-                    for(var i = tiles.length; i--;) {
-                        tiles[i].push('x: <strong>' + tiles[i][0] + '</strong> y: <strong>' + tiles[i][1] + '</strong>');
+                sync: function(toSync, toRemove, callback) {
+                    for(var i = toSync.length; i--;) {
+                        toSync[i].push('x: <b>' + toSync[i][0] + '</b> y: <b>' + toSync[i][1] + '</b>');
                     }
                     setTimeout(function() {
-                        callback(tiles);
+                        callback(toSync);
                     }, 500);
                 },
                 
                 tile: function(data) {
-                    var image = $('<div/>');
-                    image.html(data);
-                    return image;
+                    return $('<div/>').html(data);
                 },
                 
                 holder: function() {
