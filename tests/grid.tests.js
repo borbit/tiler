@@ -69,33 +69,59 @@ test('"onCell"', function() {
     equal(grid.onCell(2, 1), 6);
 });
 
-test('"removeCell" #1', function() {
+test('"remove" #1', function() {
     var grid = new Grid();
     
     grid.setCell(0, 0, 1);
     grid.setCell(1, 0, 2);
     grid.setCell(2, 0, 3);
     
-    grid.removeCell(1, 0);
-    grid.removeCell(2, 0);
+    grid.remove(1, 0);
+    grid.remove(2, 0);
     
     equal(grid.getCell(0, 0), 1);
     equal(grid.getCell(1, 0), undefined);
     equal(grid.getCell(2, 0), undefined);
 });
 
-test('"removeCell" #2', function() {
+test('"remove" #2', function() {
     var grid = new Grid();
     
     grid.setCell(0, 0, 1);
     grid.setCell(1, 0, 2);
     grid.setCell(2, 0, 3);
     
-    grid.removeCell(0, 0);
-    grid.removeCell(1, 0);
-    grid.removeCell(2, 0);
+    grid.remove(0, 0);
+    grid.remove(1, 0);
+    grid.remove(2, 0);
     
     equal(grid.get(0), undefined);
+});
+
+test('"remove" #3', function() {
+    var grid = new Grid();
+    
+    grid.setCell(0, 0, 1);
+    grid.setCell(1, 0, 2);
+    grid.setCell(2, 0, 3);
+    
+    grid.remove(0);
+    
+    equal(grid.get(0), undefined);
+});
+
+test('"remove" #4', function() {
+    var grid = new Grid();
+    
+    grid.setCell(0, 0, 1);
+    grid.setCell(1, 0, 2);
+    grid.setCell(2, 0, 3);
+    
+    grid.remove([[1, 0], [2, 0]]);
+    
+    equal(grid.getCell(0, 0), 1);
+    equal(grid.getCell(1, 0), undefined);
+    equal(grid.getCell(2, 0), undefined);
 });
 
 test('"flatten"', function() {

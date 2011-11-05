@@ -1,5 +1,6 @@
 function Grid() {
-    Row.prototype.constructor.call(this);
+    this.parent = Row.prototype;
+    this.parent.constructor.call(this);
 }
 
 -function() {
@@ -21,12 +22,31 @@ Grid.prototype.onCell = function(xNum, yNum, cell) {
     return this.on(yNum) ? this.on(yNum).on(xNum) : undefined;
 };
 
-Grid.prototype.removeCell = function(x, y) {
-    var row;
-    if (row = this.get(y)) {
-        row.remove(x);
+Grid.prototype.remove = function(x, y) {
+    var toRemove = [[x, y]];
+    
+    if (y === undefined) {
+        if (!isNaN(x)) {
+            this.parent.remove.call(this, x);
+            return;
+        }
+        if (x.length !== undefined && 
+            x.pop !== undefined) {
+            toRemove = x;
+        }
+    }
+    
+    for (var row, i = toRemove.length; i--;) {
+        x = toRemove[i][0]
+        y = toRemove[i][1];
         
-        if (!row.count()) { this.remove(y); }
+        if (row = this.get(y)) {
+            row.remove(x);
+        
+            if (!row.count()) { 
+                this.parent.remove.call(this, y);
+            }
+        }
     }
 };
 
