@@ -1,6 +1,13 @@
-function Grid() {
+function Grid(width, height, placeholder) {
     this.parent = Row.prototype;
     this.parent.constructor.call(this);
+    this.width = width;
+    this.height = height;
+
+    for (var y = this.height; y--;) {
+    for (var x = this.width; x--;) {
+        this.setCell(x, y, placeholder);
+    }}
 }
 
 -function() {

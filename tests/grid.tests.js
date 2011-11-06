@@ -6,6 +6,29 @@ test('inherited from "Row"', function() {
     ok(grid instanceof Row);
 });
 
+test('initialization #1', function() {
+    var width = 5;
+    var height = 10;
+    
+    var grid = new Grid(width, height);
+
+    equal(grid.width, width);
+    equal(grid.height, height);
+});
+
+test('initialization #2', function() {
+    var width = 5;
+    var height = 10;
+    var placeholder = 1;
+
+    var grid = new Grid(width, height, placeholder);
+    
+    for (var y = height; y--;) {
+    for (var x = width; x--;) {
+        equal(grid.getCell(x, y), placeholder);
+    }}
+});
+
 test('"setCell"', function() {
     var grid = new Grid();
     
