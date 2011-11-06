@@ -142,6 +142,19 @@ test('"next #4"', function() {
     equal(row.next(), undefined);
 });
 
+test('"next #5"', function() {
+    var row = new Row();
+
+    row.set(0, 0);
+    row.set(2, 1);
+    row.set(3, 2);
+
+    equal(row.next(), 0);
+    equal(row.next(), 1);
+    equal(row.next(), 2);
+    equal(row.next(), undefined);
+});
+
 test('"get" #1', function() {
     var row = new Row();
     

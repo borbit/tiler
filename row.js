@@ -27,6 +27,20 @@ Row.prototype.next = function() {
     if (this.currentIndex === null) {
         this.currentIndex = this.firstIndex;
     }
+
+    var next = this.get(this.currentIndex);
+
+    if (next === undefined) {
+        var indexes = Object.keys(this.items);
+        var filtered = indexes.filter(function(index) {
+            return index > this.currentIndex;
+        }, this);
+
+        if (filtered.length) {
+            this.currentIndex = Math.min.apply(null, filtered);
+        }
+    }
+
     return this.get(this.currentIndex++);
 };
 
