@@ -31,14 +31,7 @@ Row.prototype.next = function() {
     var next = this.get(this.currentIndex);
 
     if (next === undefined) {
-        var indexes = Object.keys(this.items);
-        var filtered = indexes.filter(function(index) {
-            return index > this.currentIndex;
-        }, this);
-
-        if (filtered.length) {
-            this.currentIndex = Math.min.apply(null, filtered);
-        }
+        this.currentIndex = this._calcNextIndexAfter(this.currentIndex);
     }
 
     return this.get(this.currentIndex++);
@@ -101,10 +94,10 @@ Row.prototype.remove = function(index) {
     delete this.items[index];
     
     if (this.firstIndex == index) {
-        this.firstIndex++;
+        this.firstIndex = this._calcFirstIndex();
     }
     if (this.lastIndex == index) {
-        this.lastIndex--;
+        this.lastIndex = this._calcLastIndex();
     }
     if (!this.count()) {
         this.currentIndex = null;
@@ -123,4 +116,32 @@ Row.prototype.hasNext = function() {
         return false;
     }
     return this.lastIndex >= this.currentIndex;
+};
+
+Row.prototype._calcLastIndex = function() {
+    var indexes = Object.keys(this.items);
+    if (indexes.length) {
+        return Math.max.apply(null, indexes);
+    }
+    return null;
+};
+
+Row.prototype._calcFirstIndex = function() {
+    var indexes = Object.keys(this.items);
+    if (indexes.length) {
+        return Math.min.apply(null, indexes);
+    }
+    return null;
+};
+
+Row.prototype._calcNextIndexAfter = function(index) {
+    var indexes = Object.keys(this.items);
+    var filtered = indexes.filter(function(next) {
+        return next > index;
+    }, this);
+
+    if (filtered.length) {
+        return Math.min.apply(null, filtered);
+    }
+    return index;
 };

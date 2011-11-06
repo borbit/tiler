@@ -363,7 +363,7 @@ test('"on"', function() {
     equal(row.on(2), 2);
 });
 
-test('"remove"', function() {
+test('"remove" #1', function() {
     var row = new Row();
     
     row.set(0, 0);
@@ -373,4 +373,30 @@ test('"remove"', function() {
     equal(row.remove(0), undefined);
     equal(row.remove(1), undefined);
     equal(row.remove(2), undefined);
+});
+
+test('"remove" #2', function() {
+    var row = new Row();
+
+    row.set(0, 0);
+    row.set(1, 1);
+    row.set(2, 2);
+
+    row.remove(2);
+
+    equal(row.last(), 1);
+});
+
+test('"remove" #2', function() {
+    var row = new Row();
+
+    row.set(0, 0);
+    row.set(1, 1);
+    row.set(2, 2);
+    row.set(3, 3);
+
+    row.remove(2);
+    row.remove(3);
+
+    equal(row.last(), 1);
 });

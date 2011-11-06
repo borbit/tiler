@@ -6,7 +6,7 @@ function Grid(width, height, placeholder) {
 
     for (var y = this.height; y--;) {
     for (var x = this.width; x--;) {
-        this.setCell(x, y, placeholder);
+        this.set(x, y, placeholder);
     }}
 }
 
@@ -17,16 +17,34 @@ function Grid(width, height, placeholder) {
     Grid.prototype.constructor = Grid;
 }();
 
-Grid.prototype.setCell = function(x, y, cell) {
-    return (this.get(y) || this.set(y, new Row())).set(x, cell);
+Grid.prototype.set = function(x, y, cell) {
+    if (cell === undefined) {
+        return this.parent.set.call(this, x, y);
+    }
+
+    return (this.parent.get.call(this, y) ||
+            this.parent.set.call(this, y, new Row()))
+            .set(x, cell);
 };
 
-Grid.prototype.getCell = function(x, y, cell) {
-    return this.get(y) ? this.get(y).get(x) : undefined;
+Grid.prototype.get = function(x, y) {
+    if (y === undefined) {
+        return this.parent.get.call(this, x);
+    }
+
+    return this.parent.get.call(this, y) ?
+           this.parent.get.call(this, y).get(x) :
+           undefined;
 };
 
-Grid.prototype.onCell = function(xNum, yNum, cell) {
-    return this.on(yNum) ? this.on(yNum).on(xNum) : undefined;
+Grid.prototype.on = function(xNum, yNum) {
+    if (yNum === undefined) {
+        return this.parent.on.call(this, xNum);
+    }
+    
+    return this.parent.on.call(this, yNum) ?
+           this.parent.on.call(this, yNum).on(xNum) :
+           undefined;
 };
 
 Grid.prototype.remove = function(x, y) {
@@ -74,11 +92,11 @@ Grid.prototype.flatten = function() {
     return result;
 };
 
-Grid.prototype.each = function(iterator) {
+Grid.prototype.each = function(iterator, context) {
     var list = this.flatten();
     
     for (var i = 0, len = list.length; i < len; i++) {
-        iterator.apply(null, list[i]);
+        iterator.apply(context, list[i]);
     }
 };
 
@@ -94,7 +112,7 @@ Grid.prototype.related = function(x, y) {
     for (var i = 0; i < 8; i++) {
         var rx = coords[i][0];
         var ry = coords[i][1];
-        var cell = this.getCell(rx, ry);
+        var cell = this.get(rx, ry);
         
         if (typeof(cell) != 'undefined') {
             related.push([cell, rx, ry]);

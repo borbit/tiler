@@ -1,3 +1,9 @@
+// ┌──────────────────────────────────────────────────────────────┐ //
+// | jQuery widget to display infinite content as a grid of tiles | //
+// ├──────────────────────────────────────────────────────────────┤ //
+// | Copyright (c) 2011 Serge Borbit (serge.borbit@gmail.com)     | //
+// └──────────────────────────────────────────────────────────────┘ //
+
 (function($) {
 
 $.widget('ui.tiler', {
@@ -198,20 +204,18 @@ Proto.removeRightTiles = function(cnt) {
 };
 
 Proto.shiftTilesPosition = function(offset) {
-    var tiles = this.tiles.flatten();
-    for (var i = tiles.length; i--;) {
-        var tile = tiles[i][0];
+    this.tiles.each(function(tile) {
         var position = tile.position();
         tile.css({'left': position.left + this.options.size * offset.x,
                   'top': position.top + this.options.size * offset.y});
-    }
+    }, this);
 };
 
 Proto.getTilesToSync = function() {
     var toSync = [], op = this.options;
     for(var y = this.y - op.capture, i = this.rowsCount; i--; y++) {
     for(var x = this.x - op.capture, j = this.colsCount; j--; x++) {
-        if (!this.tiles.getCell(x, y)) {
+        if (!this.tiles.get(x, y)) {
             toSync.push([x, y]);
         }
     }}
@@ -245,10 +249,10 @@ Proto.showTiles = function(tiles) {
         var tile = this.options.tile(tiles[i][2], x, y);
         fragment.appendChild(tile.get(0));
         
-        if (this.tiles.getCell(x, y)) {
-            this.tiles.getCell(x, y).remove(); }
+        if (this.tiles.get(x, y)) {
+            this.tiles.get(x, y).remove(); }
             
-        this.tiles.setCell(x, y, tile);
+        this.tiles.set(x, y, tile);
     }
     
     this.binder.append(fragment);
@@ -264,7 +268,7 @@ Proto.showHolders = function(tiles) {
         var y = tiles[i][1];
         
         fragment.appendChild(holder.get(0));
-        this.tiles.setCell(x, y, holder);
+        this.tiles.set(x, y, holder);
     }
     
     this.binder.append(fragment);
