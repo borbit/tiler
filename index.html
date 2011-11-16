@@ -40,17 +40,13 @@
                 
                 sync: function(toSync, toRemove, callback) {
                     for(var i = toSync.length; i--;) {
-                        toSync[i].push('x: <b>' + toSync[i][0] + '</b> y: <b>' + toSync[i][1] + '</b>');
+                        toSync[i].push($('<div/>').html('x: <b>' + toSync[i][0] + '</b> y: <b>' + toSync[i][1] + '</b>'));
                     }
                     setTimeout(function() {
                         callback(toSync);
                     }, 500);
                 },
-                
-                tile: function(data) {
-                    return $('<div/>').html(data);
-                },
-                
+
                 holder: function() {
                     return $('<div>loading</div>');
                 }
