@@ -245,8 +245,8 @@ Proto.showTiles = function(tiles) {
             x < this.x - this.options.capture || x > this.x - this.options.capture + this.colsCount) {
             return;
         }
-        
-        var tile = this.options.tile(tiles[i][2], x, y);
+
+        var tile = tiles[i][2];
         fragment.appendChild(tile.get(0));
         
         if (this.tiles.get(x, y)) {
