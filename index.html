@@ -38,13 +38,17 @@
                 size: 100,
                 capture: 4,
                 
-                sync: function(toSync, toRemove, callback) {
-                    for(var i = toSync.length; i--;) {
-                        toSync[i].push($('<div/>').html('x: <b>' + toSync[i][0] + '</b> y: <b>' + toSync[i][1] + '</b>'));
+                sync: function(options, callback) {
+                    var tosync = options.tosync;
+                    
+                    for(var i = tosync.length; i--;) {
+                        tosync[i].push($('<div/>').html(
+                            'x: <b>' + tosync[i][0] + '</b> ' +
+                            'y: <b>' + tosync[i][1] + '</b>'
+                        ));
                     }
-                    setTimeout(function() {
-                        callback(toSync);
-                    }, 500);
+                    
+                    setTimeout(function() { callback(tosync); }, 500);
                 },
 
                 holder: function() {
