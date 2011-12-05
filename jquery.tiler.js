@@ -225,13 +225,17 @@ Proto.getTilesToSync = function() {
 Proto.syncTiles = function(tosync, removed) {
     removed = removed || [];
     
-    if (tosync.length == 0) {
-        return; }
-        
+    if (tosync.length == 0) { return; }
+
     if ($.isFunction(this.options.holder)) {
         this.showHolders(tosync); }
     if ($.isFunction(this.options.sync)) {
-        this.options.sync(tosync, removed, $.proxy(this, 'showTiles')); }
+        this.options.sync({
+            tosync: tosync
+          , removed: removed
+          , coords: {x: this.x, y: this.y}
+        }, $.proxy(this, 'showTiles')); 
+    }
 };
 
 Proto.showTiles = function(tiles) {
