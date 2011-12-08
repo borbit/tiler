@@ -1,21 +1,13 @@
-var dummyOptions = {
-    height: 100,
-    width: 100,
-    size: 100,
-    capture: 1,
-    x: 0, y: 0
-};
-
 function dummyTiles() {
     return [
         [-1, -1, $('<div class="tile _0">0</div>')],
         [0,  -1, $('<div class="tile _1">1</div>')],
         [1,  -1, $('<div class="tile _2">2</div>')],
-
+        
         [-1, 0, $('<div class="tile _3">3</div>')],
         [0,  0, $('<div class="tile _4">4</div>')],
         [1,  0, $('<div class="tile _5">5</div>')],
-
+        
         [-1, 1, $('<div class="tile _6">6</div>')],
         [0,  1, $('<div class="tile _7">7</div>')],
         [1,  1, $('<div class="tile _8">8</div>')]
@@ -23,62 +15,68 @@ function dummyTiles() {
 }
                   
 function createTiler(options) {
-    var pNumber = 0, syncs = 0;
+    var syncs = 0;
+    var hNumber = 0;
     
-    return $('<div></div>').tiler($.extend({}, dummyOptions, {
+    var element = $('<div></div>').tiler($.extend({}, {
+        x: 0, y: 0,
+        height: 100,
+        width: 100,
+        capture: 1,
+        size: 100,
+        
         holder: function() {
-            return $('<div class="holder _' + pNumber + '">' + pNumber++ + '</div>');
+            var holder = $('<div/>');
+            holder.addClass('holder _' + hNumber);
+            holder.html(hNumber);
+            hNumber++
+            
+            return holder;
         },
         sync: function(options, callback) {
             if (syncs++ == 0) {
                 callback(dummyTiles());
             }
         }
-    }, options)).appendTo(document.body);
+    }, options));
+    
+    element.appendTo(document.body)
+    
+    return element;
 }
 
 module('Initialization');
 
 test('widget is present', function() {
     var element = createTiler();
-    
     ok(element.jquery);
-    
     element.remove();
 });
 
 test('element has class "tilerViewport"', function() {
     var element = createTiler();
-    
     ok(element.hasClass('tilerViewport'));
-    
     element.remove();
 });
 
 test('"binder" is appended to the element', function() {
     var element = createTiler();
     var children = element.children();
-    
     equals(children.length, 1);
-    
     element.remove();
 });
 
 test('"binder" has class "tilerBinder"', function() {
     var element = createTiler();
     var children = element.children();
-    
     ok($(children[0]).hasClass('tilerBinder'));
-    
     element.remove();
 });
 
 test('"binder" position is absolute', function() {
     var element = createTiler();
     var children = element.children();
-    
     equals($(children[0]).css('position'), 'absolute');
-    
     element.remove();
 });
 
@@ -105,18 +103,18 @@ test('"binder" has correct position', function() {
 module('Options');
 
 test('initial values', function() {
-    var element = $('<div></div>').tiler();
+    var element = $('<div/>').tiler();
     
-    equals(element.tiler('option', 'width'), null, 'width');
-    equals(element.tiler('option', 'height'), null, 'height');
-    equals(element.tiler('option', 'binderClass'), 'tilerBinder', 'binderClass');
-    equals(element.tiler('option', 'viewportClass'), 'tilerViewport', 'viewportClass');
-    equals(element.tiler('option', 'size'), null, 'size');
-    equals(element.tiler('option', 'capture'), 2, 'capture');
-    equals(element.tiler('option', 'holder'), null, 'holder');
-    equals(element.tiler('option', 'sync'), null, 'sync');
-    equals(element.tiler('option', 'x'), 0, 'x');
-    equals(element.tiler('option', 'y'), 0, 'y');
+    equals(element.tiler('option', 'width'), null);
+    equals(element.tiler('option', 'height'), null);
+    equals(element.tiler('option', 'binderClass'), 'tilerBinder');
+    equals(element.tiler('option', 'viewportClass'), 'tilerViewport');
+    equals(element.tiler('option', 'size'), null);
+    equals(element.tiler('option', 'capture'), 2);
+    equals(element.tiler('option', 'holder'), null);
+    equals(element.tiler('option', 'sync'), null);
+    equals(element.tiler('option', 'x'), 0);
+    equals(element.tiler('option', 'y'), 0);
 });
 
 module('Behavior');
@@ -139,69 +137,67 @@ test('passed element\'s height is applied', function() {
     element.remove();
 });
 
-test('sync callback is called after initialization', 1, function() {
-    var element = createTiler({sync: function() {
-        ok(true, 'sync is called');
-    }});
+test('sync callback is called after initialization', function() {
+    var spy = sinon.spy();
+    var element = createTiler({sync: spy});
+    
+    ok(spy.calledOnce)
     
     element.remove();
 });
 
-test('holder callback is called after initialization', 9, function() {
-    var calls = 1;
-    var element = createTiler({holder: function() {
-        ok(true, 'holder is called ' + calls + 'time');
-        return $('<div class="holder"></div>')
-    }});
+test('holder callback is called after initialization', function() {
+    var stub = sinon.stub().returns($('<div/>'));
+    var element = createTiler({holder: stub});
+    
+    equal(stub.callCount, 9);
     
     element.remove();
 });
 
-test('sync callback is called with correct arguments', 3, function() {
+test('sync callback is called with correct arguments', function() {
+    var spy = sinon.spy();
+    var element = createTiler({sync: spy});
     var expected = [[-1, -1], [0, -1], [1, -1],
                     [-1,  0], [0,  0], [1,  0],
                     [-1,  1], [0,  1], [1,  1]];
-                    
-    var element = createTiler({sync: function(options, callback) {
-        deepEqual(options.tosync, expected);
-        deepEqual(options.removed, []);
-        ok($.isFunction(callback));
-    }});
+    
+    deepEqual(spy.args[0][0], {
+        coords: {x: 0, y: 0},
+        tosync: expected,
+        removed: []
+    });
+    
+    ok($.isFunction(spy.args[0][1]));
     
     element.remove();
 });
 
-test('binder is filled by holders #1', 18, function() {
-    var number = 0;
-    var element = createTiler({
-        sync: function(options, callback) {
-            setTimeout(function() { callback(dummyTiles); })
-        }
-    });
+test('binder is filled by holders, holders have correct position', 9, function() {
+    var element = createTiler({sync: function() {}});
     
-    var coords = [{top: 0, left: 0},   {top: 0, left: 100},   {top: 0, left: 200},
-                  {top: 100, left: 0}, {top: 100, left: 100}, {top: 100, left: 200},
-                  {top: 200, left: 0}, {top: 200, left: 100}, {top: 200, left: 200}];
+    deepEqual(element.find('.holder._0').position(), {top: 0, left: 0});
+    deepEqual(element.find('.holder._1').position(), {top: 0, left: 100});
+    deepEqual(element.find('.holder._2').position(), {top: 0, left: 200});
     
-    element.find('.holder').each(function(i, holder) {
-        var index = $(holder).html();
-        equal($(holder).css('top'), coords[index].top + 'px');
-        equal($(holder).css('left'), coords[index].left + 'px');
-    });
+    deepEqual(element.find('.holder._3').position(), {top: 100, left: 0});
+    deepEqual(element.find('.holder._4').position(), {top: 100, left: 100});
+    deepEqual(element.find('.holder._5').position(), {top: 100, left: 200});
+    
+    deepEqual(element.find('.holder._6').position(), {top: 200, left: 0});
+    deepEqual(element.find('.holder._7').position(), {top: 200, left: 100});
+    deepEqual(element.find('.holder._8').position(), {top: 200, left: 200});
     
     element.remove();
 });
 
-test('binder is filled by holders #2', function() {
+test('binder is filled by holders after it was dragged on a distance more then it size', function() {
     var element = createTiler();
-    
-    var coords = [{top: 0, left: 0},   {top: 0, left: 100},   {top: 0, left: 200},
-                  {top: 100, left: 0}, {top: 100, left: 100}, {top: 100, left: 200},
-                  {top: 200, left: 0}, {top: 200, left: 100}, {top: 200, left: 200}];
-                  
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
 
-    binder.css('left', -1000).css('top', -1000).trigger('dragstop');
+    binder.css('left', -1000)
+          .css('top', -1000)
+          .trigger('dragstop');
     
     equal(binder.find('.tile').length, 0);
     equal(binder.find('.holder').length, 9);
@@ -209,45 +205,60 @@ test('binder is filled by holders #2', function() {
     element.remove();
 });
 
-test('binder is filled by tiles and holders are removed', 19, function() {
-    var coords = [{top: 0, left: 0},   {top: 0, left: 100},   {top: 0, left: 200},
-                  {top: 100, left: 0}, {top: 100, left: 100}, {top: 100, left: 200},
-                  {top: 200, left: 0}, {top: 200, left: 100}, {top: 200, left: 200}];
-    
+test('binder is filled by tiles #1', function() {
     var element = createTiler();
+
+    equal(element.find('.holder').length, 0);
     
-    equal(element.find('.tilerBinder .holder').length, 0);
+    deepEqual(element.find('.tile._0').position(), {top: 0, left: 0});
+    deepEqual(element.find('.tile._1').position(), {top: 0, left: 100});
+    deepEqual(element.find('.tile._2').position(), {top: 0, left: 200});
     
-    element.find('.tilerBinder .tile').each(function(i, tile) {
-        var index = $(tile).html();
-        equal($(tile).css('top'), coords[index].top + 'px');
-        equal($(tile).css('left'), coords[index].left + 'px');
-    });
+    deepEqual(element.find('.tile._3').position(), {top: 100, left: 0});
+    deepEqual(element.find('.tile._4').position(), {top: 100, left: 100});
+    deepEqual(element.find('.tile._5').position(), {top: 100, left: 200});
+    
+    deepEqual(element.find('.tile._6').position(), {top: 200, left: 0});
+    deepEqual(element.find('.tile._7').position(), {top: 200, left: 100});
+    deepEqual(element.find('.tile._8').position(), {top: 200, left: 200});
     
     element.remove();
 });
 
-test('binder is filled by tiles, holders are not present', 19, function() {
-    var coords = [{top: 0, left: 0},   {top: 0, left: 100},   {top: 0, left: 200},
-                  {top: 100, left: 0}, {top: 100, left: 100}, {top: 100, left: 200},
-                  {top: 200, left: 0}, {top: 200, left: 100}, {top: 200, left: 200}];
-    
-    var element = createTiler({holder: null});
-    
-    equal(element.find('.tilerBinder .holder').length, 0);
-    
-    element.find('.tilerBinder .tile').each(function(i, tile) {
-        var index = $(tile).html();
-        equal($(tile).css('top'), coords[index].top + 'px');
-        equal($(tile).css('left'), coords[index].left + 'px');
+test('binder is filled by tiles #2', 3, function() {
+    var element = createTiler({
+        holder: null,
+        sync: function(options, callback) {
+            callback([
+                [-1, -1, $('<div class="tile _0"></div>')],
+                [0, 0, $('<div class="tile _1"></div>')],
+                [1, 1, $('<div class="tile _2"></div>')]
+            ]);
+        }
     });
+    
+    deepEqual(element.find('.tile._0').position(), {top: 0, left: 0});
+    deepEqual(element.find('.tile._1').position(), {top: 100, left: 100});
+    deepEqual(element.find('.tile._2').position(), {top: 200, left: 200});
     
     element.remove();
 });
 
-test('binder dragging -> correct position changing #1', function() {
+// tiles is not synced and "holder" options is not passed
+test('binder is not filled by tiles and holders', function() {
+    var element = createTiler({sync: function() {}, holder: null});
+    
+    equal(element.find('.holder').length, 0);
+    equal(element.find('.tile').length, 0);
+    
+    element.remove();
+});
+
+module('Binder dragging');
+
+test('correct position changing #1', function() {
     var element = createTiler({capture: 2});
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -100);
     binder.css('top', -100);
@@ -259,9 +270,9 @@ test('binder dragging -> correct position changing #1', function() {
     element.remove();
 });
 
-test('binder dragging -> correct position changing #2', function() {
+test('correct position changing #2', function() {
     var element = createTiler({capture: 2});
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -150);
     binder.css('top', -100);
@@ -273,9 +284,9 @@ test('binder dragging -> correct position changing #2', function() {
     element.remove();
 });
 
-test('binder dragging -> correct position changing #3', function() {
+test('correct position changing #3', function() {
     var element = createTiler({capture: 2});
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -100);
     binder.css('top', -150);
@@ -287,9 +298,9 @@ test('binder dragging -> correct position changing #3', function() {
     element.remove();
 });
 
-test('binder dragging -> correct position changing #4', function() {
+test('correct position changing #4', function() {
     var element = createTiler({capture: 2});
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -300);
     binder.css('top', -300);
@@ -301,9 +312,9 @@ test('binder dragging -> correct position changing #4', function() {
     element.remove();
 });
 
-test('binder dragging -> correct position changing #5', function() {
+test('correct position changing #5', function() {
     var element = createTiler({capture: 2});
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -250);
     binder.css('top', -300);
@@ -315,11 +326,13 @@ test('binder dragging -> correct position changing #5', function() {
     element.remove();
 });
 
-test('binder dragging -> correct position changing #6', function() {
+test('correct position changing #6', function() {
     var element = createTiler({capture: 2});
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
-    binder.css('left', -300).css('top', -250).trigger('dragstop');
+    binder.css('left', -300);
+    binder.css('top', -250);
+    binder.trigger('dragstop');
     
     equal(binder.css('left'), '-200px');
     equal(binder.css('top'), '-250px');
@@ -327,9 +340,9 @@ test('binder dragging -> correct position changing #6', function() {
     element.remove();
 });
 
-test('binder dragging -> correct position changing #7', function() {
+test('correct position changing #7', function() {
     var element = createTiler({capture: 2});
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -230).css('top', -230).trigger('dragstop');
     binder.css('left', -270).css('top', -270).trigger('dragstop');
@@ -341,9 +354,9 @@ test('binder dragging -> correct position changing #7', function() {
     element.remove();
 });
 
-test('binder dragging -> correct position changing #8', function() {
+test('correct position changing #8', function() {
     var element = createTiler({capture: 2});
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -320).css('top', -320).trigger('dragstop');
     
@@ -358,9 +371,9 @@ test('binder dragging -> correct position changing #8', function() {
     element.remove();
 });
 
-test('binder dragging -> correct position changing #9', function() {
+test('correct position changing #9', function() {
     var element = createTiler();
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -1000).css('top', -1000).trigger('dragstop');
     
@@ -369,9 +382,10 @@ test('binder dragging -> correct position changing #9', function() {
     element.remove();
 });
 
-test('binder dragging -> tiles are removed (top and left)', function() {
+// dragging from top to bottom and from left to right
+test('tiles are removed #1', function() {
     var element = createTiler();
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', 0);
     binder.css('top', 0);
@@ -387,9 +401,74 @@ test('binder dragging -> tiles are removed (top and left)', function() {
     element.remove();
 });
 
-test('binder dragging -> tiles are removed (bottom and right)', function() {
+// dragging from top to bottom and from left to right
+test('tiles are removed #2', function() {
+    var synced = false;
+    var element = createTiler({
+        holder: null,
+        sync: function(options, callback) {
+            if (synced) { return };
+            
+            callback([
+                [-1, -1, $('<div class="tile _0"></div>')],
+                [0, 0, $('<div class="tile _1"></div>')],
+                [1, 1, $('<div class="tile _2"></div>')]
+            ]);
+            
+            synced = true;
+        }
+    });
+    
+    var binder = element.tiler('binder');
+    
+    binder.css('left', 0);
+    binder.css('top', 0);
+    binder.trigger('dragstop');
+        
+    equal(binder.find('.tile').length, 2);
+    equal(binder.find('.tile._2').length, 0);    
+    equal(binder.find('.tile._0').length, 1);
+    equal(binder.find('.tile._1').length, 1);
+    
+    element.remove();
+});
+
+// dragging from top to bottom and from left to right
+test('tiles are removed #2', function() {
+    var synced = false;
+    var element = createTiler({
+        holder: null,
+        sync: function(options, callback) {
+            if (synced) { return };
+            
+            callback([
+                [-1, 0, $('<div class="tile _0"></div>')],
+                [0, 0, $('<div class="tile _1"></div>')],
+                [1, 0, $('<div class="tile _2"></div>')]
+            ]);
+            
+            synced = true;
+        }
+    });
+    
+    var binder = element.tiler('binder');
+    
+    binder.css('left', 0);
+    binder.css('top', 0);
+    binder.trigger('dragstop');
+        
+    equal(binder.find('.tile').length, 2);
+    equal(binder.find('.tile._2').length, 0);    
+    equal(binder.find('.tile._0').length, 1);
+    equal(binder.find('.tile._1').length, 1);
+    
+    element.remove();
+});
+
+// dragging from bottom to top and from right to left
+test('tiles are removed #3', function() {
     var element = createTiler();
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -200);
     binder.css('top', -200);
@@ -405,9 +484,73 @@ test('binder dragging -> tiles are removed (bottom and right)', function() {
     element.remove();
 });
 
-test('binder dragging -> tiles are moved (top and left)', function() {
+// dragging from bottom to top and from right to left
+test('tiles are removed #4', function() {
+    var synced = false;
+    var element = createTiler({
+        holder: null,
+        sync: function(options, callback) {
+            if (synced) { return };
+            
+            callback([
+                [-1, -1, $('<div class="tile _0"></div>')],
+                [0, 0, $('<div class="tile _1"></div>')],
+                [1, 1, $('<div class="tile _2"></div>')]
+            ]);
+            
+            synced = true;
+        }
+    });
+    
+    var binder = element.tiler('binder');
+    
+    binder.css('left', -200);
+    binder.css('top', -200);
+    binder.trigger('dragstop');
+        
+    equal(binder.find('.tile').length, 2);
+    equal(binder.find('.tile._0').length, 0);
+    equal(binder.find('.tile._1').length, 1);    
+    equal(binder.find('.tile._2').length, 1);
+    
+    element.remove();
+});
+
+// dragging from bottom to top and from right to left
+test('tiles are removed #5', function() {
+    var synced = false;
+    var element = createTiler({
+        holder: null,
+        sync: function(options, callback) {
+            if (synced) { return };
+            
+            callback([
+                [-1, 0, $('<div class="tile _0"></div>')],
+                [0, 0, $('<div class="tile _1"></div>')],
+                [1, 0, $('<div class="tile _2"></div>')]
+            ]);
+            
+            synced = true;
+        }
+    });
+    
+    var binder = element.tiler('binder');
+    
+    binder.css('left', -200);
+    binder.css('top', -200);
+    binder.trigger('dragstop');
+        
+    equal(binder.find('.tile').length, 2);
+    equal(binder.find('.tile._0').length, 0);
+    equal(binder.find('.tile._1').length, 1);    
+    equal(binder.find('.tile._2').length, 1);
+    
+    element.remove();
+});
+
+test('tiles are moved (top and left)', function() {
     var element = createTiler();
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', 0);
     binder.css('top', 0);
@@ -421,9 +564,9 @@ test('binder dragging -> tiles are moved (top and left)', function() {
     element.remove();
 });
 
-test('binder dragging -> tiles are moved (bottom and right)', function() {
+test('tiles are moved (bottom and right)', function() {
     var element = createTiler();
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -200);
     binder.css('top', -200);
@@ -437,9 +580,9 @@ test('binder dragging -> tiles are moved (bottom and right)', function() {
     element.remove();
 });
 
-test('binder dragging -> holders are inserted on empty space (top and left)', function() {
+test('holders are inserted on empty space (top and left)', function() {
     var element = createTiler();
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
         
     binder.css('left', 0);
     binder.css('top', 0);
@@ -454,10 +597,9 @@ test('binder dragging -> holders are inserted on empty space (top and left)', fu
     element.remove();
 });
 
-test('binder dragging -> holders are inserted on empty space (bottom and right)', function() {
-    var calls = 0;
+test('holders are inserted on empty space (bottom and right)', function() {
     var element = createTiler();
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     binder.css('left', -200);
     binder.css('top', -200);
@@ -472,7 +614,9 @@ test('binder dragging -> holders are inserted on empty space (bottom and right)'
     element.remove();
 });
 
-test('binder dragging -> coordinates of removed tiles are passed to the "sync" method (top and left)', function() {
+module('"sync"');
+
+test('coordinates of removed tiles are passed (top and left)', function() {
     var calls = 0;
     var element = createTiler({
         sync: function(options, callback) {
@@ -485,7 +629,7 @@ test('binder dragging -> coordinates of removed tiles are passed to the "sync" m
         }
     });
     
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     binder.css('left', -200);
     binder.css('top', -200);
     binder.trigger('dragstop');
@@ -493,7 +637,7 @@ test('binder dragging -> coordinates of removed tiles are passed to the "sync" m
     element.remove();
 });
 
-test('binder dragging -> coordinates of removed tiles are passed to the "sync" method (bottom and right)', function() {
+test('coordinates of removed tiles are passed (bottom and right)', function() {
     var calls = 0;
     var element = createTiler({
         sync: function(options, callback) {
@@ -506,7 +650,7 @@ test('binder dragging -> coordinates of removed tiles are passed to the "sync" m
         }
     });
     
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     binder.css('left', 0);
     binder.css('top', 0);
     binder.trigger('dragstop');
@@ -514,9 +658,10 @@ test('binder dragging -> coordinates of removed tiles are passed to the "sync" m
     element.remove();
 });
 
-test('"binder" method -> method returns reference to the "binder"', function() {
+module('"binder" method');
+
+test('returns reference to the "binder"', function() {
     var element = createTiler();
-    
     var binder = element.tiler('binder');
     
     ok(binder.hasClass('tilerBinder'));
@@ -524,7 +669,9 @@ test('"binder" method -> method returns reference to the "binder"', function() {
     element.remove();
 });
 
-test('"refresh" method -> binder is resized after viewport is resized', function() {
+module('"refresh" method');
+
+test('binder is resized after viewport is resized', function() {
     var calls = 0;
     var element = createTiler({
         sync: function(options, callback) {
@@ -534,7 +681,7 @@ test('"refresh" method -> binder is resized after viewport is resized', function
         }
     });
     
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     element.height(200);
     element.width(200);
@@ -546,7 +693,7 @@ test('"refresh" method -> binder is resized after viewport is resized', function
     element.remove();
 });
 
-test('"refresh" method -> holders are inserted after viewport size is increased', function() {
+test('holders are inserted after viewport size is increased', function() {
     var calls = 0;
     var element = createTiler({
         sync: function(options, callback) {
@@ -556,7 +703,7 @@ test('"refresh" method -> holders are inserted after viewport size is increased'
         }
     });
     
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     element.height(200);
     element.width(200);
@@ -573,7 +720,7 @@ test('"refresh" method -> holders are inserted after viewport size is increased'
     element.remove();
 });
 
-test('"refresh" method -> tiles are synced and inserted after viewport size is increased', function() {
+test('tiles are synced and inserted after viewport size is increased', function() {
     var newDummyTiles = [
         [2, -1, $('<div class="tile _9">9</div>')],
         [2, 0,  $('<div class="tile _10">10</div>')],
@@ -597,7 +744,7 @@ test('"refresh" method -> tiles are synced and inserted after viewport size is i
         }
     });
     
-    var binder = element.find('.tilerBinder');
+    var binder = element.tiler('binder');
     
     element.height(200);
     element.width(200);    
@@ -614,7 +761,7 @@ test('"refresh" method -> tiles are synced and inserted after viewport size is i
     element.remove();
 });
 
-test('"refresh" method -> "sync" method is called with correct "toSync" data after viewport size is increased', 1, function() {
+test('"sync" method is called with correct "toSync" data after viewport size is increased', 1, function() {
     var expected = [[2, -1], [2, 0], [2, 1], [-1, 2], [0, 2], [1, 2], [2, 2]];
                       
     var calls = 0;

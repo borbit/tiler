@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>QUnit: jQuery.Tiler</title>
-    <link rel="stylesheet" href="qunit/qunit.css" type="text/css" />
+    <link rel="stylesheet" href="vendor/qunit.css" type="text/css" />
 </head>
 <body>
     <h1 id="qunit-header">jQuery.Tiler</h1>
@@ -10,9 +10,12 @@
     <h2 id="qunit-userAgent"></h2>
     <ol id="qunit-tests"></ol>
     
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
-    <script src="qunit/qunit.js"></script>
+    
+    <script src="vendor/qunit.js"></script>
+    <script src="vendor/sinon.js"></script>
+    
     <script src="../jquery.tiler.js"></script>
     <script src="../row.js"></script>
     <script src="../grid.js"></script>

@@ -66,6 +66,7 @@ function Tiler(element, options) {
     
     this.rowsCount = this.calcRowsCount();
     this.colsCount = this.calcColsCount();
+    this.calcPerimeterCoords();
     this.refreshBinderSize();
     
     this.binder.bind('dragstop', $.proxy(this, 'refresh'));
@@ -107,6 +108,7 @@ Proto.refresh = function() {
     var tosync = this.getTilesToSync();
     
     this.refreshBinderSize();
+    this.calcPerimeterCoords();
     this.shiftBinderPosition(offset);
     this.shiftTilesPosition(offset);
     this.syncTiles(tosync, removed);
@@ -130,36 +132,42 @@ Proto.removeTiles = function(offset) {
 };
 
 Proto.removeTopTiles = function(cnt) {
-    var removed = [];
-    var all = this.tiles.count();
+    var all = this.tiles.count()
+      , y = this.perimeter.y1
+      , removed = [];
     
-    for (var i = 0; i < cnt && i < all; i++) {
+    for (var i = 0, first; i < cnt && i < all; i++, y++) {
+        if (first = this.tiles.get(y)) {
+            first.rewind();
         
-        var y = this.tiles.firstIndex;
-        var first = this.tiles.shift().rewind();
-        
-        while (first.hasNext()) {
-            var x = first.currentIndex;
-            first.next().remove();
-            removed.push([x, y]);
+            while (first.hasNext()) {
+                var x = first.currentIndex;
+                var tile = first.next();
+                removed.push([x, y]);
+                tile.remove();
+                first.remove(x)
+            }
         }
     }
     return removed;
 };
 
 Proto.removeBottomTiles = function(cnt) {
-    var removed = [];
-    var all = this.tiles.count();
+    var all = this.tiles.count()
+      , y = this.perimeter.y2
+      , removed = [];
     
-    for (var i = 0; i < cnt && i < all; i++) {
-        
-        var y = this.tiles.lastIndex;
-        var last = this.tiles.pop().rewind();
-        
-        while (last.hasNext()) {
-            var x = last.currentIndex;
-            last.next().remove();
-            removed.push([x, y]);
+    for (var i = 0, last; i < cnt && i < all; i++, y--) {
+        if (last = this.tiles.get(y)) {
+            last.rewind();
+            
+            while (last.hasNext()) {
+                var x = last.currentIndex;
+                var tile = last.next();
+                removed.push([x, y]);
+                tile.remove();
+                last.remove(x);
+            }
         }
     }
     return removed;
@@ -171,14 +179,17 @@ Proto.removeLeftTiles = function(cnt) {
     
     while (this.tiles.hasNext()) {
         
-        var y = this.tiles.currentIndex;
-        var row = this.tiles.next();
-        var all = row.count();
+        var x = this.perimeter.x1
+          , y = this.tiles.currentIndex
+          , row = this.tiles.next()
+          , all = row.count();
         
-        for (var i = 0; i < cnt && i < all; i++) {
-            var x = row.firstIndex;
-            row.shift().remove();
-            removed.push([x, y]);
+        for (var i = 0; i < cnt && i < all; i++, x++) {
+            if (tile = row.get(x)) {
+                removed.push([x, y]);
+                tile.remove();
+                row.remove(x);
+            }
         }
     }
     return removed;
@@ -190,14 +201,17 @@ Proto.removeRightTiles = function(cnt) {
     
     while (this.tiles.hasNext()) {
         
-        var y = this.tiles.currentIndex;
-        var row = this.tiles.next();
-        var all = row.count();
+        var x = this.perimeter.x2
+          , y = this.tiles.currentIndex
+          , row = this.tiles.next()
+          , all = row.count();
         
-        for (var i = 0; i < cnt && i < all; i++) {
-            var x = row.lastIndex;
-            row.pop().remove();
-            removed.push([x, y]);
+        for (var i = 0, tile; i < cnt && i < all; i++, x--) {
+            if (tile = row.get(x)) {
+                removed.push([x, y]);
+                tile.remove();
+                row.remove(x);
+            }
         }
     }
     return removed;
@@ -280,17 +294,16 @@ Proto.showHolders = function(tiles) {
 };
 
 Proto.arrangeTiles = function() {
-    this.tiles.rewind();
-    for (var y = 0; this.tiles.hasNext(); y++) {
-        var row = this.tiles.next().rewind();
-        for (var x = 0; row.hasNext(); x++) {
-            row.next().css({
-                'position': 'absolute',
-                'left': x * this.options.size,
-                'top': y * this.options.size
-            });
-        }
-    }
+    var size = this.options.size;
+    var perimeter = this.perimeter;
+    
+    this.tiles.each(function(tile, x, y) {
+        tile.css({
+            'position': 'absolute',
+            'left': (x - perimeter.x1) * size,
+            'top': (y - perimeter.y1) * size
+        });
+    });
 };
 
 Proto.calcColsCount = function() {
@@ -309,6 +322,17 @@ Proto.calcRowsCount = function() {
         return Math.ceil(height / op.size) + op.capture * 2
     }
     return 0;
+};
+
+Proto.calcPerimeterCoords = function() {
+    var x1 = this.x - this.options.capture;
+    var y1 = this.y - this.options.capture;
+    
+    this.perimeter = {
+        x1: x1, y1: y1,
+        x2: x1 + this.colsCount - 1,
+        y2: y1 + this.rowsCount - 1
+    };
 };
 
 })(jQuery);
