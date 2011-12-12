@@ -28,6 +28,10 @@ $.widget('ui.tiler', {
         this.tiler.refresh();
     },
     
+    position: function(x, y) {
+        this.tiler.changePosition(x, y);
+    },
+    
     binder: function() {
         return this.tiler.binder;
     }
@@ -49,31 +53,44 @@ function Tiler(element, options) {
         element.css('height', options.height);
     }
     
-    this.initialBinderPosition = {
-        left: -(options.size * options.capture),
-        top: -(options.size * options.capture)
-    };
-    
     this.binder = $('<div></div>')
+        .bind('dragstop', $.proxy(this, 'refresh'))
+        .css('position', 'absolute')
         .addClass(options.binderClass)
         .appendTo(element);
     
+    this.init();
+    
+    this.syncTiles(this.getTilesToSync());
+}
+
+var Proto = Tiler.prototype;
+
+Proto.init = function() {
+    this.initialBinderPosition = {
+        left: -(this.options.size * this.options.capture),
+        top: -(this.options.size * this.options.capture)
+    };
+    
     this.binder.css({
-        'position': 'absolute',
-        'top': this.initialBinderPosition.top,
-        'left': this.initialBinderPosition.left
+        left: this.initialBinderPosition.left,
+        top: this.initialBinderPosition.top
     });
     
     this.rowsCount = this.calcRowsCount();
     this.colsCount = this.calcColsCount();
     this.calcPerimeterCoords();
     this.refreshBinderSize();
-    
-    this.binder.bind('dragstop', $.proxy(this, 'refresh'));
-    this.syncTiles(this.getTilesToSync());
-}
+};
 
-var Proto = Tiler.prototype;
+Proto.changePosition = function(x, y) {
+    this.x = x;
+    this.y = y;
+    
+    this.init();
+    
+    this.syncTiles(this.getTilesToSync());
+};
 
 Proto.calcBinderOffset = function(newPosition) {
     return {
@@ -103,8 +120,9 @@ Proto.refresh = function() {
 
     this.x -= offset.x;
     this.y -= offset.y;
-        
-    var removed = this.removeTiles(offset);
+    
+    var toRemove = this.getTilesToRemove(offset);
+    var removed = this.removeTiles(toRemove);
     var tosync = this.getTilesToSync();
     
     this.refreshBinderSize();
@@ -114,106 +132,20 @@ Proto.refresh = function() {
     this.syncTiles(tosync, removed);
 };
 
-Proto.removeTiles = function(offset) {
+Proto.removeTiles = function(coords) {
     var removed = [];
     
-    if (offset.y > 0) {
-        $.merge(removed, this.removeBottomTiles(Math.abs(offset.y)));
-    } else if (offset.y < 0) {
-        $.merge(removed, this.removeTopTiles(Math.abs(offset.y)));
-    }
-    if (offset.x > 0) {
-        $.merge(removed, this.removeRightTiles(Math.abs(offset.x)));
-    } else if (offset.x < 0) {
-        $.merge(removed, this.removeLeftTiles(Math.abs(offset.x)));
-    }
-    
-    return removed;
-};
-
-Proto.removeTopTiles = function(cnt) {
-    var all = this.tiles.count()
-      , y = this.perimeter.y1
-      , removed = [];
-    
-    for (var i = 0, first; i < cnt && i < all; i++, y++) {
-        if (first = this.tiles.get(y)) {
-            first.rewind();
+    for (var i = 0, tile; i < coords.length; i++) {
+        var x = coords[i][0];
+        var y = coords[i][1];
         
-            while (first.hasNext()) {
-                var x = first.currentIndex;
-                var tile = first.next();
-                removed.push([x, y]);
-                tile.remove();
-                first.remove(x)
-            }
+        if (tile = this.tiles.get(x, y)) {
+            this.tiles.remove(x, y);
+            removed.push([x, y]);
+            tile.remove();
         }
     }
-    return removed;
-};
-
-Proto.removeBottomTiles = function(cnt) {
-    var all = this.tiles.count()
-      , y = this.perimeter.y2
-      , removed = [];
     
-    for (var i = 0, last; i < cnt && i < all; i++, y--) {
-        if (last = this.tiles.get(y)) {
-            last.rewind();
-            
-            while (last.hasNext()) {
-                var x = last.currentIndex;
-                var tile = last.next();
-                removed.push([x, y]);
-                tile.remove();
-                last.remove(x);
-            }
-        }
-    }
-    return removed;
-};
-
-Proto.removeLeftTiles = function(cnt) {
-    var removed = [];
-    this.tiles.rewind();
-    
-    while (this.tiles.hasNext()) {
-        
-        var x = this.perimeter.x1
-          , y = this.tiles.currentIndex
-          , row = this.tiles.next()
-          , all = row.count();
-        
-        for (var i = 0; i < cnt && i < all; i++, x++) {
-            if (tile = row.get(x)) {
-                removed.push([x, y]);
-                tile.remove();
-                row.remove(x);
-            }
-        }
-    }
-    return removed;
-};
-
-Proto.removeRightTiles = function(cnt) {
-    var removed = [];
-    this.tiles.rewind();
-    
-    while (this.tiles.hasNext()) {
-        
-        var x = this.perimeter.x2
-          , y = this.tiles.currentIndex
-          , row = this.tiles.next()
-          , all = row.count();
-        
-        for (var i = 0, tile; i < cnt && i < all; i++, x--) {
-            if (tile = row.get(x)) {
-                removed.push([x, y]);
-                tile.remove();
-                row.remove(x);
-            }
-        }
-    }
     return removed;
 };
 
@@ -234,6 +166,37 @@ Proto.getTilesToSync = function() {
         }
     }}
     return toSync;
+};
+
+Proto.getTilesToRemove = function(offset) {
+    var toRemove = []
+      , offsetY = Math.abs(offset.y)
+      , offsetX = Math.abs(offset.x);
+    
+    if (offset.y > 0) {
+        for (var y = this.perimeter.y2, i = 0; i < offsetY && i < this.rowsCount; i++, y--) {
+        for (var x = this.perimeter.x1; x <= this.perimeter.x2; x++) {
+            toRemove.push([x, y]);
+        }}
+    } else if (offset.y < 0) {
+        for (var y = this.perimeter.y1, i = 0; i < offsetY && i < this.rowsCount; i++, y++) {
+        for (var x = this.perimeter.x1; x <= this.perimeter.x2; x++) {
+            toRemove.push([x, y]);
+        }}
+    }
+    if (offset.x > 0) {
+        for (var y = this.perimeter.y1; y <= this.perimeter.y2; y++) {
+        for (var x = this.perimeter.x2, i = 0; i < offsetX && i < this.colsCount; i++, x--) {
+            toRemove.push([x, y]);
+        }}
+    } else if (offset.x < 0) {
+        for (var y = this.perimeter.y1; y <= this.perimeter.y2; y++) {
+        for (var x = this.perimeter.x1, i = 0; i < offsetX && i < this.colsCount; i++, x++) {
+            toRemove.push([x, y]);
+        }}
+    }
+    
+    return toRemove;
 };
 
 Proto.syncTiles = function(tosync, removed) {
@@ -259,8 +222,8 @@ Proto.showTiles = function(tiles) {
         var x = tiles[i][0];
         var y = tiles[i][1];
         
-        if (y < this.y - this.options.capture || y > this.y - this.options.capture + this.rowsCount ||
-            x < this.x - this.options.capture || x > this.x - this.options.capture + this.colsCount) {
+        if (y < this.perimeter.y1 || y > this.perimeter.y2 ||
+            x < this.perimeter.x1 || x > this.perimeter.x2) {
             return;
         }
 

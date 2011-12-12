@@ -780,6 +780,41 @@ test('"sync" method is called with correct "toSync" data after viewport size is 
     element.remove();
 });
 
+module('"position" method');
+
+test('resets binder position', function() {
+    var element = createTiler();
+    var binder = element.tiler('binder');
+    
+    binder.css('left', -150);
+    binder.css('top', -150);
+    
+    element.tiler('position', 0, 0)
+    
+    deepEqual(binder.position(), {top: -100, left: -100});
+
+    element.remove();
+});
+
+test('syncs missing tiles', 1, function() {
+    var calls = 0;
+    var element = createTiler({
+        sync: function(options, callback) {
+            if (++calls == 1) {
+                callback(dummyTiles());
+            }
+            if (calls == 2) {
+                deepEqual(options.tosync, [[2, 0],[2, 1],[0, 2],[1, 2],[2, 2]]);
+            }
+        }
+    });
+    
+    element.tiler('position', 1, 1);
+    element.remove();
+});
+
+
+
 /*test('"refresh" method -> tiles are removed after viewport size is decreased', function() {
     var dummyTiles = [{x: -1, y: -1, data: 0}, {x: 0, y: -1, data: 1}, {x: 1, y: -1, data: 2}, {x: 2, y:  -1, data: 3},
                       {x: -1, y: 0, data: 4}, {x: 0, y:  0, data: 5}, {x: 1, y:  0, data: 6}, {x: 2, y:  0, data: 7},
