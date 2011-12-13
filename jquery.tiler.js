@@ -34,6 +34,14 @@ $.widget('ui.tiler', {
     
     binder: function() {
         return this.tiler.binder;
+    },
+    
+    x: function() {
+        return this.tiler.x;
+    },
+    
+    y: function() {
+        return this.tiler.y;
     }
 });
 
@@ -84,12 +92,20 @@ Proto.init = function() {
 };
 
 Proto.changePosition = function(x, y) {
+    var offset = {
+        x: this.x - x,
+        y: this.y - y
+    };
+    
     this.x = x;
     this.y = y;
     
-    this.init();
+    var toRemove = this.getTilesToRemove(offset);
+    var removed = this.removeTiles(toRemove);
+    var toSync = this.getTilesToSync();
     
-    this.syncTiles(this.getTilesToSync());
+    this.init();
+    this.syncTiles(toSync, removed);
 };
 
 Proto.calcBinderOffset = function(newPosition) {

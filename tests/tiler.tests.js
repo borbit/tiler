@@ -813,7 +813,22 @@ test('syncs missing tiles', 1, function() {
     element.remove();
 });
 
-
+test('removes unnecessary tiles', 1, function() {
+    var calls = 0;
+    var element = createTiler({
+        sync: function(options, callback) {
+            if (++calls == 1) {
+                callback(dummyTiles());
+            }
+            if (calls == 2) {
+                deepEqual(options.removed, [[-1, -1],[0, -1],[1, -1],[-1, 0],[-1, 1]]);
+            }
+        }
+    });
+    
+    element.tiler('position', 1, 1);
+    element.remove();
+});
 
 /*test('"refresh" method -> tiles are removed after viewport size is decreased', function() {
     var dummyTiles = [{x: -1, y: -1, data: 0}, {x: 0, y: -1, data: 1}, {x: 1, y: -1, data: 2}, {x: 2, y:  -1, data: 3},
