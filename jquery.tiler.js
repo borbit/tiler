@@ -100,6 +100,8 @@ Proto.changePosition = function(x, y) {
     this.x = x;
     this.y = y;
     
+    this.shiftTilesPosition(offset);
+    
     var toRemove = this.getTilesToRemove(offset);
     var removed = this.removeTiles(toRemove);
     var toSync = this.getTilesToSync();
@@ -146,6 +148,8 @@ Proto.refresh = function() {
     this.shiftBinderPosition(offset);
     this.shiftTilesPosition(offset);
     this.syncTiles(tosync, removed);
+    
+    this.element.trigger('refreshed', {x: this.x, y: this.y});
 };
 
 Proto.removeTiles = function(coords) {
