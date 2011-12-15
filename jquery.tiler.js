@@ -104,9 +104,11 @@ Proto.changePosition = function(x, y) {
     
     var toRemove = this.getTilesToRemove(offset);
     var removed = this.removeTiles(toRemove);
-    var toSync = this.getTilesToSync();
     
     this.init();
+    
+    var toSync = this.getTilesToSync();
+    
     this.syncTiles(toSync, removed);
 };
 
@@ -139,11 +141,12 @@ Proto.refresh = function() {
     this.x -= offset.x;
     this.y -= offset.y;
     
+    this.refreshBinderSize();
+    
     var toRemove = this.getTilesToRemove(offset);
     var removed = this.removeTiles(toRemove);
     var tosync = this.getTilesToSync();
     
-    this.refreshBinderSize();
     this.calcPerimeterCoords();
     this.shiftBinderPosition(offset);
     this.shiftTilesPosition(offset);
