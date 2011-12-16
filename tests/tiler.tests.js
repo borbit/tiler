@@ -645,7 +645,7 @@ test('coordinates of removed tiles are passed (bottom and right)', function() {
                 callback(dummyTiles());
             }
             if (calls == 2) {
-                deepEqual(options.removed, [[-1, 1], [0, 1], [1, 1], [1, -1], [1, 0]]);
+                deepEqual(options.removed, [[1,-1],[1, 0],[-1, 1],[0, 1],[1, 1]]);
             }
         }
     });
@@ -761,6 +761,52 @@ test('tiles are synced and inserted after viewport size is increased', function(
     element.remove();
 });
 
+test('tiles are removed after viewport size is decreased', function() {
+    var dummyTiles = [
+        [-1, -1, $('<div class="tile _0">1</div>')],
+        [0, -1, $('<div class="tile _1">2</div>')],
+        [1, -1, $('<div class="tile _2">3</div>')],
+        [2, -1, $('<div class="tile _3">4</div>')],
+        [-1, 0, $('<div class="tile _4">5</div>')],
+        [0,  0, $('<div class="tile _5">6</div>')],
+        [1,  0, $('<div class="tile _6">7</div>')],
+        [2,  0, $('<div class="tile _7">8</div>')],
+        [-1, 1, $('<div class="tile _8">9</div>')],
+        [0,  1, $('<div class="tile _9">10</div>')],
+        [1,  1, $('<div class="tile _10">11</div>')],
+        [2,  1, $('<div class="tile _11">12</div>')],
+        [-1, 2, $('<div class="tile _12">13</div>')],
+        [0,  2, $('<div class="tile _13">14</div>')],
+        [1,  2, $('<div class="tile _14">15</div>')],
+        [2,  2, $('<div class="tile _15">16</div>')]];
+    
+    var calls = 0;
+    var element = createTiler({
+        height: 200,
+        width: 200,
+        sync: function(options, callback) {
+            calls++;
+            if (calls == 1) {
+                callback(dummyTiles);
+            }
+        }
+    });
+    
+    element.height(100);
+    element.width(100);
+    element.tiler('refresh');
+    
+    ok(!element.find('.tile._3').length);
+    ok(!element.find('.tile._7').length);
+    ok(!element.find('.tile._11').length);
+    ok(!element.find('.tile._12').length);
+    ok(!element.find('.tile._13').length);
+    ok(!element.find('.tile._14').length);
+    ok(!element.find('.tile._15').length);
+    
+    element.remove();
+});
+
 test('"sync" method is called with correct "toSync" data after viewport size is increased', 1, function() {
     var expected = [[2, -1], [2, 0], [2, 1], [-1, 2], [0, 2], [1, 2], [2, 2]];
                       
@@ -830,39 +876,71 @@ test('removes unnecessary tiles', 1, function() {
     element.remove();
 });
 
-/*test('"refresh" method -> tiles are removed after viewport size is decreased', function() {
-    var dummyTiles = [{x: -1, y: -1, data: 0}, {x: 0, y: -1, data: 1}, {x: 1, y: -1, data: 2}, {x: 2, y:  -1, data: 3},
-                      {x: -1, y: 0, data: 4}, {x: 0, y:  0, data: 5}, {x: 1, y:  0, data: 6}, {x: 2, y:  0, data: 7},
-                      {x: -1, y: 1, data: 8}, {x: 0, y: 1, data: 9}, {x: 1, y:  1, data: 10}, {x: 2, y:  1, data: 11},
-                      {x: -1, y: 2, data: 12}, {x: 0, y: 2, data: 13}, {x: 1, y: 2, data: 14}, {x: 2, y: 2, data: 15}];
-    
+module('"reload" method');
+
+test('syncs all tiles', 1, function() {
     var calls = 0;
     var element = createTiler({
-        capture: 1,
-        height: 200,
-        width: 200,
-        
-        sync: function(toSync, callback) {
-            calls++;
-            if (calls == 1) {
-                callback(dummyTiles);
+        sync: function(options, callback) {
+            if (++calls == 1) {
+                callback(dummyTiles());
+            }
+            if (calls == 2) {
+                deepEqual(options.tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
+                    [0,  0], [1,  0], [-1,  1], [0,  1], [1,  1]]);
             }
         }
     });
     
-    var binder = element.find('.tilerBinder');
+    element.tiler('reload');
+    element.remove();
+});
+
+test('removes all tiles', function() {
+    var element = createTiler();
+    element.tiler('reload');
     
-    element.height(100);
-    element.width(100);
-    element.tiler('refresh');
-    
-    ok(!binder.find('.tile._3').length);
-    ok(!binder.find('.tile._7').length);
-    ok(!binder.find('.tile._11').length);
-    ok(!binder.find('.tile._12').length);
-    ok(!binder.find('.tile._13').length);
-    ok(!binder.find('.tile._14').length);
-    ok(!binder.find('.tile._15').length);
+    equal(element.find('.tile').length, 0);
     
     element.remove();
-});*/
+});
+
+test('doesn\'t remove all tiles if "silent" option is passed', function() {
+    var element = createTiler();
+    element.tiler('reload', {silent: true});
+    
+    equal(element.find('.tile').length, 9);
+    
+    element.remove();
+});
+
+test('replaces old tiles with new if "silent" option is passed', function() {
+    var calls = 0;
+    var element = createTiler({
+        sync: function(options, callback) {
+            if (++calls == 1) {
+                callback(dummyTiles());
+            }
+            if (calls == 2) {
+                callback([
+                    [-1, -1, $('<div class="newTile">0</div>')],
+                    [0,  -1, $('<div class="newTile">1</div>')],
+                    [1,  -1, $('<div class="newTile">2</div>')],
+                    [-1, 0, $('<div class="newTile">3</div>')],
+                    [0,  0, $('<div class="newTile">4</div>')],
+                    [1,  0, $('<div class="newTile">5</div>')],
+                    [-1, 1, $('<div class="newTile">6</div>')],
+                    [0,  1, $('<div class="newTile">7</div>')],
+                    [1,  1, $('<div class="newTile">8</div>')]
+                ]);
+            }
+        }
+    });
+    
+    element.tiler('reload');
+    
+    equal(element.find('.tile').length, 0);
+    equal(element.find('.newTile').length, 9);
+    
+    element.remove();
+});

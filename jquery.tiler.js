@@ -32,6 +32,10 @@ $.widget('ui.tiler', {
         this.tiler.changePosition(x, y);
     },
     
+    reload: function(options) {
+        this.tiler.reload(options);
+    },
+    
     binder: function() {
         return this.tiler.binder;
     },
@@ -67,14 +71,14 @@ function Tiler(element, options) {
         .addClass(options.binderClass)
         .appendTo(element);
     
-    this.init();
-    
+    this.setBinderPosition();
+    this.setSizingProperties();
     this.syncTiles(this.getTilesToSync());
 }
 
 var Proto = Tiler.prototype;
 
-Proto.init = function() {
+Proto.setBinderPosition = function() {
     this.initialBinderPosition = {
         left: -(this.options.size * this.options.capture),
         top: -(this.options.size * this.options.capture)
@@ -84,7 +88,9 @@ Proto.init = function() {
         left: this.initialBinderPosition.left,
         top: this.initialBinderPosition.top
     });
-    
+};
+
+Proto.setSizingProperties = function() {
     this.rowsCount = this.calcRowsCount();
     this.colsCount = this.calcColsCount();
     this.calcPerimeterCoords();
@@ -101,12 +107,11 @@ Proto.changePosition = function(x, y) {
     this.y = y;
     
     this.shiftTilesPosition(offset);
+    this.setBinderPosition();
+    this.setSizingProperties();
     
-    var toRemove = this.getTilesToRemove(offset);
+    var toRemove = this.getHiddenTilesCoords();
     var removed = this.removeTiles(toRemove);
-    
-    this.init();
-    
     var toSync = this.getTilesToSync();
     
     this.syncTiles(toSync, removed);
@@ -135,24 +140,31 @@ Proto.refresh = function() {
     var position = this.binder.position();
     var offset = this.calcBinderOffset(position);
     
-    this.rowsCount = this.calcRowsCount();
-    this.colsCount = this.calcColsCount();
-
     this.x -= offset.x;
     this.y -= offset.y;
     
-    this.refreshBinderSize();
+    this.setSizingProperties();
     
-    var toRemove = this.getTilesToRemove(offset);
+    var toRemove = this.getHiddenTilesCoords();
     var removed = this.removeTiles(toRemove);
     var tosync = this.getTilesToSync();
     
-    this.calcPerimeterCoords();
     this.shiftBinderPosition(offset);
     this.shiftTilesPosition(offset);
     this.syncTiles(tosync, removed);
     
     this.element.trigger('refreshed', {x: this.x, y: this.y});
+};
+
+Proto.reload = function(options) {
+    var all = this.getAllTilesCoords();
+    
+    if (options && options.silent) {
+        this.syncTiles(all);
+    } else {
+        this.removeTiles(all);
+        this.syncTiles(all, all);
+    }
 };
 
 Proto.removeTiles = function(coords) {
@@ -162,11 +174,9 @@ Proto.removeTiles = function(coords) {
         var x = coords[i][0];
         var y = coords[i][1];
         
-        if (tile = this.tiles.get(x, y)) {
-            this.tiles.remove(x, y);
-            removed.push([x, y]);
-            tile.remove();
-        }
+        this.tiles.get(x, y).remove();
+        this.tiles.remove(x, y);
+        removed.push([x, y]);
     }
     
     return removed;
@@ -182,8 +192,8 @@ Proto.shiftTilesPosition = function(offset) {
 
 Proto.getTilesToSync = function() {
     var toSync = [], op = this.options;
-    for(var y = this.y - op.capture, i = this.rowsCount; i--; y++) {
-    for(var x = this.x - op.capture, j = this.colsCount; j--; x++) {
+    for(var y = this.perimeter.y1; y <= this.perimeter.y2; y++) {
+    for(var x = this.perimeter.x1; x <= this.perimeter.x2; x++) {
         if (!this.tiles.get(x, y)) {
             toSync.push([x, y]);
         }
@@ -191,35 +201,24 @@ Proto.getTilesToSync = function() {
     return toSync;
 };
 
-Proto.getTilesToRemove = function(offset) {
-    var toRemove = []
-      , offsetY = Math.abs(offset.y)
-      , offsetX = Math.abs(offset.x);
-    
-    if (offset.y > 0) {
-        for (var y = this.perimeter.y2, i = 0; i < offsetY && i < this.rowsCount; i++, y--) {
-        for (var x = this.perimeter.x1; x <= this.perimeter.x2; x++) {
-            toRemove.push([x, y]);
-        }}
-    } else if (offset.y < 0) {
-        for (var y = this.perimeter.y1, i = 0; i < offsetY && i < this.rowsCount; i++, y++) {
-        for (var x = this.perimeter.x1; x <= this.perimeter.x2; x++) {
-            toRemove.push([x, y]);
-        }}
-    }
-    if (offset.x > 0) {
-        for (var y = this.perimeter.y1; y <= this.perimeter.y2; y++) {
-        for (var x = this.perimeter.x2, i = 0; i < offsetX && i < this.colsCount; i++, x--) {
-            toRemove.push([x, y]);
-        }}
-    } else if (offset.x < 0) {
-        for (var y = this.perimeter.y1; y <= this.perimeter.y2; y++) {
-        for (var x = this.perimeter.x1, i = 0; i < offsetX && i < this.colsCount; i++, x++) {
-            toRemove.push([x, y]);
-        }}
-    }
-    
-    return toRemove;
+Proto.getHiddenTilesCoords = function() {
+    var coords = [];
+    var self = this;
+    this.tiles.each(function(tile, x, y) {
+        if (y < self.perimeter.y1 || y > self.perimeter.y2 ||
+            x < self.perimeter.x1 || x > self.perimeter.x2) {
+            coords.push([x, y]);
+        }
+    });
+    return coords;
+};
+
+Proto.getAllTilesCoords = function() {
+    var coords = [];
+    this.tiles.each(function(tile, x, y) {
+        coords.push([x, y]);
+    });
+    return coords;
 };
 
 Proto.syncTiles = function(tosync, removed) {
