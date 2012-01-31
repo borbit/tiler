@@ -1,5 +1,6 @@
 function Row() {
     this.items = {};
+    this.nextIndex = null;
     this.currentIndex = null;
     this.firstIndex = null;
     this.lastIndex = null;
@@ -24,17 +25,19 @@ Row.prototype.on = function(number) {
 };
 
 Row.prototype.next = function() {
-    if (this.currentIndex === null) {
-        this.currentIndex = this.firstIndex;
+    if (this.nextIndex === null) {
+        this.nextIndex = this.firstIndex;
     }
 
-    var next = this.get(this.currentIndex);
+    var next = this.get(this.nextIndex);
 
     if (next === undefined) {
-        this.currentIndex = this._calcNextIndexAfter(this.currentIndex);
+        this.nextIndex = this._calcNextIndexAfter(this.nextIndex);
     }
+    
+    this.currentIndex = this.nextIndex;
 
-    return this.get(this.currentIndex++);
+    return this.get(this.nextIndex++);
 };
 
 Row.prototype.count = function(value) {
@@ -48,7 +51,8 @@ Row.prototype.count = function(value) {
 };
 
 Row.prototype.rewind = function() {
-    this.currentIndex = this.firstIndex;
+    this.nextIndex = this.firstIndex;
+    this.currentIndex = this.nextIndex;
     return this;
 };
 
@@ -69,7 +73,7 @@ Row.prototype.pop = function() {
     delete this.items[this.lastIndex--];
     
     if (!this.count()) {
-        this.currentIndex = null;
+        this.nextIndex = null;
         this.firstIndex = null;
         this.lastIndex = null;
     }
@@ -82,7 +86,7 @@ Row.prototype.shift = function() {
     delete this.items[this.firstIndex++];
     
     if (!this.count()) {
-        this.currentIndex = null;
+        this.nextIndex = null;
         this.firstIndex = null;
         this.lastIndex = null;
     }
@@ -100,7 +104,7 @@ Row.prototype.remove = function(index) {
         this.lastIndex = this._calcLastIndex();
     }
     if (!this.count()) {
-        this.currentIndex = null;
+        this.nextIndex = null;
         this.firstIndex = null;
         this.lastIndex = null;
     }
@@ -115,7 +119,7 @@ Row.prototype.hasNext = function() {
         this.firstIndex === null) {
         return false;
     }
-    return this.lastIndex >= this.currentIndex;
+    return this.lastIndex >= this.nextIndex;
 };
 
 Row.prototype._calcLastIndex = function() {

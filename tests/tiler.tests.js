@@ -244,6 +244,23 @@ test('binder is filled by tiles #2', 3, function() {
     element.remove();
 });
 
+test('binder is filled by tiles #3', 2, function() {
+    var element = createTiler({
+        holder: null,
+        sync: function(options, callback) {
+            callback([
+                [-1, -1, $('<div class="tile _0"></div>')],
+                [1, 1, $('<div class="tile _2"></div>')]
+            ]);
+        }
+    });
+    
+    deepEqual(element.find('.tile._0').position(), {top: 0, left: 0});
+    deepEqual(element.find('.tile._2').position(), {top: 200, left: 200});
+    
+    element.remove();
+});
+
 // tiles is not synced and "holder" options is not passed
 test('binder is not filled by tiles and holders', function() {
     var element = createTiler({sync: function() {}, holder: null});

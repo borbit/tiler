@@ -80,11 +80,11 @@ Grid.prototype.flatten = function() {
     
     this.rewind();
     while (this.hasNext()) {
-        var y = this.currentIndex;
         var row = this.next().rewind();
+        var y = this.currentIndex;
         while (row.hasNext()) {
-            var x = row.currentIndex;
             var cell = row.next();
+            var x = row.currentIndex;
             result.push([cell, x, y]);
         }
     }
