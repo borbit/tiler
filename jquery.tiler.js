@@ -158,12 +158,13 @@ Proto.refresh = function() {
 
 Proto.reload = function(options) {
     var all = this.getAllTilesCoords();
+    var existing = this.getExistingTilesCoords();
     
     if (options && options.silent) {
         this.syncTiles(all);
     } else {
-        this.removeTiles(all);
-        this.syncTiles(all, all);
+        this.removeTiles(existing);
+        this.syncTiles(all, existing);
     }
 };
 
@@ -191,13 +192,19 @@ Proto.shiftTilesPosition = function(offset) {
 };
 
 Proto.getTilesToSync = function() {
-    var toSync = [], op = this.options;
-    for(var y = this.perimeter.y1; y <= this.perimeter.y2; y++) {
-    for(var x = this.perimeter.x1; x <= this.perimeter.x2; x++) {
+    var toSync = []
+      , op = this.options
+      , all = this.getAllTilesCoords()
+      , x, y;
+      
+    for(var i = 0, l = all.length; i < l; i++) {
+        x = all[i][0];
+        y = all[i][1];
+        
         if (!this.tiles.get(x, y)) {
             toSync.push([x, y]);
         }
-    }}
+    }
     return toSync;
 };
 
@@ -213,11 +220,20 @@ Proto.getHiddenTilesCoords = function() {
     return coords;
 };
 
-Proto.getAllTilesCoords = function() {
+Proto.getExistingTilesCoords = function() {
     var coords = [];
     this.tiles.each(function(tile, x, y) {
         coords.push([x, y]);
     });
+    return coords;
+};
+
+Proto.getAllTilesCoords = function() {
+    var coords = [];
+    for(var y = this.perimeter.y1; y <= this.perimeter.y2; y++) {
+    for(var x = this.perimeter.x1; x <= this.perimeter.x2; x++) {
+        coords.push([x, y]);
+    }}
     return coords;
 };
 

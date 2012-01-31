@@ -895,12 +895,31 @@ test('removes unnecessary tiles', 1, function() {
 
 module('"reload" method');
 
-test('syncs all tiles', 1, function() {
+test('syncs all tiles #1', 1, function() {
     var calls = 0;
     var element = createTiler({
         sync: function(options, callback) {
             if (++calls == 1) {
                 callback(dummyTiles());
+            }
+            if (calls == 2) {
+                deepEqual(options.tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
+                    [0,  0], [1,  0], [-1,  1], [0,  1], [1,  1]]);
+            }
+        }
+    });
+    
+    element.tiler('reload');
+    element.remove();
+});
+
+test('syncs all tiles #2', 1, function() {
+    var calls = 0;
+    var element = createTiler({
+        holder: null,
+        sync: function(options, callback) {
+            if (++calls == 1) {
+                callback([]);
             }
             if (calls == 2) {
                 deepEqual(options.tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
