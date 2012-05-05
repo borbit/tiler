@@ -1,12 +1,12 @@
 ## Using Tiler
 
 1. Include main dependencies on your page.
+
     ```html
     <script src="http://code.jquery.com/jquery.min.js"></script>
     <script src="https://raw.github.com/borbit/row.js/master/row.js"></script>
     <script src="https://raw.github.com/borbit/grid.js/master/grid.js"></script>
     ```
-
 
 ## License 
 
