@@ -8,6 +8,11 @@
     <script src="https://raw.github.com/borbit/grid.js/master/grid.js"></script>
     ```
 
+## Tests
+
+Tiler is fully covered by [QUnit](http://docs.jquery.com/QUnit) tests. To run tests
+just open the `tests/index.html` in a browser.
+
 ## License 
 
 Tiler may be freely distributed under the [MIT license](http://en.wikipedia.org/wiki/MIT_License#License_terms).

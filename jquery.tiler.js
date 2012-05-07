@@ -44,30 +44,48 @@
   }
 });*/
 
+/*
+ Constructor
+ @param {jQuery object} element
+ @param {object} options
+*/
 function Tiler(element, options) {
-  this.options = options = $.extend({}, Tiler.defaults, options);
+  // Initializing options by Extending the default by custom
+  this.options = $.extend({}, Tiler.defaults, options);
+  
+  // Tiles elements will be saved here
   this.tiles = new Grid();
+  
+  // Saving the viewport element as a property
   this.element = element;
-  this.x = options.x;
-  this.y = options.y;
-
-  element.addClass(options.viewportClass);
   
-  if (options.width !== null) {
-    element.css('width', options.width);
-  }
-  if (options.height !== null) {
-    element.css('height', options.height);
-  }
+  // Current coordinates of the top left visible tile
+  this.x = this.options.x;
+  this.y = this.options.y;
   
+  // Setting width/height css properties to the viewport
+  // element if they are passed through options
+  if (this.options.width !== null) {
+    element.css('width', this.options.width);
+  }
+  if (this.options.height !== null) {
+    element.css('height', this.options.height);
+  }
+  element.addClass(this.options.viewportClass);
+  
+  // Creating the binder element that will contain tiles
+  // and appending it to the viewport element
   this.binder = $('<div/>')
       .bind('dragstop', $.proxy(this, 'refresh'))
+      .addClass(this.options.binderClass)
       .css('position', 'absolute')
-      .addClass(options.binderClass)
       .appendTo(element);
   
-  this.updateBinderPosition();
+  
   this.updateSizingProperties();
+  this.updateBinderPosition();
+  this.updateBinderSize();
+  
   this.syncTiles(this.getTilesCoordsToSync());
 }
 
@@ -102,7 +120,6 @@ Proto.updateSizingProperties = function() {
   this.rowsCount = this.calcRowsCount();
   this.colsCount = this.calcColsCount();
   this.calcPerimeterCoords();
-  this.refreshBinderSize();
 };
 
 Proto.changePosition = function(x, y) {
@@ -115,8 +132,9 @@ Proto.changePosition = function(x, y) {
   this.y = y;
   
   this.shiftTilesPosition(offset);
-  this.updateBinderPosition();
   this.updateSizingProperties();
+  this.updateBinderPosition();
+  this.updateBinderSize();
   
   var toRemove = this.getHiddenTilesCoords();
   var removed = this.removeTiles(toRemove);
@@ -132,7 +150,7 @@ Proto.calcBinderOffset = function(newPosition) {
   };
 };
 
-Proto.refreshBinderSize = function() {
+Proto.updateBinderSize = function() {
   this.binder.height(this.rowsCount * this.options.size);
   this.binder.width(this.colsCount * this.options.size);
 };
