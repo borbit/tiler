@@ -12,19 +12,8 @@
 
 (function($) {
 
-$.widget('ui.tiler', {
-  options: {
-    viewportClass: 'tilerViewport',
-    binderClass: 'tilerBinder',
-    height: null,
-    width: null,
-    capture: 2,
-    size: null,
-    x: 0, y: 0,
-    holder: null,
-    tile: null,
-    sync: null
-  },
+/*$.widget('ui.tiler', {
+  options: ,
      
   _create: function() {
     this.tiler = new Tiler(this.element, this.options);
@@ -53,15 +42,15 @@ $.widget('ui.tiler', {
   y: function() {
     return this.tiler.y;
   }
-});
+});*/
 
 function Tiler(element, options) {
-  this.element = element;
-  this.options = options;
+  this.options = options = $.extend({}, Tiler.defaults, options);
   this.tiles = new Grid();
+  this.element = element;
   this.x = options.x;
   this.y = options.y;
-  
+
   element.addClass(options.viewportClass);
   
   if (options.width !== null) {
@@ -71,7 +60,7 @@ function Tiler(element, options) {
     element.css('height', options.height);
   }
   
-  this.binder = $('<div></div>')
+  this.binder = $('<div/>')
       .bind('dragstop', $.proxy(this, 'refresh'))
       .css('position', 'absolute')
       .addClass(options.binderClass)
@@ -81,6 +70,19 @@ function Tiler(element, options) {
   this.updateSizingProperties();
   this.syncTiles(this.getTilesCoordsToSync());
 }
+
+Tiler.defaults = {
+  viewportClass: 'tilerViewport',
+  binderClass: 'tilerBinder',
+  height: null,
+  width: null,
+  capture: 2,
+  size: null,
+  x: 0, y: 0,
+  holder: null,
+  tile: null,
+  sync: null
+};
 
 var Proto = Tiler.prototype;
 
@@ -345,5 +347,7 @@ Proto.calcPerimeterCoords = function() {
   , y2: y1 + this.rowsCount - 1
   };
 };
+
+window.Tiler = Tiler;
 
 })(jQuery);
