@@ -151,6 +151,10 @@ Proto.shiftBinderPosition = function(offset) {
 };
 
 /*
+ Refreshes the grid. This method should be called to sync absent and
+ remove hidden tiles after viewport size is changed or binder was dragged,
+ also in case if not all tiles are present after the sync and you have to
+ sync absent tiles only.
  @api public
 */
 Proto.refresh = function() {
@@ -171,11 +175,10 @@ Proto.refresh = function() {
   this.shiftBinderPosition(offset);
   this.shiftTilesPosition(offset);
   this.syncTiles(tosync, removed);
-  
-  this.element.trigger('refreshed', {x: this.x, y: this.y});
 };
 
 /*
+ Removes and than syncs all tiles on the grid
  @api public
 */
 Proto.reload = function(options) {
@@ -191,6 +194,8 @@ Proto.reload = function(options) {
 };
 
 /*
+ Removes tiles by passed coordinates
+ @param {Array} coords - [[x1, y1], [x2, y2], ...]
  @api private
 */
 Proto.removeTiles = function(coords) {
@@ -341,7 +346,7 @@ Proto.showHolders = function(tiles) {
 };
 
 /*
- Arranges tiles positions in the binder element
+ Arranges tiles position in the binder element
  @api private
 */
 Proto.arrangeTiles = function() {
@@ -358,7 +363,7 @@ Proto.arrangeTiles = function() {
 };
 
 /*
- Calculate the cols count of tiles grid
+ Calculate grid columns count
  @return {Number}
  @api private
 */
@@ -373,7 +378,7 @@ Proto.calcColsCount = function() {
 };
 
 /*
- Calculate the rows count of tiles grid
+ Calculate grid rows count
  @return {Number}
  @api private
 */
