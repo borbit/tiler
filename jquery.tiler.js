@@ -11,39 +11,7 @@
 */
 
 (function($) {
-
-/*$.widget('ui.tiler', {
-  options: ,
-     
-  _create: function() {
-    this.tiler = new Tiler(this.element, this.options);
-  },
   
-  refresh: function() {
-    this.tiler.refresh();
-  },
-  
-  position: function(x, y) {
-    this.tiler.changePosition(x, y);
-  },
-  
-  reload: function(options) {
-    this.tiler.reload(options);
-  },
-  
-  binder: function() {
-    return this.tiler.binder;
-  },
-  
-  x: function() {
-    return this.tiler.x;
-  },
-  
-  y: function() {
-    return this.tiler.y;
-  }
-});*/
-
 /*
  Constructor
  @param {jQuery object} element
@@ -176,6 +144,7 @@ Proto.refresh = function() {
   this.y -= offset.y;
   
   this.updateSizingProperties();
+  this.updateBinderSize();
   
   var toRemove = this.getHiddenTilesCoords();
   var removed = this.removeTiles(toRemove);
