@@ -1,16 +1,16 @@
 function dummyTiles() {
   return [
     [-1, -1, $('<div class="tile _0">0</div>')],
-    [0,  -1, $('<div class="tile _1">1</div>')],
-    [1,  -1, $('<div class="tile _2">2</div>')],
+    [ 0, -1, $('<div class="tile _1">1</div>')],
+    [ 1, -1, $('<div class="tile _2">2</div>')],
     
     [-1, 0, $('<div class="tile _3">3</div>')],
-    [0,  0, $('<div class="tile _4">4</div>')],
-    [1,  0, $('<div class="tile _5">5</div>')],
+    [ 0, 0, $('<div class="tile _4">4</div>')],
+    [ 1, 0, $('<div class="tile _5">5</div>')],
     
     [-1, 1, $('<div class="tile _6">6</div>')],
-    [0,  1, $('<div class="tile _7">7</div>')],
-    [1,  1, $('<div class="tile _8">8</div>')]
+    [ 0, 1, $('<div class="tile _7">7</div>')],
+    [ 1, 1, $('<div class="tile _8">8</div>')]
   ];
 }
                   
@@ -19,12 +19,13 @@ function createTiler(options) {
   var hNumber = 0;
   var element = $('<div/>').appendTo(document.body);
   
+  element.css('width', 100);
+  element.css('height', 100);
+  
   var tiler = new Tiler(element, $.extend({}, {
     x: 0, y: 0,
-    height: 100,
-    width: 100,
+    tileSize: 100,
     capture: 1,
-    size: 100,
     
     holder: function() {
       var holder = $('<div/>');
@@ -46,24 +47,10 @@ function createTiler(options) {
 
 module('Initialization');
 
-test('"element" has class "tilerViewport"', function() {
-  var tiler = createTiler();
-  ok(tiler.element.hasClass('tilerViewport'));
-  tiler.element.remove();
-});
-
 test('"binder" is appended to the element', function() {
   var tiler = createTiler();
-  var children = tiler.element.children();
-  ok(tiler.binder.parent().hasClass('tilerViewport'));
-  equals(children[0].tagName.toLowerCase(), 'div');
-  equals(children.length, 1);
-  tiler.element.remove();
-});
-
-test('"binder" has class "tilerBinder"', function() {
-  var tiler = createTiler();
-  ok(tiler.binder.hasClass('tilerBinder'));
+  ok($.contains(tiler.element[0], tiler.binder[0]));
+  equals(tiler.element.children().length, 1);
   tiler.element.remove();
 });
 
@@ -90,33 +77,15 @@ test('"binder" has correct position', function() {
 module('Options');
 
 test('initial values', function() {
-  equals(Tiler.defaults.width, null);
-  equals(Tiler.defaults.height, null);
-  equals(Tiler.defaults.binderClass, 'tilerBinder');
-  equals(Tiler.defaults.viewportClass, 'tilerViewport');
-  equals(Tiler.defaults.size, null);
+  ok(Tiler.defaults.tileSize === null);
+  ok(Tiler.defaults.holder === $.noop);
+  ok(Tiler.defaults.sync === $.noop);  
   equals(Tiler.defaults.capture, 2);
-  equals(Tiler.defaults.holder, null);
-  equals(Tiler.defaults.sync, null);
   equals(Tiler.defaults.x, 0);
   equals(Tiler.defaults.y, 0);
 });
 
 module('Behavior');
-
-test('passed element\'s "width" is applied', function() {
-  var expected = 200;
-  var tiler = createTiler({width: expected});
-  equals(tiler.element.width(), expected);
-  tiler.element.remove();
-});
-
-test('passed element\'s "height" is applied', function() {
-  var expected = 200;
-  var tiler = createTiler({height: expected});
-  equals(tiler.element.height(), expected);
-  tiler.element.remove();
-});
 
 test('"sync" callback is called after initialization', function() {
   var spy = sinon.spy();

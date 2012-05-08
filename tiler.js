@@ -31,65 +31,60 @@ function Tiler(element, options) {
   this.x = this.options.x;
   this.y = this.options.y;
   
-  // Setting width/height css properties to the viewport
-  // element if they are passed through options
-  if (this.options.width !== null) {
-    element.css('width', this.options.width);
-  }
-  if (this.options.height !== null) {
-    element.css('height', this.options.height);
-  }
-  element.addClass(this.options.viewportClass);
-  
   // Creating the binder element that will contain tiles
   // and appending it to the viewport element
   this.binder = $('<div/>')
       .bind('dragstop', $.proxy(this, 'refresh'))
-      .addClass(this.options.binderClass)
       .css('position', 'absolute')
       .appendTo(element);
   
+  // Calculate rows/cols count
+  this.calcGridSize();
   
-  this.updateSizingProperties();
-  this.updateBinderPosition();
-  this.updateBinderSize();
+  // Calculate coordinates of corner tiles
+  this.calcCornersCoords();
   
+  // Arrange binder element
+  this.setBinderPosition();
+  this.setBinderSize();
+  
+  // Initial tiles syncing
   this.syncTiles(this.getTilesCoordsToSync());
 }
 
 Tiler.defaults = {
-  viewportClass: 'tilerViewport',
-  binderClass: 'tilerBinder',
-  height: null,
-  width: null,
-  capture: 2,
-  size: null,
-  x: 0, y: 0,
-  holder: null,
-  tile: null,
-  sync: null
+  tileSize: null
+, holder: $.noop
+, sync: $.noop
+, capture: 2
+, x: 0, y: 0
 };
 
 var Proto = Tiler.prototype;
 
-Proto.updateBinderPosition = function() {
+/*
+ Sets the initial binder's position
+ @api private
+*/
+Proto.setBinderPosition = function() {
   this.initialBinderPosition = {
-    left: -(this.options.size * this.options.capture),
-    top: -(this.options.size * this.options.capture)
+    left: -(this.options.tileSize * this.options.capture),
+    top: -(this.options.tileSize * this.options.capture)
   };
   
   this.binder.css({
-    'left': this.initialBinderPosition.left
-  , 'top': this.initialBinderPosition.top
+    left: this.initialBinderPosition.left
+  , top: this.initialBinderPosition.top
   });
 };
 
-Proto.updateSizingProperties = function() {
-  this.rowsCount = this.calcRowsCount();
-  this.colsCount = this.calcColsCount();
-  this.calcPerimeterCoords();
-};
-
+/*
+ Changes current position of the grid (top left visible tile),
+ rerenders grid regarding the new position and syncs tiles
+ @param {Number} x
+ @param {Number} y
+ @api public
+*/
 Proto.changePosition = function(x, y) {
   var offset = {
     x: this.x - x,
@@ -100,9 +95,12 @@ Proto.changePosition = function(x, y) {
   this.y = y;
   
   this.shiftTilesPosition(offset);
-  this.updateSizingProperties();
-  this.updateBinderPosition();
-  this.updateBinderSize();
+  
+  this.calcGridSize();
+  this.calcCornersCoords();
+  
+  this.setBinderPosition();
+  this.setBinderSize();
   
   var toRemove = this.getHiddenTilesCoords();
   var removed = this.removeTiles(toRemove);
@@ -111,31 +109,50 @@ Proto.changePosition = function(x, y) {
   this.syncTiles(toSync, removed);
 };
 
+/*
+ Calculates the binder's offset (how many tiles were hidden by x/y coords)
+ regarding the initial and new (absolute) position of the binder element
+ @param {Object} - newPosition {top: {Number}, left: {Number}}
+ @return {Object} - offset {x: {Number}, y: {Number}}
+ @api private
+*/
 Proto.calcBinderOffset = function(newPosition) {
   return {
-    x: parseInt((newPosition.left - this.initialBinderPosition.left) / this.options.size, 10)
-  , y: parseInt((newPosition.top - this.initialBinderPosition.top) / this.options.size, 10)
+    x: parseInt((newPosition.left - this.initialBinderPosition.left) / this.options.tileSize, 10)
+  , y: parseInt((newPosition.top - this.initialBinderPosition.top) / this.options.tileSize, 10)
   };
 };
 
-Proto.updateBinderSize = function() {
-  this.binder.height(this.rowsCount * this.options.size);
-  this.binder.width(this.colsCount * this.options.size);
+/*
+ Sets binder's size regarding the grid's size and tile's size
+ @api private
+*/
+Proto.setBinderSize = function() {
+  this.binder.height(this.rowsCount * this.options.tileSize);
+  this.binder.width(this.colsCount * this.options.tileSize);
 };
 
+/*
+ Shifts the binder's position (absolute) regarding the passed offset
+ @param {Object} offset - {x: {Number}, y: {Number}}
+ @api private
+*/
 Proto.shiftBinderPosition = function(offset) {
   var position = this.binder.position();
   
   if (offset.y != 0) {
-    position.top -= offset.y * this.options.size;
+    position.top -= offset.y * this.options.tileSize;
   }
   if (offset.x != 0) {
-    position.left -= offset.x * this.options.size;
+    position.left -= offset.x * this.options.tileSize;
   }
   
   this.binder.css(position);
 };
 
+/*
+ @api public
+*/
 Proto.refresh = function() {
   var position = this.binder.position();
   var offset = this.calcBinderOffset(position);
@@ -143,8 +160,9 @@ Proto.refresh = function() {
   this.x -= offset.x;
   this.y -= offset.y;
   
-  this.updateSizingProperties();
-  this.updateBinderSize();
+  this.calcGridSize();
+  this.calcCornersCoords();
+  this.setBinderSize();
   
   var toRemove = this.getHiddenTilesCoords();
   var removed = this.removeTiles(toRemove);
@@ -157,6 +175,9 @@ Proto.refresh = function() {
   this.element.trigger('refreshed', {x: this.x, y: this.y});
 };
 
+/*
+ @api public
+*/
 Proto.reload = function(options) {
   var all = this.getAllTilesCoords();
   var existing = this.tiles.coords();
@@ -169,6 +190,9 @@ Proto.reload = function(options) {
   }
 };
 
+/*
+ @api private
+*/
 Proto.removeTiles = function(coords) {
   var removed = [];
   
@@ -184,16 +208,22 @@ Proto.removeTiles = function(coords) {
   return removed;
 };
 
+/*
+ @api private
+*/
 Proto.shiftTilesPosition = function(offset) {
   this.tiles.each(function(tile) {
     var position = tile.position();
     tile.css({
-      'left': position.left + this.options.size * offset.x
-    , 'top': position.top + this.options.size * offset.y
+      'left': position.left + this.options.tileSize * offset.x
+    , 'top': position.top + this.options.tileSize * offset.y
     });
   }, this);
 };
 
+/*
+ @api private
+*/
 Proto.getTilesCoordsToSync = function() {
   var toSync = [];
   var op = this.options;
@@ -211,29 +241,38 @@ Proto.getTilesCoordsToSync = function() {
   return toSync;
 };
 
+/*
+ @api private
+*/
 Proto.getHiddenTilesCoords = function() {
   var coords = [];
   var self = this;
   
   this.tiles.each(function(tile, x, y) {
-    if (y < self.perimeter.y1 || y > self.perimeter.y2 ||
-        x < self.perimeter.x1 || x > self.perimeter.x2) {
+    if (y < self.corners.y1 || y > self.corners.y2 ||
+        x < self.corners.x1 || x > self.corners.x2) {
       coords.push([x, y]);
     }
   });
   return coords;
 };
 
+/*
+ @api private
+*/
 Proto.getAllTilesCoords = function() {
   var coords = [];
   
-  for(var y = this.perimeter.y1; y <= this.perimeter.y2; y++) {
-  for(var x = this.perimeter.x1; x <= this.perimeter.x2; x++) {
+  for(var y = this.corners.y1; y <= this.corners.y2; y++) {
+  for(var x = this.corners.x1; x <= this.corners.x2; x++) {
     coords.push([x, y]);
   }}
   return coords;
 };
 
+/*
+ @api private
+*/
 Proto.syncTiles = function(tosync, removed) {
   if (tosync.length == 0) {
     return;
@@ -250,6 +289,11 @@ Proto.syncTiles = function(tosync, removed) {
   }
 };
 
+/*
+ Shows tiles
+ @param {Array} tiles - array of coordinates [[x1, y1, elem1], [x2, y2, elem2], ...]
+ @api private
+*/
 Proto.showTiles = function(tiles) {
   var fragment = document.createDocumentFragment();
   
@@ -258,8 +302,8 @@ Proto.showTiles = function(tiles) {
     var y = tiles[i][1];
     var tile = tiles[i][2];
     
-    if (y < this.perimeter.y1 || y > this.perimeter.y2 ||
-        x < this.perimeter.x1 || x > this.perimeter.x2) {
+    if (y < this.corners.y1 || y > this.corners.y2 ||
+        x < this.corners.x1 || x > this.corners.x2) {
       continue;
     }
     
@@ -275,6 +319,11 @@ Proto.showTiles = function(tiles) {
   this.arrangeTiles();
 };
 
+/*
+ Shows placeholders
+ @param {Array} tiles - array of coordinates [[x1, y1], [x2, y2], ...]
+ @api private
+*/
 Proto.showHolders = function(tiles) {
   var fragment = document.createDocumentFragment();
   
@@ -291,44 +340,71 @@ Proto.showHolders = function(tiles) {
   this.arrangeTiles();
 };
 
+/*
+ Arranges tiles positions in the binder element
+ @api private
+*/
 Proto.arrangeTiles = function() {
-  var size = this.options.size;
-  var perimeter = this.perimeter;
+  var size = this.options.tileSize;
+  var corners = this.corners;
   
   this.tiles.each(function(tile, x, y) {
     tile.css({
       'position': 'absolute'
-    , 'left': (x - perimeter.x1) * size
-    , 'top': (y - perimeter.y1) * size
+    , 'left': (x - corners.x1) * size
+    , 'top': (y - corners.y1) * size
     });
   });
 };
 
+/*
+ Calculate the cols count of tiles grid
+ @return {Number}
+ @api private
+*/
 Proto.calcColsCount = function() {
   var width = this.element.width();
   var op = this.options;
   
-  if (width && op.size) {
-    return Math.ceil(width / op.size) + op.capture * 2;
+  if (width && op.tileSize) {
+    return Math.ceil(width / op.tileSize) + op.capture * 2;
   }
   return 0;
 };
 
+/*
+ Calculate the rows count of tiles grid
+ @return {Number}
+ @api private
+*/
 Proto.calcRowsCount = function() {
   var height = this.element.height();
   var op = this.options;
   
-  if (height && op.size) {
-    return Math.ceil(height / op.size) + op.capture * 2
+  if (height && op.tileSize) {
+    return Math.ceil(height / op.tileSize) + op.capture * 2
   }
   return 0;
 };
 
-Proto.calcPerimeterCoords = function() {
+/*
+ Calculate and sets the current grid size (rows/cols)
+ @api private
+*/
+Proto.calcGridSize = function() {
+  this.rowsCount = this.calcRowsCount();
+  this.colsCount = this.calcColsCount();
+};
+
+/*
+ Calculate and sets coordinates of current corner tiles
+ @api private
+*/
+Proto.calcCornersCoords = function() {
   var x1 = this.x - this.options.capture;
   var y1 = this.y - this.options.capture;
   
-  this.perimeter = {
+  this.corners = {
     x1: x1, y1: y1
   , x2: x1 + this.colsCount - 1
   , y2: y1 + this.rowsCount - 1
