@@ -456,190 +456,169 @@ test('tiles are removed #3', function() {
   
   tiler.element.remove();
 });
-/*
+
 // dragging from bottom to top and from right to left
 test('tiles are removed #4', function() {
-    var synced = false;
-    var element = createTiler({
-        holder: null,
-        sync: function(options, callback) {
-            if (synced) { return };
-            
-            callback([
-                [-1, -1, $('<div class="tile _0"></div>')],
-                [0, 0, $('<div class="tile _1"></div>')],
-                [1, 1, $('<div class="tile _2"></div>')]
-            ]);
-            
-            synced = true;
-        }
-    });
-    
-    var binder = element.tiler('binder');
-    
-    binder.css('left', -200);
-    binder.css('top', -200);
-    binder.trigger('dragstop');
-        
-    equal(binder.find('.tile').length, 2);
-    equal(binder.find('.tile._0').length, 0);
-    equal(binder.find('.tile._1').length, 1);    
-    equal(binder.find('.tile._2').length, 1);
-    
-    element.remove();
+  var synced = false;
+  var tiler = createTiler({
+    holder: null,
+    sync: function(options, callback) {
+      if (synced) { return };
+      
+      callback([
+        [-1, -1, $('<div class="tile _0"></div>')],
+        [ 0,  0, $('<div class="tile _1"></div>')],
+        [ 1,  1, $('<div class="tile _2"></div>')]
+      ]);
+      
+      synced = true;
+    }
+  });
+  
+  tiler.binder.css('left', -200);
+  tiler.binder.css('top', -200);
+  tiler.binder.trigger('dragstop');
+      
+  equal(tiler.binder.find('.tile').length, 2);
+  equal(tiler.binder.find('.tile._0').length, 0);
+  equal(tiler.binder.find('.tile._1').length, 1);    
+  equal(tiler.binder.find('.tile._2').length, 1);
+  
+  tiler.element.remove();
 });
 
 // dragging from bottom to top and from right to left
 test('tiles are removed #5', function() {
-    var synced = false;
-    var element = createTiler({
-        holder: null,
-        sync: function(options, callback) {
-            if (synced) { return };
-            
-            callback([
-                [-1, 0, $('<div class="tile _0"></div>')],
-                [0, 0, $('<div class="tile _1"></div>')],
-                [1, 0, $('<div class="tile _2"></div>')]
-            ]);
-            
-            synced = true;
-        }
-    });
-    
-    var binder = element.tiler('binder');
-    
-    binder.css('left', -200);
-    binder.css('top', -200);
-    binder.trigger('dragstop');
-        
-    equal(binder.find('.tile').length, 2);
-    equal(binder.find('.tile._0').length, 0);
-    equal(binder.find('.tile._1').length, 1);    
-    equal(binder.find('.tile._2').length, 1);
-    
-    element.remove();
+  var synced = false;
+  var tiler = createTiler({
+    holder: null,
+    sync: function(options, callback) {
+      if (synced) { return };
+      
+      callback([
+        [-1, 0, $('<div class="tile _0"></div>')],
+        [ 0, 0, $('<div class="tile _1"></div>')],
+        [ 1, 0, $('<div class="tile _2"></div>')]
+      ]);
+      
+      synced = true;
+    }
+  });
+  
+  tiler.binder.css('left', -200);
+  tiler.binder.css('top', -200);
+  tiler.binder.trigger('dragstop');
+      
+  equal(tiler.binder.find('.tile').length, 2);
+  equal(tiler.binder.find('.tile._0').length, 0);
+  equal(tiler.binder.find('.tile._1').length, 1);    
+  equal(tiler.binder.find('.tile._2').length, 1);
+  
+  tiler.element.remove();
 });
 
 test('tiles are moved (top and left)', function() {
-    var element = createTiler();
-    var binder = element.tiler('binder');
-    
-    binder.css('left', 0);
-    binder.css('top', 0);
-    binder.trigger('dragstop');
-    
-    deepEqual(binder.find('.tile._0').position(), {left: 100, top: 100});
-    deepEqual(binder.find('.tile._1').position(), {left: 200, top: 100});
-    deepEqual(binder.find('.tile._3').position(), {left: 100, top: 200});
-    deepEqual(binder.find('.tile._4').position(), {left: 200, top: 200});
-    
-    element.remove();
+  var tiler = createTiler();
+  
+  tiler.binder.css('left', 0);
+  tiler.binder.css('top', 0);
+  tiler.binder.trigger('dragstop');
+  
+  deepEqual(tiler.binder.find('.tile._0').position(), {left: 100, top: 100});
+  deepEqual(tiler.binder.find('.tile._1').position(), {left: 200, top: 100});
+  deepEqual(tiler.binder.find('.tile._3').position(), {left: 100, top: 200});
+  deepEqual(tiler.binder.find('.tile._4').position(), {left: 200, top: 200});
+  
+  tiler.element.remove();
 });
 
 test('tiles are moved (bottom and right)', function() {
-    var element = createTiler();
-    var binder = element.tiler('binder');
+  var tiler = createTiler();
     
-    binder.css('left', -200);
-    binder.css('top', -200);
-    binder.trigger('dragstop');
-    
-    deepEqual(binder.find('.tile._4').position(), {left: 0, top: 0});
-    deepEqual(binder.find('.tile._5').position(), {left: 100, top: 0});
-    deepEqual(binder.find('.tile._7').position(), {left: 0, top: 100});
-    deepEqual(binder.find('.tile._8').position(), {left: 100, top: 100});
-        
-    element.remove();
+  tiler.binder.css('left', -200);
+  tiler.binder.css('top', -200);
+  tiler.binder.trigger('dragstop');
+  
+  deepEqual(tiler.binder.find('.tile._4').position(), {left: 0, top: 0});
+  deepEqual(tiler.binder.find('.tile._5').position(), {left: 100, top: 0});
+  deepEqual(tiler.binder.find('.tile._7').position(), {left: 0, top: 100});
+  deepEqual(tiler.binder.find('.tile._8').position(), {left: 100, top: 100});
+      
+  tiler.element.remove();
 });
 
 test('holders are inserted on empty space (top and left)', function() {
-    var element = createTiler();
-    var binder = element.tiler('binder');
+  var tiler = createTiler();
         
-    binder.css('left', 0);
-    binder.css('top', 0);
-    binder.trigger('dragstop');
-    
-    deepEqual(binder.find('.holder._9').position(), {left: 0, top: 0});
-    deepEqual(binder.find('.holder._10').position(), {left: 100, top: 0});
-    deepEqual(binder.find('.holder._11').position(), {left: 200, top: 0});
-    deepEqual(binder.find('.holder._12').position(), {left: 0, top: 100});
-    deepEqual(binder.find('.holder._13').position(), {left: 0, top: 200});
-    
-    element.remove();
+  tiler.binder.css('left', 0);
+  tiler.binder.css('top', 0);
+  tiler.binder.trigger('dragstop');
+  
+  deepEqual(tiler.binder.find('.holder._9').position(), {left: 0, top: 0});
+  deepEqual(tiler.binder.find('.holder._10').position(), {left: 100, top: 0});
+  deepEqual(tiler.binder.find('.holder._11').position(), {left: 200, top: 0});
+  deepEqual(tiler.binder.find('.holder._12').position(), {left: 0, top: 100});
+  deepEqual(tiler.binder.find('.holder._13').position(), {left: 0, top: 200});
+  
+  tiler.element.remove();
 });
 
 test('holders are inserted on empty space (bottom and right)', function() {
-    var element = createTiler();
-    var binder = element.tiler('binder');
-    
-    binder.css('left', -200);
-    binder.css('top', -200);
-    binder.trigger('dragstop');
-    
-    deepEqual(binder.find('.holder._9').position(), {left: 200, top: 0});
-    deepEqual(binder.find('.holder._10').position(), {left: 200, top: 100});
-    deepEqual(binder.find('.holder._11').position(), {left: 0, top: 200});
-    deepEqual(binder.find('.holder._12').position(), {left: 100, top: 200});
-    deepEqual(binder.find('.holder._13').position(), {left: 200, top: 200});
-    
-    element.remove();
+  var tiler = createTiler();
+  
+  tiler.binder.css('left', -200);
+  tiler.binder.css('top', -200);
+  tiler.binder.trigger('dragstop');
+  
+  deepEqual(tiler.binder.find('.holder._9').position(), {left: 200, top: 0});
+  deepEqual(tiler.binder.find('.holder._10').position(), {left: 200, top: 100});
+  deepEqual(tiler.binder.find('.holder._11').position(), {left: 0, top: 200});
+  deepEqual(tiler.binder.find('.holder._12').position(), {left: 100, top: 200});
+  deepEqual(tiler.binder.find('.holder._13').position(), {left: 200, top: 200});
+  
+  tiler.element.remove();
 });
 
-module('"sync"');
+module('"sync" callback');
 
 test('coordinates of removed tiles are passed (top and left)', function() {
-    var calls = 0;
-    var element = createTiler({
-        sync: function(options, callback) {
-            if (++calls == 1) {
-                callback(dummyTiles());
-            }
-            if (calls == 2) {
-                deepEqual(options.removed, [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]);
-            }
-        }
-    });
-    
-    var binder = element.tiler('binder');
-    binder.css('left', -200);
-    binder.css('top', -200);
-    binder.trigger('dragstop');
-    
-    element.remove();
+  var calls = 0;
+  var tiler = createTiler({
+    sync: function(options, callback) {
+      if (++calls == 1) {
+        callback(dummyTiles());
+      }
+      if (calls == 2) {
+        deepEqual(options.removed, [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]);
+      }
+    }
+  });
+  
+  tiler.binder.css('left', -200);
+  tiler.binder.css('top', -200);
+  tiler.binder.trigger('dragstop');
+  
+  tiler.element.remove();
 });
 
 test('coordinates of removed tiles are passed (bottom and right)', function() {
-    var calls = 0;
-    var element = createTiler({
-        sync: function(options, callback) {
-            if (++calls == 1) {
-                callback(dummyTiles());
-            }
-            if (calls == 2) {
-                deepEqual(options.removed, [[1,-1],[1, 0],[-1, 1],[0, 1],[1, 1]]);
-            }
-        }
-    });
-    
-    var binder = element.tiler('binder');
-    binder.css('left', 0);
-    binder.css('top', 0);
-    binder.trigger('dragstop');
-    
-    element.remove();
-});
-
-module('"binder" method');
-
-test('returns reference to the "binder"', function() {
-    var element = createTiler();
-    var binder = element.tiler('binder');
-    
-    ok(binder.hasClass('tilerBinder'));
-    
-    element.remove();
+  var calls = 0;
+  var tiler = createTiler({
+    sync: function(options, callback) {
+      if (++calls == 1) {
+        callback(dummyTiles());
+      }
+      if (calls == 2) {
+        deepEqual(options.removed, [[1,-1],[1, 0],[-1, 1],[0, 1],[1, 1]]);
+      }
+    }
+  });
+  
+  tiler.binder.css('left', 0);
+  tiler.binder.css('top', 0);
+  tiler.binder.trigger('dragstop');
+  
+  tiler.element.remove();
 });
 
 module('"refresh" method');
@@ -665,7 +644,7 @@ test('binder is resized after viewport is resized', function() {
     
     element.remove();
 });
-
+/*
 test('holders are inserted after viewport size is increased', function() {
     var calls = 0;
     var element = createTiler({
