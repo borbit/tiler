@@ -4,6 +4,21 @@ Library for the displaying of an infinite content as a grid of tiles.
 
 [Demo](http://borbit.github.com/tiler/)
 
+## Documntation
+
+### Constructor
+
+    ```js
+    new Tiler(element, options);
+    ```
+#### element
+
+A jQuery element that will be used as a viewport for the tiles grid.
+
+#### options
+
+- *sync*
+
 ## Using Tiler
 
 1. Include main dependencies on your page.
@@ -14,13 +29,13 @@ Library for the displaying of an infinite content as a grid of tiles.
     <script src="https://raw.github.com/borbit/grid.js/master/grid.js"></script>
     ```
     
-2. Include Tiler after main dependencies
+2. Include Tiler after main dependencies.
 
     ```html
     <script src="tiler.js"></script>
     ```
     
-3. Include some library to make grid draggable. I use `draggable` from jQuery UI
+3. Include some library to make grid draggable. I use `draggable` from jQuery UI.
 
     ```html
     <script src="http://code.jquery.com/ui/1.8.19/jquery-ui.min.js"></script>
@@ -30,7 +45,7 @@ Library for the displaying of an infinite content as a grid of tiles.
 first argument and options by second. Don't forget to pass required options `tileSize` and `sync`.
 Like this:
 
-    ```html
+    ```js
     var tiler = new Tiler($('#viewport'), {
       tileSize: 200,
       
@@ -54,7 +69,7 @@ Like this:
 
 5. To make grid draggable just:
 
-    ```html
+    ```js
     tiler.binder.draggable();
     ```
 
