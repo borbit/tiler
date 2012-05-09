@@ -1,22 +1,23 @@
-/*    
-  Tiler 0.1.0
-  
-  Library for the displaying of an infinite content
-  as a grid of tiles. For more info visit:
-  https://github.com/borbit/tiler/
-  
-  Copyright (c) 2011-2012 Serge Borbit <serge.borbit@gmail.com>
-  
-  Licensed under the MIT license
-*/
+/**    
+ * Tiler 0.1.0
+ *
+ * Library for the displaying of an infinite content
+ * as a grid of tiles. For more info visit:
+ * https://github.com/borbit/tiler/
+ *
+ * Copyright (c) 2011-2012 Serge Borbit <serge.borbit@gmail.com>
+ *
+ * Licensed under the MIT license
+ */
 
 (function($) {
   
-/*
- Constructor
- @param {jQuery object} element
- @param {object} options
-*/
+/**
+ * Constructor
+ * 
+ * @param {jQuery object} element
+ * @param {object} options
+ */
 function Tiler(element, options) {
   // Initializing options by Extending the default by custom
   this.options = $.extend({}, Tiler.defaults, options);
@@ -31,8 +32,9 @@ function Tiler(element, options) {
   this.x = this.options.x;
   this.y = this.options.y;
   
-  // Creating the binder element that will contain tiles
-  // and appending it to the viewport element
+  // Creating the binder element that will contain tiles element.
+  // Appending it to the viewport element. Binding 'dragstop' event
+  // to the 'refresh' method to sync tiles each time binder was dragged.
   this.binder = $('<div/>')
       .bind('dragstop', $.proxy(this, 'refresh'))
       .css('position', 'absolute')
@@ -62,10 +64,11 @@ Tiler.defaults = {
 
 var Proto = Tiler.prototype;
 
-/*
- Sets the initial binder's position
- @api private
-*/
+/**
+ * Sets the initial binder's position
+ * 
+ * @api private
+ */
 Proto.setBinderPosition = function() {
   this.initialBinderPosition = {
     left: -(this.options.tileSize * this.options.capture),
@@ -78,13 +81,14 @@ Proto.setBinderPosition = function() {
   });
 };
 
-/*
- Changes current position of the grid (top left visible tile),
- rerenders grid regarding the new position and syncs tiles
- @param {Number} x
- @param {Number} y
- @api public
-*/
+/**
+ * Changes grid's current position (top left visible tile).
+ * Rerenders grid regarding the new position and syncs tiles
+ *
+ * @param {Number} x
+ * @param {Number} y
+ * @api public
+ */
 Proto.changePosition = function(x, y) {
   var offset = {
     x: this.x - x,
@@ -109,13 +113,14 @@ Proto.changePosition = function(x, y) {
   this.syncTiles(toSync, removed);
 };
 
-/*
- Calculates the binder's offset (how many tiles were hidden by x/y coords)
- regarding the initial and new (absolute) position of the binder element
- @param {Object} - newPosition {top: {Number}, left: {Number}}
- @return {Object} - offset {x: {Number}, y: {Number}}
- @api private
-*/
+/**
+ * Calculates binder offset (how many tiles were hidden by x/y coords)
+ * regarding the initial and new (absolute) position of the binder element
+ *
+ * @param {Object} newPosition {top: {Number}, left: {Number}}
+ * @return {Object} offset {x: {Number}, y: {Number}}
+ * @api private
+ */
 Proto.calcBinderOffset = function(newPosition) {
   return {
     x: parseInt((newPosition.left - this.initialBinderPosition.left) / this.options.tileSize, 10)
@@ -123,20 +128,22 @@ Proto.calcBinderOffset = function(newPosition) {
   };
 };
 
-/*
- Sets binder's size regarding the grid's size and tile's size
- @api private
-*/
+/**
+ * Sets binder size regarding the grid size and tile size
+ *
+ * @api private
+ */
 Proto.setBinderSize = function() {
   this.binder.height(this.rowsCount * this.options.tileSize);
   this.binder.width(this.colsCount * this.options.tileSize);
 };
 
-/*
- Shifts the binder's position (absolute) regarding the passed offset
- @param {Object} offset - {x: {Number}, y: {Number}}
- @api private
-*/
+/**
+ * Shifts binder position (absolute) regarding the passed offset
+ * 
+ * @param {Object} offset {x: {Number}, y: {Number}}
+ * @api private
+ */
 Proto.shiftBinderPosition = function(offset) {
   var position = this.binder.position();
   
@@ -150,13 +157,14 @@ Proto.shiftBinderPosition = function(offset) {
   this.binder.css(position);
 };
 
-/*
- Refreshes the grid. This method should be called to sync absent and
- remove hidden tiles after viewport size is changed or binder was dragged,
- also in case if not all tiles are present after the sync and you have to
- sync absent tiles only.
- @api public
-*/
+/**
+ * Refreshes the grid. This method should be called to sync absent and
+ * remove hidden tiles after viewport size is changed or binder was dragged,
+ * also in case if not all tiles are present after the sync and you have to
+ * sync absent tiles only.
+ * 
+ * @api public
+ */
 Proto.refresh = function() {
   var position = this.binder.position();
   var offset = this.calcBinderOffset(position);
@@ -177,10 +185,11 @@ Proto.refresh = function() {
   this.syncTiles(tosync, removed);
 };
 
-/*
- Removes and than syncs all tiles on the grid
- @api public
-*/
+/**
+ * Removes and than syncs all tiles
+ * 
+ * @api public
+ */
 Proto.reload = function(options) {
   var all = this.getAllTilesCoords();
   var existing = this.tiles.coords();
@@ -193,11 +202,12 @@ Proto.reload = function(options) {
   }
 };
 
-/*
- Removes tiles by passed coordinates
- @param {Array} coords - [[x1, y1], [x2, y2], ...]
- @api private
-*/
+/**
+ * Removes tiles by passed coordinates
+ * 
+ * @param {Array} coords [[x1, y1], [x2, y2], ...]
+ * @api private
+ */
 Proto.removeTiles = function(coords) {
   var removed = [];
   
@@ -213,9 +223,12 @@ Proto.removeTiles = function(coords) {
   return removed;
 };
 
-/*
- @api private
-*/
+/**
+ * Shifts tiles position (absolute) regarding the passed offset
+ *
+ * @param {Object} offset {x: {Number}, y: {Number}}
+ * @api private
+ */
 Proto.shiftTilesPosition = function(offset) {
   this.tiles.each(function(tile) {
     var position = tile.position();
@@ -226,9 +239,12 @@ Proto.shiftTilesPosition = function(offset) {
   }, this);
 };
 
-/*
- @api private
-*/
+/**
+ * Returns array of tiles coordinates that should be present on a grid
+ *
+ * @return {Array} [[x1, y1], [x2, y2], ...]
+ * @api private
+ */
 Proto.getTilesCoordsToSync = function() {
   var toSync = [];
   var op = this.options;
@@ -246,9 +262,14 @@ Proto.getTilesCoordsToSync = function() {
   return toSync;
 };
 
-/*
- @api private
-*/
+/**
+ * Returns array of tiles coordinates which coordinates don't fall
+ * within the grid area. Method is used to determine which tiles were
+ * hidden after the binder was dragged or grid position was changed
+ *
+ * @return {Array} [[x1, y1], [x2, y2], ...]
+ * @api private
+ */
 Proto.getHiddenTilesCoords = function() {
   var coords = [];
   var self = this;
@@ -262,9 +283,12 @@ Proto.getHiddenTilesCoords = function() {
   return coords;
 };
 
-/*
- @api private
-*/
+/**
+ * Returns array of tiles coordinates which do fall within the grid area.
+ *
+ * @return {Array} [[x1, y1], [x2, y2], ...]
+ * @api private
+ */
 Proto.getAllTilesCoords = function() {
   var coords = [];
   
@@ -275,13 +299,19 @@ Proto.getAllTilesCoords = function() {
   return coords;
 };
 
-/*
- @api private
-*/
+/**
+ * Syncs tiles
+ *
+ * @param {Array} tosync Array of tiles coordinates that should be synced
+ * @param {Array} removed Array of tiles coordinates that were removed/hidden from the grid
+ * @api private
+ */
 Proto.syncTiles = function(tosync, removed) {
   if (tosync.length == 0) {
     return;
   }
+  // Show place holders before tiles are synced if place
+  // holders factory method is present
   if ($.isFunction(this.options.holder)) {
     this.showHolders(tosync);
   }
@@ -294,11 +324,12 @@ Proto.syncTiles = function(tosync, removed) {
   }
 };
 
-/*
- Shows tiles
- @param {Array} tiles - array of coordinates [[x1, y1, elem1], [x2, y2, elem2], ...]
- @api private
-*/
+/**
+ * Shows tiles
+ * 
+ * @param {Array} tiles - array of coordinates [[x1, y1, elem1], [x2, y2, elem2], ...]
+ * @api private
+ */
 Proto.showTiles = function(tiles) {
   var fragment = document.createDocumentFragment();
   
@@ -324,11 +355,12 @@ Proto.showTiles = function(tiles) {
   this.arrangeTiles();
 };
 
-/*
- Shows placeholders
- @param {Array} tiles - array of coordinates [[x1, y1], [x2, y2], ...]
- @api private
-*/
+/**
+ * Shows placeholders
+ * 
+ * @param {Array} tiles - array of coordinates [[x1, y1], [x2, y2], ...]
+ * @api private
+ */
 Proto.showHolders = function(tiles) {
   var fragment = document.createDocumentFragment();
   
@@ -345,10 +377,11 @@ Proto.showHolders = function(tiles) {
   this.arrangeTiles();
 };
 
-/*
- Arranges tiles position in the binder element
- @api private
-*/
+/**
+ * Arranges tiles position
+ * 
+ * @api private
+ */
 Proto.arrangeTiles = function() {
   var size = this.options.tileSize;
   var corners = this.corners;
@@ -362,11 +395,12 @@ Proto.arrangeTiles = function() {
   });
 };
 
-/*
- Calculate grid columns count
- @return {Number}
- @api private
-*/
+/**
+ * Calculates grid's columns count
+ * 
+ * @return {Number}
+ * @api private
+ */
 Proto.calcColsCount = function() {
   var width = this.element.width();
   var op = this.options;
@@ -377,11 +411,12 @@ Proto.calcColsCount = function() {
   return 0;
 };
 
-/*
- Calculate grid rows count
- @return {Number}
- @api private
-*/
+/**
+ * Calculates grid's rows count
+ * 
+ * @return {Number}
+ * @api private
+ */
 Proto.calcRowsCount = function() {
   var height = this.element.height();
   var op = this.options;
@@ -392,19 +427,21 @@ Proto.calcRowsCount = function() {
   return 0;
 };
 
-/*
- Calculate and sets the current grid size (rows/cols)
- @api private
-*/
+/**
+ * Calculates and sets current grid size (rows/cols count)
+ * 
+ * @api private
+ */
 Proto.calcGridSize = function() {
   this.rowsCount = this.calcRowsCount();
   this.colsCount = this.calcColsCount();
 };
 
-/*
- Calculate and sets coordinates of current corner tiles
- @api private
-*/
+/**
+ * Calculates and sets the current corner tiles coordinates
+ * 
+ * @api private
+ */
 Proto.calcCornersCoords = function() {
   var x1 = this.x - this.options.capture;
   var y1 = this.y - this.options.capture;
