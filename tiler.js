@@ -92,8 +92,8 @@ function Tiler(element, options) {
  * Default options
  */
 Tiler.defaults = {
-  sync: $.noop
-, holder: $.noop
+  sync: null
+, holder: null
 , tileSize: null
 , capture: 2
 , x: 0, y: 0
