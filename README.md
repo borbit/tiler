@@ -8,9 +8,9 @@ Library for the displaying of an infinite content as a grid of tiles.
 
 ### Constructor
 
-    ```js
-    new Tiler(element, options);
-    ```
+```js
+new Tiler(element, options);
+```
 #### element
 
 A jQuery element that will be used as a viewport for the tiles grid.
