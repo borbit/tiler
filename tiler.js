@@ -101,10 +101,7 @@ Proto.setBinderPosition = function() {
   , top: -(this.options.tileSize * this.options.capture)
   }
 
-  this.binder.css({
-    left: this.initialBinderPosition.left
-  , top: this.initialBinderPosition.top
-  })
+  this.binder.css(this.initialBinderPosition)
 }
 
 /**
