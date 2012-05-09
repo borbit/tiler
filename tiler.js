@@ -18,9 +18,6 @@
  * @param {jQuery} element
  * @param {Object} options
  *
- *    @argument {Function} callback
- *    Callback function should be called after all "tosync" tiles were built. Built tiles should
- *    be passed through the first argument of this callback
  *      @param {Array} tiles [x1, y1, {jQuery Element} tile, ...]
  *
  *  @property {Fucntion} holder Default: $.noop

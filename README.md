@@ -21,13 +21,20 @@ A jQuery element that will be used as a viewport for the tiles grid.
 - *sync*
 
 Tiles factory function. It is called right after the Tiler initialization, after the binder
-element was dragged and after the "refresh" method was called. Takes to `arguments`:
+element was dragged and after the `refresh` method was called.
 
-    - *options*
-        
-        - tosync - an array of tiles coordinates to sync
-        - removed - array of tiles coordinates that were removed from the grid
-        - coords - current grid coordinates (left top visible tile)
+Takes to `arguments`:
+
+- *options*
+    
+    - tosync - an array of tiles coordinates to sync
+    - removed - array of tiles coordinates that were removed from the grid
+    - coords - current grid coordinates (left top visible tile)
+
+- *callback*
+
+Callback function should be called after all "tosync" tiles were built. Built tiles should
+be passed through the first argument of this callback.
 
 ## Using Tiler
 
