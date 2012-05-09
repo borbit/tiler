@@ -92,8 +92,8 @@ function Tiler(element, options) {
  * Default options
  */
 Tiler.defaults = {
-  sync: $.noop
-, holder: $.noop
+  sync: null
+, holder: null
 , tileSize: null
 , capture: 2
 , x: 0, y: 0
@@ -108,8 +108,8 @@ var Proto = Tiler.prototype
  */
 Proto.setBinderPosition = function() {
   this.initialBinderPosition = {
-    left: -(this.options.tileSize * this.options.capture),
-    top: -(this.options.tileSize * this.options.capture)
+    left: -(this.options.tileSize * this.options.capture)
+  , top: -(this.options.tileSize * this.options.capture)
   }
 
   this.binder.css({
