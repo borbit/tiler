@@ -1,3 +1,7 @@
+# Tiler
+
+Library for the displaying of an infinite content as a grid of tiles.
+
 ## Using Tiler
 
 1. Include main dependencies on your page.

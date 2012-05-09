@@ -15,8 +15,42 @@
 /**
  * Constructor
  * 
- * @param {jQuery object} element
- * @param {object} options
+ * @param {jQuery} element
+ * @param {Object} options
+ *
+ *  @property {Fucntion} sync Default: $.noop
+ *  Tiles factory function. Implement this function to make a way to
+ *  build tiles to be shown on the grid. This function is called
+ *  during the Tiler initialization, after the binder element was
+ *  dragged and after "refresh" method was called.
+ *
+ *    @argument {object} options
+ *      @property {Array} tosync Array of tiles coordinates to sync
+ *      @property {Array} removed Array of tiles coordinates that were removed from the grid
+ *      @property {Object} coords Current grid coordinates (left top visible tile)
+ *
+ *    @argument {Function} callback
+ *    Callback function should be called after all "tosync" tiles were built. Built tiles should
+ *    be passed through the first argument of this callback
+ *      @param {Array} tiles [x1, y1, {jQuery Element} tile, ...]
+ *  
+ *  @property {Fucntion} holder Default: $.noop
+ *  Place holders factory function. Implement this function if place holders should be shown
+ *  instead of actual tiles until they are synced or if actual tiles aren't present. This
+ *  should just return a jQuery element to be shown instead of actual tile.
+ *    @return {jQuery element}
+ *
+ *  @property {Number} tileSize Default: null
+ *  Tile size in pixels, considering that tile is a square
+ * 
+ *  @property {Number} capture Default: 2
+ *  Count of extra rows of tiles to be shown behind the viewport perimeter
+ * 
+ *  @property {Number} x Default: 0
+ *  @property {Number} y Default: 0
+ *  Initial coordinates of the top left visible tile which coordinates
+ *  are also current coordinates of the grid. Tiler syncs tiles that do fall
+ *  within the grid area depending on this coordinates.
  */
 function Tiler(element, options) {
   // Initializing options by Extending the default by custom
@@ -54,10 +88,13 @@ function Tiler(element, options) {
   this.syncTiles(this.getTilesCoordsToSync());
 }
 
+/**
+ * Default options
+ */
 Tiler.defaults = {
-  tileSize: null
+  sync: $.noop
 , holder: $.noop
-, sync: $.noop
+, tileSize: null
 , capture: 2
 , x: 0, y: 0
 };
