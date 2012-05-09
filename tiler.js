@@ -270,7 +270,6 @@ Proto.shiftTilesPosition = function(offset) {
  */
 Proto.getTilesCoordsToSync = function() {
   var toSync = []
-    , op = this.options
     , all = this.getAllTilesCoords()
     , x, y
 
