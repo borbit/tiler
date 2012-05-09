@@ -8,10 +8,10 @@ Library for the displaying of an infinite content as a grid of tiles.
 
 ### Constructor
 
-    ```js
-    new Tiler(element, options);
-    ```
-        
+```js
+new Tiler(element, options);
+```
+
 #### element
 
 A jQuery element that will be used as a viewport for the tiles grid.
@@ -28,8 +28,6 @@ element was dragged and after the "refresh" method was called. Takes to `argumen
         - tosync - an array of tiles coordinates to sync
         - removed - array of tiles coordinates that were removed from the grid
         - coords - current grid coordinates (left top visible tile)
-
-
 
 ## Using Tiler
 
