@@ -1,64 +1,61 @@
-
 <!DOCTYPE HTML>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width;initial-scale=1.0;maximum-scale=1.0;user-scalable=0;"/>
-    <title>Demo</title>
-    <style>
-        body {
-            display:block;
-            overflow:hidden;
-            margin:0;
-            padding:0;
-            text-align:center;
-            font-family:Georgia, "Times New Roman";
-            font-size:11px;
-        }
-        #viewport {
-            position:absolute;
-            height:100%;
-            width:100%;
-        }
-    </style>
-</head>
-<body>
-    <div id="viewport"></div>
-    
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
-    <script src="https://raw.github.com/borbit/jquery.scraggable/master/jquery.scraggable.min.js"></script>
-    <script src="https://raw.github.com/borbit/jquery.tiler/master/jquery.tiler.js"></script>
-    <script src="https://raw.github.com/borbit/jquery.tiler/master/row.js"></script>
-    <script src="https://raw.github.com/borbit/jquery.tiler/master/grid.js"></script>
-    
-    <script>        
-        $(function() {
-            $('#viewport').tiler({
-                size: 100,
-                capture: 4,
-                
-                sync: function(options, callback) {
-                    var tosync = options.tosync;
-                    
-                    for(var i = tosync.length; i--;) {
-                        tosync[i].push($('<div/>').html(
-                            'x: <b>' + tosync[i][0] + '</b> ' +
-                            'y: <b>' + tosync[i][1] + '</b>'
-                        ));
-                    }
-                    
-                    setTimeout(function() { callback(tosync); }, 500);
-                },
 
-                holder: function() {
-                    return $('<div>loading</div>');
-                }
-            });
-            
-            $('#viewport .tilerBinder').draggable();
-            $('#viewport .tilerBinder').scraggable({sensitivity: 10});
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width;initial-scale=1.0;maximum-scale=1.0;user-scalable=0;"/>
+<title>Tiler</title>
+
+<style>
+  body {
+    display:block;
+    overflow:hidden;
+    margin:0;
+    padding:0;
+  }
+  
+  #viewport {
+    position:absolute;
+    height:100%;
+    width:100%;
+  }
+</style>
+
+<div id="viewport"></div>
+
+<script src="http://code.jquery.com/jquery.min.js"></script>
+<script src="http://code.jquery.com/ui/1.8.19/jquery-ui.min.js"></script>
+
+<script src="https://raw.github.com/borbit/jquery.scraggable/master/jquery.scraggable.min.js"></script>
+<script src="https://raw.github.com/furf/jquery-ui-touch-punch/master/jquery.ui.touch-punch.min.js"></script>
+
+<script src="https://raw.github.com/borbit/row.js/master/row.js"></script>
+<script src="https://raw.github.com/borbit/grid.js/master/grid.js"></script>
+<script src="https://raw.github.com/borbit/jquery.tiler/tiler/tiler.js"></script>
+
+
+<script>        
+  $(function() {
+    var host = 'https://s3.amazonaws.com/serge.borb.it/tiler/';
+    var tiler = new Tiler($('#viewport'), {
+      tileSize: 200,
+      
+      sync: function(options, callback) {
+        var tosync = options.tosync;
+        
+        tosync.forEach(function(tile) {
+          var img = new Image();
+          var x = tile[0];
+          var y = tile[1];
+          
+          img.onload = function() {
+            callback([[x, y, $('<img/>').attr('src', img.src)]]);
+          };
+          
+          img.src = host + 'nodejs_' + x + '_' + y + '.png';
         });
-    </script>
-</body>
-</html>
+      }
+    });
+      
+    tiler.binder.draggable();
+    tiler.binder.scraggable();
+  });
+</script>
