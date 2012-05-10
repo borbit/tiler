@@ -12,11 +12,11 @@ Library for the displaying of an infinite content as a grid of tiles.
 new Tiler(element, options);
 ```
 
-#### `element`
+#### element
 
 A jQuery element will be used as a viewport for a tiles grid.
 
-#### `options`
+#### options
 
 ##### `sync`
 
@@ -70,11 +70,7 @@ Default: `0`
 
 ### Methods
 
-- `refresh`
-
-    ```js
-    tiler.refresh();
-    ```
+- *refresh()*
 
     Removes tiles that don't fall within the current grid coordinates and syncs absent tiles.
     This method is called automatically after the `dragstop` event triggered by the grid element.
@@ -82,19 +78,11 @@ Default: `0`
     size is changed, also in case unless all tiles are present after the sync and you have to sync
     absent tiles only.
 
-- `reload`
-
-    ```js
-    tiler.reload();
-    ```
+- *reload()*
 
     Removes and than resyncs all present tiles
 
-- `changePosition`
-
-    ```js
-    tiler.changePosition(x, y);
-    ```
+- *changePosition(x, y)*
 
     Changes current grid position (top left visible tile). Renders grid regarding the new position
     and syncs tiles.
