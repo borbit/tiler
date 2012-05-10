@@ -18,58 +18,63 @@ A jQuery element will be used as a viewport for a tiles grid.
 
 #### options
 
-##### `sync`
+- *sync*
 
-Tiles factory method. Should provide tiles to to show on a grid. It is called right
-after the Tiler initialization, after the grid was dragged or after the `refresh`
-method was called.
+    Tiles factory method. Should provide tiles to to show on a grid. It is called right
+    after the Tiler initialization, after the grid was dragged or after the `refresh`
+    method was called.
 
-Takes two `arguments`:
+    Takes two `arguments`:
 
-- `options`
+    - `options`
     
-    - `tosync` - array of tiles coordinates to sync
-    - `removed` - array of tiles coordinates that were removed from the grid
-    - `coords` - current grid coordinates (left top visible tile)
+        - `tosync` - array of tiles coordinates to sync
+        - `removed` - array of tiles coordinates that were removed from the grid
+        - `coords` - current grid coordinates (left top visible tile)
 
-- `callback`
+    - `callback`
 
-Tiles should be provided through this callback function.
+    Tiles should be provided through this callback function.
 
-Takes one `argument`:
+    Takes one `argument`:
 
-- `tiles`
+    - `tiles`
 
-```js
-[[x1, y1, $tile1], [x2, y2, $tile2], ...]
+    ```js
+    [[x1, y1, $tile1], [x2, y2, $tile2], ...]
 ```
 
-##### `holder`
+- *holder*
 
-Place holders factory method. Implement this method if place holders should be shown
-instead of actual tiles until they are synced or if actual tiles aren't present. This
-should just return a `jQuery element` to be shown instead of actual tile.
+    Place holders factory method. Implement this method if place holders should be shown
+    instead of actual tiles until they are synced or if actual tiles aren't present. This
+    should just return a `jQuery element` to be shown instead of actual tile.
 
-##### `tileSize`
+- *tileSize*
 
-Tile size in pixels, considering that tile is a square
+    Tile size in pixels, considering that tile is a square
 
-##### `capture`
+- *capture*
 
-Count of extra rows of tiles to be shown behind the viewport perimeter.
+    Count of extra rows of tiles to be shown behind the viewport perimeter.
 
-Default: `2`
+    Default: `2`
 
-##### `x,y`
+- *x,y*
 
-Initial coordinates of the top left visible tile which coordinates are also current
-coordinates of the grid. Tiler syncs tiles that do fall within the grid area depending
-on this coordinates.
+    Initial coordinates of the top left visible tile which coordinates are also current
+    coordinates of the grid. Tiler syncs tiles that do fall within the grid area depending
+    on this coordinates.
 
-Default: `0`
+    Default: `0`
 
 ### Methods
 
+- *changePosition(x, y)*
+
+    Changes current grid position (top left visible tile). Renders grid regarding the new position
+    and syncs tiles.
+    
 - *refresh()*
 
     Removes tiles that don't fall within the current grid coordinates and syncs absent tiles.
@@ -81,11 +86,6 @@ Default: `0`
 - *reload()*
 
     Removes and than resyncs all present tiles
-
-- *changePosition(x, y)*
-
-    Changes current grid position (top left visible tile). Renders grid regarding the new position
-    and syncs tiles.
 
 ## Using Tiler
 
