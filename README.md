@@ -68,6 +68,30 @@ on this coordinates.
 
 Default: `0`
 
+### refresh
+
+```js
+tiler.refresh();
+```
+
+Removes tiles that don't fall within the current grid coordinates and syncs absent tiles.
+This method is called automatically after the `dragstop` event triggered by the grid element.
+You should call this method if grid was dragged in a way that doesn't trigger `dragstop` event
+or viewport size is changed, also in case unless all tiles are present after the sync and you
+have to sync absent tiles only.
+
+### reload
+
+```js
+tiler.reload();
+```
+
+Removes and than resyncs all present tiles
+
+### changePosition
+
+Changes current grid position (top left visible tile). Rerenders grid regarding the new position and syncs tiles.
+
 ## Using Tiler
 
 1. Include main dependencies on your page.

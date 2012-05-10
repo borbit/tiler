@@ -81,7 +81,7 @@ Proto.setGridPosition = function() {
 }
 
 /**
- * Changes grid's current position (top left visible tile).
+ * Changes current grid position (top left visible tile).
  * Rerenders grid regarding the new position and syncs tiles
  *
  * @param {Number} x
@@ -157,11 +157,13 @@ Proto.shiftGridPosition = function(offset) {
 }
 
 /**
- * Refreshes the grid. This method should be called to sync absent and
- * remove hidden tiles after viewport size is changed or grid was dragged,
- * also in case if not all tiles are present after the sync and you have to
- * sync absent tiles only.
- *
+ * Removes tiles that don't fall within the current grid coordinates
+ * and syncs absent tiles. This method is called automatically after the
+ * `dragstop` event triggered by the grid element. You should call this
+ * method if grid was dragged in a way that doesn't trigger `dragstop`
+ * event or viewport size is changed, also in case unless all tiles are
+ * present after the sync and you have to sync absent tiles only.
+ * 
  * @api public
  */
 Proto.refresh = function() {
@@ -184,7 +186,7 @@ Proto.refresh = function() {
 }
 
 /**
- * Removes and than syncs all tiles
+ * Removes and than resyncs all present tiles
  *
  * @api public
  */
