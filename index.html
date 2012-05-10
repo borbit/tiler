@@ -9,7 +9,7 @@
     padding:0;
     margin:0;
     font-size:12px;
-    font-family:Monaco;
+    font-family:Monaco, sans-serif;
     color:#fff;
   }
   
@@ -33,30 +33,34 @@
     top:0;
     width:100%;
     height:40px;
-    line-height:40px;
     background:rgba(0,0,0,.8);
   }
   
-  header section {
+  section {
     display:block;
+  }
+  
+  .title {
+    float:left;
     padding-left:20px;
+    line-height:40px;
   }
   
   .buttons {
     float:right;
-    padding-top:7px;
+    padding-top:10px;
   }
 </style>
 
 
 <header>
-  <section>
+  <section class="title">
     <a href="#">TILER.JS</a>
-    <div class="buttons">
-      <iframe src="http://markdotto.github.com/github-buttons/github-btn.html?user=borbit&repo=tiler&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="87px" height="20px"></iframe>
-      <iframe src="http://markdotto.github.com/github-buttons/github-btn.html?user=borbit&repo=tiler&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="80px" height="20px"></iframe>
-      <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://borbit.github.com/tiler/" data-text="Tiler.JS" data-via="borbit">Tweet</a>
-    </div>
+  </section>
+  <section class="buttons">
+    <iframe src="http://markdotto.github.com/github-buttons/github-btn.html?user=borbit&repo=tiler&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="87px" height="20px"></iframe>
+    <iframe src="http://markdotto.github.com/github-buttons/github-btn.html?user=borbit&repo=tiler&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="80px" height="20px"></iframe>
+    <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://borbit.github.com/tiler/" data-text="Tiler.JS" data-via="borbit">Tweet</a>
   </section>
 </header>
 
@@ -106,7 +110,7 @@
 
 <script>
   var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-31593145-1']);
+  _gaq.push(['_setAccount', 'UA-31533680-1']);
   _gaq.push(['_trackPageview']);
 
   (function() {
