@@ -1,23 +1,64 @@
 <!DOCTYPE HTML>
-
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0;"/>
-<title>Tiler</title>
-
+<title>Tiler.JS</title>
 <style>
   body {
     display:block;
     overflow:hidden;
-    margin:0;
     padding:0;
+    margin:0;
+    font-size:12px;
+    font-family:Monaco;
+    color:#fff;
+  }
+  
+  a {
+    color:#fff;
   }
   
   #viewport {
     position:absolute;
+    overflow:hidden;
+    z-index:0;
     height:100%;
     width:100%;
   }
+  
+  header {
+    display:block;
+    position:absolute;
+    z-index:1;
+    left:0;
+    top:0;
+    width:100%;
+    height:40px;
+    line-height:40px;
+    background:rgba(0,0,0,.8);
+  }
+  
+  header section {
+    display:block;
+    padding-left:20px;
+  }
+  
+  .buttons {
+    float:right;
+    padding-top:7px;
+  }
 </style>
+
+
+<header>
+  <section>
+    <a href="#">TILER.JS</a>
+    <div class="buttons">
+      <iframe src="http://markdotto.github.com/github-buttons/github-btn.html?user=borbit&repo=tiler&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="87px" height="20px"></iframe>
+      <iframe src="http://markdotto.github.com/github-buttons/github-btn.html?user=borbit&repo=tiler&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="80px" height="20px"></iframe>
+      <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://borbit.github.com/tiler/" data-text="Tiler.JS" data-via="borbit">Tweet</a>
+    </div>
+  </section>
+</header>
 
 <div id="viewport"></div>
 
@@ -35,7 +76,9 @@
   $(function() {
     var host = 'https://s3.amazonaws.com/serge.borb.it/tiler/';
     var tiler = new Tiler($('#viewport'), {
-      tileSize: 200,
+      tileSize: 150,
+      x: 35, y: 10,
+      
       
       sync: function(options, callback) {
         var tosync = options.tosync;
@@ -49,12 +92,26 @@
             callback([[x, y, $('<img/>').attr('src', img.src)]]);
           };
           
-          img.src = host + 'nodejs_' + x + '_' + y + '.png';
+          img.src = host + 'tile_' + x + '_' + y + '.jpg';
         });
       }
     });
       
-    tiler.binder.draggable();
-    tiler.binder.scraggable();
+    tiler.grid.draggable();
+    tiler.grid.scraggable();
   });
+</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="http://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+<script>
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-31593145-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
 </script>
