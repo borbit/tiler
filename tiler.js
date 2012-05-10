@@ -17,26 +17,6 @@
  *
  * @param {jQuery} element
  * @param {Object} options
- *
- *      @param {Array} tiles [x1, y1, {jQuery Element} tile, ...]
- *
- *  @property {Fucntion} holder Default: $.noop
- *  Place holders factory function. Implement this function if place holders should be shown
- *  instead of actual tiles until they are synced or if actual tiles aren't present. This
- *  should just return a jQuery element to be shown instead of actual tile.
- *    @return {jQuery element}
- *
- *  @property {Number} tileSize Default: null
- *  Tile size in pixels, considering that tile is a square
- *
- *  @property {Number} capture Default: 2
- *  Count of extra rows of tiles to be shown behind the viewport perimeter
- *
- *  @property {Number} x Default: 0
- *  @property {Number} y Default: 0
- *  Initial coordinates of the top left visible tile which coordinates
- *  are also current coordinates of the grid. Tiler syncs tiles that do fall
- *  within the grid area depending on this coordinates.
  */
 function Tiler(element, options) {
   // Initializing options by Extending the default by custom

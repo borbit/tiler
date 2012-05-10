@@ -14,27 +14,59 @@ new Tiler(element, options);
 
 #### element
 
-A jQuery element that will be used as a viewport for the tiles grid.
+A jQuery element will be used as a viewport for a tiles grid.
 
 #### options
 
-- *sync*
+##### sync
 
-Tiles factory function. It is called right after the Tiler initialization, after the binder
-element was dragged and after the `refresh` method was called.
+Tiles factory method. Should provide tiles to to show on a grid. It is called right
+after the Tiler initialization, after the binder element was dragged or after
+the `refresh` method was called.
 
-Takes to `arguments`:
+Takes two `arguments`:
 
-- *options*
+- `options`
     
-    - tosync - an array of tiles coordinates to sync
-    - removed - array of tiles coordinates that were removed from the grid
-    - coords - current grid coordinates (left top visible tile)
+    - `tosync` - array of tiles coordinates to sync
+    - `removed` - array of tiles coordinates that were removed from the grid
+    - `coords` - current grid coordinates (left top visible tile)
 
-- *callback*
+- `callback`
 
-Callback function should be called after all "tosync" tiles were built. Built tiles should
-be passed through the first argument of this callback.
+Tiles should be provided through this callback function.
+
+Takes one `argument`:
+
+- `tiles`
+
+```js
+[[x1, y1, $tile1], [x2, y2, $tile2], ...]
+```
+
+##### holder
+
+Place holders factory method. Implement this method if place holders should be shown
+instead of actual tiles until they are synced or if actual tiles aren't present. This
+should just return a `jQuery element` to be shown instead of actual tile.
+
+##### tileSize
+
+Tile size in pixels, considering that tile is a square
+
+##### capture
+
+Count of extra rows of tiles to be shown behind the viewport perimeter.
+
+Default: `2`
+
+##### x,y
+
+Initial coordinates of the top left visible tile which coordinates are also current
+coordinates of the grid. Tiler syncs tiles that do fall within the grid area depending
+on this coordinates.
+
+Default: `0`
 
 ## Using Tiler
 
