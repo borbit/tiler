@@ -4,7 +4,7 @@ Library for the displaying of an infinite content as a grid of tiles.
 
 [Demo](http://borbit.github.com/tiler/)
 
-## Documntation
+## Documentation
 
 ### Constructor
 
@@ -12,13 +12,13 @@ Library for the displaying of an infinite content as a grid of tiles.
 new Tiler(element, options);
 ```
 
-#### element
+#### `element`
 
 A jQuery element will be used as a viewport for a tiles grid.
 
-#### options
+#### `options`
 
-##### sync
+##### `sync`
 
 Tiles factory method. Should provide tiles to to show on a grid. It is called right
 after the Tiler initialization, after the grid was dragged or after the `refresh`
@@ -44,23 +44,23 @@ Takes one `argument`:
 [[x1, y1, $tile1], [x2, y2, $tile2], ...]
 ```
 
-##### holder
+##### `holder`
 
 Place holders factory method. Implement this method if place holders should be shown
 instead of actual tiles until they are synced or if actual tiles aren't present. This
 should just return a `jQuery element` to be shown instead of actual tile.
 
-##### tileSize
+##### `tileSize`
 
 Tile size in pixels, considering that tile is a square
 
-##### capture
+##### `capture`
 
 Count of extra rows of tiles to be shown behind the viewport perimeter.
 
 Default: `2`
 
-##### x,y
+##### `x,y`
 
 Initial coordinates of the top left visible tile which coordinates are also current
 coordinates of the grid. Tiler syncs tiles that do fall within the grid area depending
@@ -68,29 +68,36 @@ on this coordinates.
 
 Default: `0`
 
-### refresh
+### Methods
 
-```js
-tiler.refresh();
-```
+- `refresh`
 
-Removes tiles that don't fall within the current grid coordinates and syncs absent tiles.
-This method is called automatically after the `dragstop` event triggered by the grid element.
-You should call this method if grid was dragged in a way that doesn't trigger `dragstop` event
-or viewport size is changed, also in case unless all tiles are present after the sync and you
-have to sync absent tiles only.
+    ```js
+    tiler.refresh();
+    ```
 
-### reload
+    Removes tiles that don't fall within the current grid coordinates and syncs absent tiles.
+    This method is called automatically after the `dragstop` event triggered by the grid element.
+    Call this method if grid was dragged in a way that doesn't trigger `dragstop` event or viewport
+    size is changed, also in case unless all tiles are present after the sync and you have to sync
+    absent tiles only.
 
-```js
-tiler.reload();
-```
+- `reload`
 
-Removes and than resyncs all present tiles
+    ```js
+    tiler.reload();
+    ```
 
-### changePosition
+    Removes and than resyncs all present tiles
 
-Changes current grid position (top left visible tile). Rerenders grid regarding the new position and syncs tiles.
+- `changePosition`
+
+    ```js
+    tiler.changePosition(x, y);
+    ```
+
+    Changes current grid position (top left visible tile). Renders grid regarding the new position
+    and syncs tiles.
 
 ## Using Tiler
 
