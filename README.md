@@ -21,8 +21,8 @@ A jQuery element will be used as a viewport for a tiles grid.
 ##### sync
 
 Tiles factory method. Should provide tiles to to show on a grid. It is called right
-after the Tiler initialization, after the binder element was dragged or after
-the `refresh` method was called.
+after the Tiler initialization, after the grid was dragged or after the `refresh`
+method was called.
 
 Takes two `arguments`:
 
@@ -119,7 +119,7 @@ Like this:
 5. To make grid draggable just:
 
     ```js
-    tiler.binder.draggable();
+    tiler.grid.draggable();
     ```
 
 ## Tests

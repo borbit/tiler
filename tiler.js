@@ -32,23 +32,22 @@ function Tiler(element, options) {
   this.x = this.options.x
   this.y = this.options.y
 
-  // Creating the binder element that will contain tiles element.
+  // Creating the grid element that will contain tiles element.
   // Appending it to the viewport element. Binding 'dragstop' event
-  // to the 'refresh' method to sync tiles each time binder was dragged.
-  this.binder = $('<div/>')
+  // to the 'refresh' method to sync tiles each time grid was dragged.
+  this.grid = $('<div/>')
       .bind('dragstop', $.proxy(this, 'refresh'))
       .css('position', 'absolute')
       .appendTo(element)
 
-  // Calculate rows/cols count
-  this.calcGridSize()
+  this.calcRowsColsCount()
 
   // Calculate coordinates of corner tiles
   this.calcCornersCoords()
 
-  // Arrange binder element
-  this.setBinderPosition()
-  this.setBinderSize()
+  // Arrange grid element
+  this.setGridPosition()
+  this.setGridSize()
 
   // Initial tiles syncing
   this.syncTiles(this.getTilesCoordsToSync())
@@ -68,17 +67,17 @@ Tiler.defaults = {
 var Proto = Tiler.prototype
 
 /**
- * Sets the initial binder's position
+ * Sets the initial grid position
  *
  * @api private
  */
-Proto.setBinderPosition = function() {
-  this.initialBinderPosition = {
+Proto.setGridPosition = function() {
+  this.initialGridPosition = {
     left: -(this.options.tileSize * this.options.capture)
   , top: -(this.options.tileSize * this.options.capture)
   }
 
-  this.binder.css(this.initialBinderPosition)
+  this.grid.css(this.initialGridPosition)
 }
 
 /**
@@ -100,11 +99,11 @@ Proto.changePosition = function(x, y) {
 
   this.shiftTilesPosition(offset)
 
-  this.calcGridSize()
+  this.calcRowsColsCount()
   this.calcCornersCoords()
 
-  this.setBinderPosition()
-  this.setBinderSize()
+  this.setGridPosition()
+  this.setGridSize()
 
   var toRemove = this.getHiddenTilesCoords()
     , removed = this.removeTiles(toRemove)
@@ -114,38 +113,38 @@ Proto.changePosition = function(x, y) {
 }
 
 /**
- * Calculates binder offset (how many tiles were hidden by x/y coords)
- * regarding the initial and new (absolute) position of the binder element
+ * Calculates grid offset (how many tiles were hidden by x/y coords)
+ * regarding the initial and new (absolute) position of the grid element
  *
  * @param {Object} newPosition {top: {Number}, left: {Number}}
  * @return {Object} offset {x: {Number}, y: {Number}}
  * @api private
  */
-Proto.calcBinderOffset = function(newPosition) {
+Proto.calcGridOffset = function(newPosition) {
   return {
-    x: parseInt((newPosition.left - this.initialBinderPosition.left) / this.options.tileSize, 10)
-  , y: parseInt((newPosition.top - this.initialBinderPosition.top) / this.options.tileSize, 10)
+    x: parseInt((newPosition.left - this.initialGridPosition.left) / this.options.tileSize, 10)
+  , y: parseInt((newPosition.top - this.initialGridPosition.top) / this.options.tileSize, 10)
   }
 }
 
 /**
- * Sets binder size regarding the grid size and tile size
+ * Sets grid size regarding the grid size and tile size
  *
  * @api private
  */
-Proto.setBinderSize = function() {
-  this.binder.height(this.rowsCount * this.options.tileSize)
-  this.binder.width(this.colsCount * this.options.tileSize)
+Proto.setGridSize = function() {
+  this.grid.height(this.rowsCount * this.options.tileSize)
+  this.grid.width(this.colsCount * this.options.tileSize)
 }
 
 /**
- * Shifts binder position (absolute) regarding the passed offset
+ * Shifts grid position (absolute) regarding the passed offset
  *
  * @param {Object} offset {x: {Number}, y: {Number}}
  * @api private
  */
-Proto.shiftBinderPosition = function(offset) {
-  var position = this.binder.position()
+Proto.shiftGridPosition = function(offset) {
+  var position = this.grid.position()
 
   if (offset.y != 0) {
     position.top -= offset.y * this.options.tileSize
@@ -154,33 +153,32 @@ Proto.shiftBinderPosition = function(offset) {
     position.left -= offset.x * this.options.tileSize
   }
 
-  this.binder.css(position)
+  this.grid.css(position)
 }
 
 /**
  * Refreshes the grid. This method should be called to sync absent and
- * remove hidden tiles after viewport size is changed or binder was dragged,
+ * remove hidden tiles after viewport size is changed or grid was dragged,
  * also in case if not all tiles are present after the sync and you have to
  * sync absent tiles only.
  *
  * @api public
  */
 Proto.refresh = function() {
-  var position = this.binder.position()
-    , offset = this.calcBinderOffset(position)
+  var offset = this.calcGridOffset(this.grid.position())
 
   this.x -= offset.x
   this.y -= offset.y
 
-  this.calcGridSize()
+  this.calcRowsColsCount()
   this.calcCornersCoords()
-  this.setBinderSize()
+  this.setGridSize()
 
   var toRemove = this.getHiddenTilesCoords()
     , removed = this.removeTiles(toRemove)
     , tosync = this.getTilesCoordsToSync()
 
-  this.shiftBinderPosition(offset)
+  this.shiftGridPosition(offset)
   this.shiftTilesPosition(offset)
   this.syncTiles(tosync, removed)
 }
@@ -264,7 +262,7 @@ Proto.getTilesCoordsToSync = function() {
 /**
  * Returns array of tiles coordinates which coordinates don't fall
  * within the grid area. Method is used to determine which tiles were
- * hidden after the binder was dragged or grid position was changed
+ * hidden after the grid was dragged or grid position was changed
  *
  * @return {Array} [[x1, y1], [x2, y2], ...]
  * @api private
@@ -350,7 +348,7 @@ Proto.showTiles = function(tiles) {
     this.tiles.set(x, y, tile)
   }
 
-  this.binder.append(fragment)
+  this.grid.append(fragment)
   this.arrangeTiles()
 }
 
@@ -372,7 +370,7 @@ Proto.showHolders = function(tiles) {
     this.tiles.set(x, y, holder)
   }
 
-  this.binder.append(fragment)
+  this.grid.append(fragment)
   this.arrangeTiles()
 }
 
@@ -427,11 +425,11 @@ Proto.calcRowsCount = function() {
 }
 
 /**
- * Calculates and sets current grid size (rows/cols count)
+ * Calculates and sets current rows and cols count
  *
  * @api private
  */
-Proto.calcGridSize = function() {
+Proto.calcRowsColsCount = function() {
   this.rowsCount = this.calcRowsCount()
   this.colsCount = this.calcColsCount()
 }
