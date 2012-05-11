@@ -741,14 +741,14 @@ test('"sync" method is called with correct "tosync" data after viewport size is 
   tiler.element.remove();
 });
 
-module('"changePosition" method');
+module('"position" method');
 
 test('resets grid position', function() {
   var tiler = createTiler();
 
   tiler.grid.css('left', -150);
   tiler.grid.css('top', -150);
-  tiler.changePosition(0, 0);
+  tiler.position(0, 0);
 
   deepEqual(tiler.grid.position(), {top: -100, left: -100});
 
@@ -768,7 +768,7 @@ test('syncs missing tiles', 1, function() {
     }
   });
 
-  tiler.changePosition(1, 1);
+  tiler.position(1, 1);
   tiler.element.remove();
 });
 
@@ -785,7 +785,7 @@ test('removes unnecessary tiles', 1, function() {
     }
   });
 
-  tiler.changePosition(1, 1);
+  tiler.position(1, 1);
   tiler.element.remove();
 });
 

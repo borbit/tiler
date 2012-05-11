@@ -1,4 +1,4 @@
-# Tiler
+# Tiler.JS
 
 Library for the displaying of an infinite content as a grid of tiles.
 
@@ -6,7 +6,9 @@ Library for the displaying of an infinite content as a grid of tiles.
 
 ## Dependencies
 
-
+- [row.js](https://github.com/borbit/row.js)
+- [grid.js](https://github.com/borbit/grid.js)
+- [jQuery](http://jquery.com/)
 
 ## Documentation
 
@@ -22,7 +24,7 @@ A jQuery element will be used as a viewport for a tiles grid.
 
 #### options
 
-- *sync*
+- *sync(options, λ)*
 
     Tiles factory method. Should provide tiles to to show on a grid. It is called right
     after the Tiler initialization, after the grid was dragged or after the `refresh`
@@ -30,25 +32,25 @@ A jQuery element will be used as a viewport for a tiles grid.
 
     Takes two `arguments`:
 
-    - `options`
+    *options*
     
-        - `tosync` - array of tiles coordinates to sync
-        - `removed` - array of tiles coordinates that were removed from the grid
-        - `coords` - current grid coordinates (left top visible tile)
+    - `tosync` - array of tiles coordinates to sync
+    - `removed` - array of tiles coordinates that were removed from the grid
+    - `coords` - current grid coordinates (left top visible tile)
 
-    - `callback`
+    *callback*
 
     Tiles should be provided through this callback function.
 
     Takes one `argument`:
 
-    - `tiles`
+    *tiles*
 
     ```js
     [[x1, y1, $tile1], [x2, y2, $tile2], ...]
-```
+    ```
 
-- *holder*
+- *holder()*
 
     Place holders factory method. Implement this method if place holders should be shown
     instead of actual tiles until they are synced or if actual tiles aren't present. This

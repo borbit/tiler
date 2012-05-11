@@ -86,7 +86,7 @@ Proto.setGridPosition = function() {
  * @param {Number} y
  * @api public
  */
-Proto.changePosition = function(x, y) {
+Proto.position = function(x, y) {
   var offset = {
     x: this.x - x
   , y: this.y - y
