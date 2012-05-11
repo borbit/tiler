@@ -32,17 +32,15 @@ function Tiler(element, options) {
   this.x = this.options.x
   this.y = this.options.y
 
-  // Creating the grid element that will contain tiles element.
-  // Appending it to the viewport element. Binding 'dragstop' event
-  // to the 'refresh' method to sync tiles each time grid was dragged.
+  // Creating the grid element that will contain tiles. Appending it
+  // to the viewport element. Binding 'dragstop' event to the 'refresh'
+  // method to sync tiles each time grid was dragged.
   this.grid = $('<div/>')
       .bind('dragstop', $.proxy(this, 'refresh'))
       .css('position', 'absolute')
       .appendTo(element)
 
   this.calcRowsColsCount()
-
-  // Calculate coordinates of corner tiles
   this.calcCornersCoords()
 
   // Arrange grid element

@@ -4,6 +4,10 @@ Library for the displaying of an infinite content as a grid of tiles.
 
 [Demo](http://borbit.github.com/tiler/)
 
+## Dependencies
+
+
+
 ## Documentation
 
 ### Constructor
@@ -67,14 +71,23 @@ A jQuery element will be used as a viewport for a tiles grid.
     on this coordinates.
 
     Default: `0`
+    
+### Properties
+
+- *element*
+    
+    A viewport element is saved as a property.
+    
+- *grid*
+
+    A `jQuery` element used as a tiles container (it is appended to the viewport element).
 
 ### Methods
 
-- *changePosition(x, y)*
+- *reload()*
 
-    Changes current grid position (top left visible tile). Renders grid regarding the new position
-    and syncs tiles.
-    
+    Removes and than resyncs all present tiles.
+
 - *refresh()*
 
     Removes tiles that don't fall within the current grid coordinates and syncs absent tiles.
@@ -83,9 +96,10 @@ A jQuery element will be used as a viewport for a tiles grid.
     size is changed, also in case unless all tiles are present after the sync and you have to sync
     absent tiles only.
 
-- *reload()*
+- *position(x, y)*
 
-    Removes and than resyncs all present tiles
+    Changes current grid position (top left visible tile). Renders grid regarding the new position
+    and syncs tiles.
 
 ## Using Tiler
 
