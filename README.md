@@ -101,7 +101,7 @@ A jQuery element will be used as a viewport for a tiles grid.
 - *position(x, y)*
 
     Changes current grid position (top left visible tile). Renders grid regarding the new position
-    and syncs tiles.
+    and syncs tiles. Returns current postition if arguments aren't passed.
 
 ## Using Tiler
 

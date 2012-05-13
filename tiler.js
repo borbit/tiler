@@ -80,13 +80,19 @@ Proto.setGridPosition = function() {
 
 /**
  * Changes current grid position (top left visible tile).
- * Rerenders grid regarding the new position and syncs tiles
+ * Rerenders grid regarding the new position and syncs tiles.
+ * Returns current postition if arguments aren't passed.
  *
  * @param {Number} x
  * @param {Number} y
+ * @return {Object}
  * @api public
  */
 Proto.position = function(x, y) {
+  if (!arguments.length) {
+    return {x: this.x, y: this.y}
+  }
+  
   var offset = {
     x: this.x - x
   , y: this.y - y

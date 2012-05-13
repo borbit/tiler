@@ -789,6 +789,22 @@ test('removes unnecessary tiles', 1, function() {
   tiler.element.remove();
 });
 
+test('returns current position if arguments are not passed', function() {
+  var expectedX = 100;
+  var expectedY = 200;
+  var tiler = createTiler({
+    x: expectedX
+  , y: expectedY
+  });
+
+  var position = tiler.position();
+
+  equal(position.x, expectedX);
+  equal(position.y, expectedY);
+
+  tiler.element.remove();
+});
+
 module('"reload" method');
 
 test('syncs all tiles #1', 1, function() {
