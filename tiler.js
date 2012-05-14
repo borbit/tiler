@@ -15,7 +15,7 @@
 /**
  * Constructor
  *
- * @param {jQuery} element
+ * @param {jQuery|DOM} element
  * @param {Object} options
  */
 function Tiler(element, options) {
@@ -26,7 +26,7 @@ function Tiler(element, options) {
   this.tiles = new Grid()
 
   // Saving the viewport element as a property
-  this.element = element
+  this.element = element.jquery ? element : $(element)
 
   // Current coordinates of the top left visible tile
   this.x = this.options.x

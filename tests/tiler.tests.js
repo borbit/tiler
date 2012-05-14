@@ -47,11 +47,28 @@ function createTiler(options) {
 
 module('Initialization');
 
-test('"grid" is appended to the element', function() {
-  var tiler = createTiler();
-  ok($.contains(tiler.element[0], tiler.grid[0]));
-  equals(tiler.element.children().length, 1);
-  tiler.element.remove();
+// "element" passed as a jQuery element
+test('"grid" is appended to the element #1', function() {
+  var element = $('<div/>');
+  var tiler = new Tiler(element, {
+    tileSize: 100
+  , sync: $.noop
+  });
+  
+  ok($.contains(element[0], tiler.grid[0]));
+  equals(element.children().length, 1);
+});
+
+// "element" passed as a DOM element
+test('"grid" is appended to the element #2', function() {
+  var element = document.createElement('div');
+  var tiler = new Tiler(element, {
+    tileSize: 100
+  , sync: $.noop
+  });
+  
+  ok($.contains(element, tiler.grid[0]));
+  equals($(element).children().length, 1);
 });
 
 test('"grid" position is absolute', function() {

@@ -20,7 +20,7 @@ new Tiler(element, options);
 
 #### element
 
-A jQuery element will be used as a viewport for a tiles grid.
+A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 #### options
 
