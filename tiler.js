@@ -46,9 +46,6 @@ function Tiler(element, options) {
   // Arrange grid element
   this.setGridPosition()
   this.setGridSize()
-
-  // Initial tiles syncing
-  this.syncTiles(this.getTilesCoordsToSync())
 }
 
 /**
@@ -319,11 +316,7 @@ Proto.syncTiles = function(tosync, removed) {
     this.showHolders(tosync)
   }
   if ($.isFunction(this.options.sync)) {
-    this.options.sync({
-      coords: {x: this.x, y: this.y}
-    , removed: removed || []
-    , tosync: tosync
-    }, $.proxy(this, 'showTiles'))
+    this.options.sync(tosync, removed, {x: this.x, y: this.y});
   }
 }
 
@@ -331,7 +324,7 @@ Proto.syncTiles = function(tosync, removed) {
  * Shows tiles
  *
  * @param {Array} tiles - array of coordinates [[x1, y1, elem1], [x2, y2, elem2], ...]
- * @api private
+ * @api public
  */
 Proto.showTiles = function(tiles) {
   var fragment = document.createDocumentFragment()
@@ -359,6 +352,18 @@ Proto.showTiles = function(tiles) {
   this.grid.append(fragment)
   this.arrangeTiles()
 }
+
+/**
+ * Shows tile
+ *
+ * @param {Number} x
+ * @param {Number} y
+ * @param {jQuery|DOM} tile
+ * @api public
+ */
+Proto.showTile = function(x, y, tile) {
+  this.showTiles([[x, y, tile]]);
+};
 
 /**
  * Shows placeholders

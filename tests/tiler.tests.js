@@ -33,9 +33,9 @@ function createTiler(options) {
       holder.html(hNumber++);
       return holder;
     },
-    sync: function(options, callback) {
+    sync: function() {
       if (syncs++ == 0) {
-        callback(dummyTiles());
+        tiler.showTiles(dummyTiles());
       }
     }
   }, options));
@@ -48,10 +48,7 @@ module('Initialization');
 // "element" passed as a jQuery element
 test('"grid" is appended to the element #1', function() {
   var element = $('<div/>');
-  var tiler = new Tiler(element, {
-    tileSize: 100
-  , sync: $.noop
-  });
+  var tiler = new Tiler(element, {sync: $.noop});
   
   ok($.contains(element[0], tiler.grid[0]));
   equals(element.children().length, 1);
@@ -60,10 +57,7 @@ test('"grid" is appended to the element #1', function() {
 // "element" passed as a DOM element
 test('"grid" is appended to the element #2', function() {
   var element = document.createElement('div');
-  var tiler = new Tiler(element, {
-    tileSize: 100
-  , sync: $.noop
-  });
+  var tiler = new Tiler(element, {sync: $.noop});
   
   ok($.contains(element, tiler.grid[0]));
   equals($(element).children().length, 1);
@@ -102,34 +96,22 @@ test('initial values', function() {
 
 module('Behavior');
 
-test('"sync" callback is called after initialization', function() {
-  var spy = sinon.spy();
-  var tiler = createTiler({sync: spy});
-  ok(spy.calledOnce)
-  tiler.element.remove();
-});
-
-test('"holder" callback is called after initialization', function() {
-  var stub = sinon.stub().returns($('<div/>'));
-  var tiler = createTiler({holder: stub});
-  equal(stub.callCount, 9);
-  tiler.element.remove();
-});
-
 test('"sync" callback is called with correct arguments', function() {
   var spy = sinon.spy();
   var tiler = createTiler({sync: spy});
-  var expected = [[-1, -1], [0, -1], [1, -1],
-                  [-1,  0], [0,  0], [1,  0],
-                  [-1,  1], [0,  1], [1,  1]];
-
-  deepEqual(spy.args[0][0], {
-    coords: {x: 0, y: 0},
-    tosync: expected,
-    removed: []
-  });
-
-  ok($.isFunction(spy.args[0][1]));
+  
+  tiler.refresh();
+  
+  var expRemoved = [];
+  var expCoords = {x: 0, y: 0};
+  var expToSync = [[-1, -1], [0, -1], [1, -1],
+                   [-1,  0], [0,  0], [1,  0],
+                   [-1,  1], [0,  1], [1,  1]];
+  
+  
+  deepEqual(spy.args[0][0], expToSync);
+  deepEqual(spy.args[0][1], expRemoved);
+  deepEqual(spy.args[0][2], expCoords);
 
   tiler.element.remove();
 });
@@ -137,7 +119,9 @@ test('"sync" callback is called with correct arguments', function() {
 // Holders are provided as jQuery objects
 test('"grid" is filled by holders, holders have correct position #1', function() {
   var tiler = createTiler({sync: $.noop});
-
+  
+  tiler.refresh();
+  
   deepEqual(tiler.element.find('.holder._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.holder._1').position(), {top: 0, left: 100});
   deepEqual(tiler.element.find('.holder._2').position(), {top: 0, left: 200});
@@ -165,7 +149,9 @@ test('"grid" is filled by holders, holders have correct position #2', function()
       return holder;
     }
   });
-
+  
+  tiler.refresh();
+  
   deepEqual(tiler.element.find('.holder._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.holder._1').position(), {top: 0, left: 100});
   deepEqual(tiler.element.find('.holder._2').position(), {top: 0, left: 200});
@@ -183,11 +169,13 @@ test('"grid" is filled by holders, holders have correct position #2', function()
 
 test('"grid" is filled by holders after it was dragged on a distance more then it size', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -1000);
   tiler.grid.css('top', -1000);
   tiler.grid.trigger('dragstop');
-
+  
   equal(tiler.grid.find('.tile').length, 0);
   equal(tiler.grid.find('.holder').length, 9);
 
@@ -197,8 +185,8 @@ test('"grid" is filled by holders after it was dragged on a distance more then i
 // Tiles are provided as jQuery objects
 test('"grid" is filled by tiles #1', function() {
   var tiler = createTiler();
-
-  equal(tiler.element.find('.holder').length, 0);
+  
+  tiler.refresh();  
 
   deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.tile._1').position(), {top: 0, left: 100});
@@ -211,6 +199,8 @@ test('"grid" is filled by tiles #1', function() {
   deepEqual(tiler.element.find('.tile._6').position(), {top: 200, left: 0});
   deepEqual(tiler.element.find('.tile._7').position(), {top: 200, left: 100});
   deepEqual(tiler.element.find('.tile._8').position(), {top: 200, left: 200});
+  
+  equal(tiler.element.find('.holder').length, 0);
 
   tiler.element.remove();
 });
@@ -219,15 +209,17 @@ test('"grid" is filled by tiles #1', function() {
 test('"grid" is filled by tiles #2', function() {
   var tiler = createTiler({
     holder: null,
-    sync: function(options, callback) {
-      callback([
+    sync: function() {
+      tiler.showTiles([
         [-1, -1, $('<div class="tile _0"></div>').get(0)],
         [ 0,  0, $('<div class="tile _1"></div>').get(0)],
         [ 1,  1, $('<div class="tile _2"></div>').get(0)]
       ]);
     }
   });
-
+  
+  tiler.refresh();
+  
   deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.tile._1').position(), {top: 100, left: 100});
   deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
@@ -238,15 +230,17 @@ test('"grid" is filled by tiles #2', function() {
 test('"grid" is filled by tiles #3', function() {
   var tiler = createTiler({
     holder: null,
-    sync: function(options, callback) {
-      callback([
+    sync: function() {
+      tiler.showTiles([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 0,  0, $('<div class="tile _1"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
       ]);
     }
   });
-
+  
+  tiler.refresh();
+  
   deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.tile._1').position(), {top: 100, left: 100});
   deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
@@ -258,13 +252,15 @@ test('"grid" is filled by tiles #4', 2, function() {
   var tiler = createTiler({
     holder: null,
     sync: function(options, callback) {
-      callback([
+      tiler.showTiles([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
       ]);
     }
   });
-
+  
+  tiler.refresh();
+  
   deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
 
@@ -273,9 +269,13 @@ test('"grid" is filled by tiles #4', 2, function() {
 
 // tiles is not synced and "holder" options is not passed
 test('"grid" is not filled by tiles and holders', function() {
-  var tiler = createTiler({sync: function() {}, holder: null});
+  var tiler = createTiler({sync: $.noop, holder: null});
+  
+  tiler.refresh();
+  
   equal(tiler.element.find('.holder').length, 0);
   equal(tiler.element.find('.tile').length, 0);
+  
   tiler.element.remove();
 });
 
@@ -283,7 +283,9 @@ module('"grid" dragging');
 
 test('correct position changing #1', function() {
   var tiler = createTiler({capture: 2});
-
+  
+  tiler.refresh();
+  
   tiler.grid.css('left', -100);
   tiler.grid.css('top', -100);
   tiler.grid.trigger('dragstop');
@@ -296,6 +298,8 @@ test('correct position changing #1', function() {
 
 test('correct position changing #2', function() {
   var tiler = createTiler({capture: 2});
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -150);
   tiler.grid.css('top', -100);
@@ -309,6 +313,8 @@ test('correct position changing #2', function() {
 
 test('correct position changing #3', function() {
   var tiler = createTiler({capture: 2});
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -100);
   tiler.grid.css('top', -150);
@@ -322,6 +328,8 @@ test('correct position changing #3', function() {
 
 test('correct position changing #4', function() {
   var tiler = createTiler({capture: 2});
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -300);
   tiler.grid.css('top', -300);
@@ -335,6 +343,8 @@ test('correct position changing #4', function() {
 
 test('correct position changing #5', function() {
   var tiler = createTiler({capture: 2});
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -250);
   tiler.grid.css('top', -300);
@@ -348,6 +358,8 @@ test('correct position changing #5', function() {
 
 test('correct position changing #6', function() {
   var tiler = createTiler({capture: 2});
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -300);
   tiler.grid.css('top', -250);
@@ -361,6 +373,8 @@ test('correct position changing #6', function() {
 
 test('correct position changing #7', function() {
   var tiler = createTiler({capture: 2});
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -230).css('top', -230).trigger('dragstop');
   tiler.grid.css('left', -270).css('top', -270).trigger('dragstop');
@@ -374,13 +388,19 @@ test('correct position changing #7', function() {
 
 test('correct position changing #8', function() {
   var tiler = createTiler({capture: 2});
+  
+  tiler.refresh();
 
-  tiler.grid.css('left', -320).css('top', -320).trigger('dragstop');
+  tiler.grid.css('left', -320);
+  tiler.grid.css('top', -320);
+  tiler.grid.trigger('dragstop');
 
   equal(tiler.grid.css('left'), '-220px');
   equal(tiler.grid.css('top'), '-220px');
 
-  tiler.grid.css('left', -300).css('top', -300).trigger('dragstop');
+  tiler.grid.css('left', -300);
+  tiler.grid.css('top', -300);
+  tiler.grid.trigger('dragstop');
 
   equal(tiler.grid.css('left'), '-200px');
   equal(tiler.grid.css('top'), '-200px');
@@ -390,14 +410,23 @@ test('correct position changing #8', function() {
 
 test('correct position changing #9', function() {
   var tiler = createTiler();
-  tiler.grid.css('left', -1000).css('top', -1000).trigger('dragstop');
+  
+  tiler.refresh();
+  
+  tiler.grid.css('left', -1000);
+  tiler.grid.css('top', -1000);
+  tiler.grid.trigger('dragstop');
+  
   deepEqual(tiler.grid.position(), {left: -100, top: -100});
+  
   tiler.element.remove();
 });
 
 // dragging from top to bottom and from left to right
 test('tiles are removed #1', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
@@ -421,7 +450,7 @@ test('tiles are removed #2', function() {
     sync: function(options, callback) {
       if (synced) { return };
 
-      callback([
+      tiler.showTiles([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 0,  0, $('<div class="tile _1"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
@@ -430,6 +459,8 @@ test('tiles are removed #2', function() {
       synced = true;
     }
   });
+  
+  tiler.refresh();
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
@@ -451,7 +482,7 @@ test('tiles are removed #2', function() {
     sync: function(options, callback) {
       if (synced) { return };
 
-      callback([
+      tiler.showTiles([
         [-1, 0, $('<div class="tile _0"></div>')],
         [ 0, 0, $('<div class="tile _1"></div>')],
         [ 1, 0, $('<div class="tile _2"></div>')]
@@ -460,6 +491,8 @@ test('tiles are removed #2', function() {
       synced = true;
     }
   });
+  
+  tiler.refresh();
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
@@ -476,6 +509,7 @@ test('tiles are removed #2', function() {
 // dragging from bottom to top and from right to left
 test('tiles are removed #3', function() {
   var tiler = createTiler();
+  tiler.refresh();
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
@@ -499,7 +533,7 @@ test('tiles are removed #4', function() {
     sync: function(options, callback) {
       if (synced) { return };
 
-      callback([
+      tiler.showTiles([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 0,  0, $('<div class="tile _1"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
@@ -508,6 +542,8 @@ test('tiles are removed #4', function() {
       synced = true;
     }
   });
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
@@ -529,7 +565,7 @@ test('tiles are removed #5', function() {
     sync: function(options, callback) {
       if (synced) { return };
 
-      callback([
+      tiler.showTiles([
         [-1, 0, $('<div class="tile _0"></div>')],
         [ 0, 0, $('<div class="tile _1"></div>')],
         [ 1, 0, $('<div class="tile _2"></div>')]
@@ -538,6 +574,8 @@ test('tiles are removed #5', function() {
       synced = true;
     }
   });
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
@@ -553,6 +591,8 @@ test('tiles are removed #5', function() {
 
 test('tiles are moved (top and left)', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
@@ -568,6 +608,8 @@ test('tiles are moved (top and left)', function() {
 
 test('tiles are moved (bottom and right)', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
@@ -583,6 +625,8 @@ test('tiles are moved (bottom and right)', function() {
 
 test('holders are inserted on empty space (top and left)', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
@@ -599,6 +643,8 @@ test('holders are inserted on empty space (top and left)', function() {
 
 test('holders are inserted on empty space (bottom and right)', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
@@ -618,15 +664,17 @@ module('"sync" callback');
 test('coordinates of removed tiles are passed (top and left)', function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(options, callback) {
+    sync: function(tosync, removed) {
       if (++calls == 1) {
-        callback(dummyTiles());
+        tiler.showTiles(dummyTiles());
       }
       if (calls == 2) {
-        deepEqual(options.removed, [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]);
+        deepEqual(removed, [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]);
       }
     }
   });
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
@@ -638,15 +686,17 @@ test('coordinates of removed tiles are passed (top and left)', function() {
 test('coordinates of removed tiles are passed (bottom and right)', function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(options, callback) {
+    sync: function(tosync, removed) {
       if (++calls == 1) {
-        callback(dummyTiles());
+        tiler.showTiles(dummyTiles());
       }
       if (calls == 2) {
-        deepEqual(options.removed, [[1,-1],[1, 0],[-1, 1],[0, 1],[1, 1]]);
+        deepEqual(removed, [[1,-1],[1, 0],[-1, 1],[0, 1],[1, 1]]);
       }
     }
   });
+  
+  tiler.refresh();
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
@@ -658,15 +708,8 @@ test('coordinates of removed tiles are passed (bottom and right)', function() {
 module('"refresh" method');
 
 test('grid is resized after viewport is resized', function() {
-  var calls = 0;
-  var tiler = createTiler({
-    sync: function(options, callback) {
-      if (++calls == 1) {
-        callback(dummyTiles());
-      }
-    }
-  });
-
+  var tiler = createTiler({sync: $.noop});
+  
   tiler.element.height(200);
   tiler.element.width(200);
   tiler.refresh();
@@ -678,15 +721,10 @@ test('grid is resized after viewport is resized', function() {
 });
 
 test('holders are inserted after viewport size is increased', function() {
-  var calls = 0;
-  var tiler = createTiler({
-    sync: function(options, callback) {
-      if (++calls == 1) {
-        callback(dummyTiles());
-      }
-    }
-  });
-
+  var tiler = createTiler({sync: $.noop});
+  
+  tiler.refresh();
+  
   tiler.element.height(200);
   tiler.element.width(200);
   tiler.refresh();
@@ -716,16 +754,17 @@ test('tiles are synced and inserted after viewport size is increased', function(
   var calls = 0;
   var tiler = createTiler({
     capture: 1,
-    sync: function(options, callback) {
+    sync: function() {
       if (++calls == 1) {
-        callback(dummyTiles());
+        tiler.showTiles(dummyTiles());
       }
       if (calls == 2) {
-        callback(newDummyTiles);
+        tiler.showTiles(newDummyTiles);
       }
     }
   });
-
+  
+  tiler.refresh();
   tiler.element.height(200);
   tiler.element.width(200);
   tiler.refresh();
@@ -762,16 +801,15 @@ test('tiles are removed after viewport size is decreased', function() {
 
   var calls = 0;
   var tiler = createTiler({
-    height: 200,
-    width: 200,
     sync: function(options, callback) {
       calls++;
       if (calls == 1) {
-        callback(dummyTiles);
+        tiler.showTiles(dummyTiles);
       }
     }
   });
 
+  tiler.refresh();
   tiler.element.height(100);
   tiler.element.width(100);
   tiler.refresh();
@@ -792,17 +830,18 @@ test('"sync" method is called with correct "tosync" data after viewport size is 
 
   var calls = 0;
   var tiler = createTiler({
-    sync: function(options) {
+    sync: function(tosync) {
       if (++calls == 2) {
-        deepEqual(options.tosync, expected);
+        deepEqual(tosync, expected);
       }
     }
   });
-
+  
+  tiler.refresh();
   tiler.element.height(200);
   tiler.element.width(200);
-
   tiler.refresh();
+  
   tiler.element.remove();
 });
 
@@ -810,6 +849,8 @@ module('"position" method');
 
 test('resets grid position', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
 
   tiler.grid.css('left', -150);
   tiler.grid.css('top', -150);
@@ -823,16 +864,17 @@ test('resets grid position', function() {
 test('syncs missing tiles', 1, function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(options, callback) {
+    sync: function(tosync) {
       if (++calls == 1) {
-        callback(dummyTiles());
+        tiler.showTiles(dummyTiles());
       }
       if (calls == 2) {
-        deepEqual(options.tosync, [[2, 0],[2, 1],[0, 2],[1, 2],[2, 2]]);
+        deepEqual(tosync, [[2, 0],[2, 1],[0, 2],[1, 2],[2, 2]]);
       }
     }
   });
-
+  
+  tiler.refresh();
   tiler.position(1, 1);
   tiler.element.remove();
 });
@@ -840,16 +882,17 @@ test('syncs missing tiles', 1, function() {
 test('removes unnecessary tiles', 1, function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(options, callback) {
+    sync: function(tosync, removed) {
       if (++calls == 1) {
-        callback(dummyTiles());
+        tiler.showTiles(dummyTiles());
       }
       if (calls == 2) {
-        deepEqual(options.removed, [[-1, -1],[0, -1],[1, -1],[-1, 0],[-1, 1]]);
+        deepEqual(removed, [[-1, -1],[0, -1],[1, -1],[-1, 0],[-1, 1]]);
       }
     }
   });
 
+  tiler.refresh();
   tiler.position(1, 1);
   tiler.element.remove();
 });
@@ -875,18 +918,20 @@ module('"reload" method');
 test('syncs all tiles #1', 1, function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(options, callback) {
+    sync: function(tosync) {
       if (++calls == 1) {
-        callback(dummyTiles());
+        tiler.showTiles(dummyTiles());
       }
       if (calls == 2) {
-        deepEqual(options.tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
+        deepEqual(tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
           [0,  0], [1,  0], [-1,  1], [0,  1], [1,  1]]);
       }
     }
   });
 
+  tiler.refresh();
   tiler.reload();
+  
   tiler.element.remove();
 });
 
@@ -894,44 +939,53 @@ test('syncs all tiles #2', 1, function() {
   var calls = 0;
   var tiler = createTiler({
     holder: null,
-    sync: function(options, callback) {
+    sync: function(tosync) {
       if (++calls == 1) {
-        callback([]);
+        tiler.showTiles([]);
       }
       if (calls == 2) {
-        deepEqual(options.tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
+        deepEqual(tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
           [0,  0], [1,  0], [-1,  1], [0,  1], [1,  1]]);
       }
     }
   });
 
+  tiler.refresh();
   tiler.reload();
+  
   tiler.element.remove();
 });
 
 test('removes all tiles', function() {
   var tiler = createTiler();
+  tiler.refresh();
   tiler.reload();
+  
   equal(tiler.element.find('.tile').length, 0);
+  
   tiler.element.remove();
 });
 
 test('doesn\'t remove old tiles if "silent" option is passed', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
   tiler.reload({silent: true});
+  
   equal(tiler.element.find('.tile').length, 9);
+  
   tiler.element.remove();
 });
 
 test('replaces old tiles with new if "silent" option is passed', function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(options, callback) {
+    sync: function() {
       if (++calls == 1) {
-        callback(dummyTiles());
+        tiler.showTiles(dummyTiles());
       }
       if (calls == 2) {
-        callback([
+        tiler.showTiles([
           [-1, -1, $('<div class="newTile">0</div>')],
           [ 0, -1, $('<div class="newTile">1</div>')],
           [ 1, -1, $('<div class="newTile">2</div>')],
@@ -946,6 +1000,7 @@ test('replaces old tiles with new if "silent" option is passed', function() {
     }
   });
 
+  tiler.refresh();
   tiler.reload();
 
   equal(tiler.element.find('.tile').length, 0);
@@ -953,3 +1008,26 @@ test('replaces old tiles with new if "silent" option is passed', function() {
 
   tiler.element.remove();
 });
+
+module('"showTile" method');
+
+test('grid is filled by tiles', function() {
+  var tiler = createTiler({
+    sync: function(tosync) {
+      tiler.showTile(-1, 0, $('<div class="tile _1">1</div>'));
+      tiler.showTile( 0, 0, $('<div class="tile _2">2</div>'));
+      tiler.showTile( 1, 0, $('<div class="tile _3">3</div>'));
+    }
+  });
+  
+  tiler.refresh();  
+
+  deepEqual(tiler.element.find('.tile._1').position(), {top: 100, left: 0});
+  deepEqual(tiler.element.find('.tile._2').position(), {top: 100, left: 100});
+  deepEqual(tiler.element.find('.tile._3').position(), {top: 100, left: 200});
+  
+  equal(tiler.element.find('.holder').length, 6);
+
+  tiler.element.remove();
+});
+

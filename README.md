@@ -1,6 +1,6 @@
 # Tiler.JS
 
-Library for the displaying of an infinite content as a grid of tiles.
+Library for working with infinite grid of tiles.
 
 [Demo](http://borbit.github.com/tiler/)
 
@@ -24,31 +24,28 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 #### options
 
-- *sync(options, λ)*
+- *sync(tosync, removed, coords)*
 
-    Tiles factory method. Should provide tiles to to show on a grid. It is called right
-    after the Tiler initialization, after the grid was dragged or after the `refresh`
-    method was called.
-
-    Takes two `arguments`:
-
-    *options*
+    Arguments:
     
     - `tosync` - array of tiles coordinates to sync
-    - `removed` - array of tiles coordinates that were removed from the grid
-    - `coords` - current grid coordinates (left top visible tile)
-
-    *callback*
-
-    Tiles should be provided through this callback function.
-
-    Takes one `argument`:
-
-    *tiles*
-
+    
     ```js
-    [[x1, y1, $tile1], [x2, y2, $tile2], ...]
+    [[x1, y1], [x2, y2], [x3, y3], ...]
     ```
+    
+    - `removed` - array of tiles coordinates that were removed from the grid
+    
+    ```js
+    [[x1, y1], [x2, y2], [x3, y3], ...]
+    ```
+    
+    - `coords` - current grid coordinates (left top visible tile)
+    
+    ```js
+    {x: 0, y: 0}
+    ```
+
 
 - *holder()*
 
@@ -86,10 +83,6 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 ### Methods
 
-- *reload()*
-
-    Removes and than resyncs all present tiles.
-
 - *refresh()*
 
     Removes tiles that don't fall within the current grid coordinates and syncs absent tiles.
@@ -97,6 +90,14 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     Call this method if grid was dragged in a way that doesn't trigger `dragstop` event or viewport
     size is changed, also in case unless all tiles are present after the sync and you have to sync
     absent tiles only.
+    
+- *reload([options])*
+
+    Removes and than resyncs all present tiles.
+
+- *showTile(x, y, tile)*
+
+- *showTiles(tiles)*
 
 - *position(x, y)*
 
@@ -142,13 +143,15 @@ Like this:
           var y = tile[1];
           
           img.onload = function() {
-            callback([[x, y, $('<img/>').attr('src', img.src)]]);
+            tiler.showTile(x, y, $('<img/>').attr('src', img.src));
           };
           
           img.src = 'image_' + x + '_' + y + '.png';
         });
       }
     });
+    
+    tiler.refresh();
     ```
 
 5. To make grid draggable just:
