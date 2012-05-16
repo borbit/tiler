@@ -340,7 +340,9 @@ Proto.showTiles = function(tiles) {
     var x = tiles[i][0]
       , y = tiles[i][1]
       , tile = tiles[i][2]
-
+    
+    !tile.jquery && (tile = $(tile))
+    
     if (y < this.corners.y1 || y > this.corners.y2 ||
         x < this.corners.x1 || x > this.corners.x2) {
       continue
@@ -371,7 +373,8 @@ Proto.showHolders = function(tiles) {
     var holder = this.options.holder()
       , x = tiles[i][0]
       , y = tiles[i][1]
-
+    
+    !holder.jquery && (holder = $(holder))
     fragment.appendChild(holder.get(0))
     this.tiles.set(x, y, holder)
   }

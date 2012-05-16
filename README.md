@@ -54,7 +54,7 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
     Place holders factory method. Implement this method if place holders should be shown
     instead of actual tiles until they are synced or if actual tiles aren't present. This
-    should just return a `jQuery element` to be shown instead of actual tile.
+    should just return a `jQuery` or `DOM` element to be shown instead of actual tile.
 
 - *tileSize*
 

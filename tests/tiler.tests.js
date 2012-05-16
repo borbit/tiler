@@ -30,9 +30,7 @@ function createTiler(options) {
     holder: function() {
       var holder = $('<div/>');
       holder.addClass('holder _' + hNumber);
-      holder.html(hNumber);
-      hNumber++
-
+      holder.html(hNumber++);
       return holder;
     },
     sync: function(options, callback) {
@@ -136,8 +134,37 @@ test('"sync" callback is called with correct arguments', function() {
   tiler.element.remove();
 });
 
-test('"grid" is filled by holders, holders have correct position', function() {
-  var tiler = createTiler({sync: function() {}});
+// Holders are provided as jQuery objects
+test('"grid" is filled by holders, holders have correct position #1', function() {
+  var tiler = createTiler({sync: $.noop});
+
+  deepEqual(tiler.element.find('.holder._0').position(), {top: 0, left: 0});
+  deepEqual(tiler.element.find('.holder._1').position(), {top: 0, left: 100});
+  deepEqual(tiler.element.find('.holder._2').position(), {top: 0, left: 200});
+
+  deepEqual(tiler.element.find('.holder._3').position(), {top: 100, left: 0});
+  deepEqual(tiler.element.find('.holder._4').position(), {top: 100, left: 100});
+  deepEqual(tiler.element.find('.holder._5').position(), {top: 100, left: 200});
+
+  deepEqual(tiler.element.find('.holder._6').position(), {top: 200, left: 0});
+  deepEqual(tiler.element.find('.holder._7').position(), {top: 200, left: 100});
+  deepEqual(tiler.element.find('.holder._8').position(), {top: 200, left: 200});
+
+  tiler.element.remove();
+});
+
+// Holders are provided as DOM elements
+test('"grid" is filled by holders, holders have correct position #2', function() {
+  var hNumber = 0;
+  var tiler = createTiler({
+    sync: $.noop,
+    holder: function() {
+      var holder = document.createElement('div');
+      $(holder).addClass('holder _' + hNumber);
+      $(holder).html(hNumber++);
+      return holder;
+    }
+  });
 
   deepEqual(tiler.element.find('.holder._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.holder._1').position(), {top: 0, left: 100});
@@ -167,6 +194,7 @@ test('"grid" is filled by holders after it was dragged on a distance more then i
   tiler.element.remove();
 });
 
+// Tiles are provided as jQuery objects
 test('"grid" is filled by tiles #1', function() {
   var tiler = createTiler();
 
@@ -187,7 +215,27 @@ test('"grid" is filled by tiles #1', function() {
   tiler.element.remove();
 });
 
-test('"grid" is filled by tiles #2', 3, function() {
+// Tiles are provided as DOM elements
+test('"grid" is filled by tiles #2', function() {
+  var tiler = createTiler({
+    holder: null,
+    sync: function(options, callback) {
+      callback([
+        [-1, -1, $('<div class="tile _0"></div>').get(0)],
+        [ 0,  0, $('<div class="tile _1"></div>').get(0)],
+        [ 1,  1, $('<div class="tile _2"></div>').get(0)]
+      ]);
+    }
+  });
+
+  deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
+  deepEqual(tiler.element.find('.tile._1').position(), {top: 100, left: 100});
+  deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
+
+  tiler.element.remove();
+});
+
+test('"grid" is filled by tiles #3', function() {
   var tiler = createTiler({
     holder: null,
     sync: function(options, callback) {
@@ -206,7 +254,7 @@ test('"grid" is filled by tiles #2', 3, function() {
   tiler.element.remove();
 });
 
-test('"grid" is filled by tiles #3', 2, function() {
+test('"grid" is filled by tiles #4', 2, function() {
   var tiler = createTiler({
     holder: null,
     sync: function(options, callback) {
