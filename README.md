@@ -130,8 +130,7 @@ Like this:
     var tiler = new Tiler($('#viewport'), {
       tileSize: 200,
       
-      sync: function(options, callback) {
-        var tosync = options.tosync;
+      sync: function(tosync) {
         
         tosync.forEach(function(tile) {
           var img = new Image();
