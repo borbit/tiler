@@ -24,26 +24,22 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 #### options
 
-- *sync(tosync, removed, coords)*
+- *sync(tosync, removed)*
+
+    This method is called each time the grid is ready to be refreshed or reloaded.
 
     Arguments:
     
-    - `tosync` - array of tiles coordinates to sync
+    `tosync` - array of tiles coordinates to show on the grid 
     
     ```js
     [[x1, y1], [x2, y2], [x3, y3], ...]
     ```
     
-    - `removed` - array of tiles coordinates that were removed from the grid
+    `removed` - array of tiles coordinates that were removed from the grid
     
     ```js
     [[x1, y1], [x2, y2], [x3, y3], ...]
-    ```
-    
-    - `coords` - current grid coordinates (left top visible tile)
-    
-    ```js
-    {x: 0, y: 0}
     ```
 
 
