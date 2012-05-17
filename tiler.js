@@ -53,7 +53,6 @@ function Tiler(element, options) {
  */
 Tiler.defaults = {
   sync: null
-, holder: null
 , tileSize: null
 , margin: 2
 , x: 0, y: 0
@@ -310,11 +309,6 @@ Proto.syncTiles = function(tosync, removed) {
   if (tosync.length == 0) {
     return
   }
-  // Show place holders before tiles are synced if place
-  // holders factory method is present
-  if ($.isFunction(this.options.holder)) {
-    this.showHolders(tosync)
-  }
   if ($.isFunction(this.options.sync)) {
     this.options.sync(tosync, removed);
   }
@@ -364,29 +358,6 @@ Proto.showTiles = function(tiles) {
 Proto.showTile = function(x, y, tile) {
   this.showTiles([[x, y, tile]]);
 };
-
-/**
- * Shows placeholders
- *
- * @param {Array} tiles - array of coordinates [[x1, y1], [x2, y2], ...]
- * @api private
- */
-Proto.showHolders = function(tiles) {
-  var fragment = document.createDocumentFragment()
-
-  for(var i = 0, l = tiles.length; i < l; i++) {
-    var holder = this.options.holder()
-      , x = tiles[i][0]
-      , y = tiles[i][1]
-    
-    !holder.jquery && (holder = $(holder))
-    fragment.appendChild(holder.get(0))
-    this.tiles.set(x, y, holder)
-  }
-
-  this.grid.append(fragment)
-  this.arrangeTiles()
-}
 
 /**
  * Arranges tiles position
