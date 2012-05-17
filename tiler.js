@@ -1,8 +1,8 @@
 /**
  * Tiler 0.1.0
  *
- * Library for the displaying of an infinite content
- * as a grid of tiles. For more info visit:
+ * Library for the displaying of a content as an
+ * infinite grid of tiles. For more info visit:
  * https://github.com/borbit/tiler/
  *
  * Copyright (c) 2011-2012 Serge Borbit <serge.borbit@gmail.com>
@@ -55,7 +55,7 @@ Tiler.defaults = {
   sync: null
 , holder: null
 , tileSize: null
-, capture: 2
+, margin: 2
 , x: 0, y: 0
 }
 
@@ -68,8 +68,8 @@ var Proto = Tiler.prototype
  */
 Proto.setGridPosition = function() {
   this.initialGridPosition = {
-    left: -(this.options.tileSize * this.options.capture)
-  , top: -(this.options.tileSize * this.options.capture)
+    left: -(this.options.tileSize * this.options.margin)
+  , top: -(this.options.tileSize * this.options.margin)
   }
 
   this.grid.css(this.initialGridPosition)
@@ -417,7 +417,7 @@ Proto.calcColsCount = function() {
     , op = this.options
 
   if (width && op.tileSize) {
-    return Math.ceil(width / op.tileSize) + op.capture * 2
+    return Math.ceil(width / op.tileSize) + op.margin * 2
   }
   return 0
 }
@@ -433,7 +433,7 @@ Proto.calcRowsCount = function() {
     , op = this.options
 
   if (height && op.tileSize) {
-    return Math.ceil(height / op.tileSize) + op.capture * 2
+    return Math.ceil(height / op.tileSize) + op.margin * 2
   }
   return 0
 }
@@ -454,8 +454,8 @@ Proto.calcRowsColsCount = function() {
  * @api private
  */
 Proto.calcCornersCoords = function() {
-  var x1 = this.x - this.options.capture
-    , y1 = this.y - this.options.capture
+  var x1 = this.x - this.options.margin
+    , y1 = this.y - this.options.margin
 
   this.corners = {
     x1: x1, y1: y1

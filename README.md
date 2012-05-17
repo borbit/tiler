@@ -53,7 +53,7 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
     Tile size in pixels, considering that tile is a square
 
-- *capture*
+- *margin*
 
     Count of extra rows of tiles to be shown behind the viewport perimeter.
 

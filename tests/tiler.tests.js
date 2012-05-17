@@ -25,7 +25,7 @@ function createTiler(options) {
   var tiler = new Tiler(element, $.extend({}, {
     x: 0, y: 0,
     tileSize: 100,
-    capture: 1,
+    margin: 1,
 
     holder: function() {
       var holder = $('<div/>');
@@ -70,14 +70,14 @@ test('"grid" position is absolute', function() {
 });
 
 test('"grid" has correct size', function() {
-  var tiler = createTiler({size: 100, capture: 2});
+  var tiler = createTiler({size: 100, margin: 2});
   equals(tiler.grid.width(), 500);
   equals(tiler.grid.height(), 500);
   tiler.element.remove();
 });
 
 test('"grid" has correct position', function() {
-  var tiler = createTiler({size: 100, capture: 2});
+  var tiler = createTiler({size: 100, margin: 2});
   equals(tiler.grid.css('top'), '-200px');
   equals(tiler.grid.css('left'), '-200px');
   tiler.element.remove();
@@ -89,7 +89,7 @@ test('initial values', function() {
   ok(Tiler.defaults.tileSize === null);
   ok(Tiler.defaults.holder === null);
   ok(Tiler.defaults.sync === null);
-  equals(Tiler.defaults.capture, 2);
+  equals(Tiler.defaults.margin, 2);
   equals(Tiler.defaults.x, 0);
   equals(Tiler.defaults.y, 0);
 });
@@ -280,7 +280,7 @@ test('"grid" is not filled by tiles and holders', function() {
 module('"grid" dragging');
 
 test('correct position changing #1', function() {
-  var tiler = createTiler({capture: 2});
+  var tiler = createTiler({margin: 2});
   
   tiler.refresh();
   
@@ -295,7 +295,7 @@ test('correct position changing #1', function() {
 });
 
 test('correct position changing #2', function() {
-  var tiler = createTiler({capture: 2});
+  var tiler = createTiler({margin: 2});
   
   tiler.refresh();
 
@@ -310,7 +310,7 @@ test('correct position changing #2', function() {
 });
 
 test('correct position changing #3', function() {
-  var tiler = createTiler({capture: 2});
+  var tiler = createTiler({margin: 2});
   
   tiler.refresh();
 
@@ -325,7 +325,7 @@ test('correct position changing #3', function() {
 });
 
 test('correct position changing #4', function() {
-  var tiler = createTiler({capture: 2});
+  var tiler = createTiler({margin: 2});
   
   tiler.refresh();
 
@@ -340,7 +340,7 @@ test('correct position changing #4', function() {
 });
 
 test('correct position changing #5', function() {
-  var tiler = createTiler({capture: 2});
+  var tiler = createTiler({margin: 2});
   
   tiler.refresh();
 
@@ -355,7 +355,7 @@ test('correct position changing #5', function() {
 });
 
 test('correct position changing #6', function() {
-  var tiler = createTiler({capture: 2});
+  var tiler = createTiler({margin: 2});
   
   tiler.refresh();
 
@@ -370,7 +370,7 @@ test('correct position changing #6', function() {
 });
 
 test('correct position changing #7', function() {
-  var tiler = createTiler({capture: 2});
+  var tiler = createTiler({margin: 2});
   
   tiler.refresh();
 
@@ -385,7 +385,7 @@ test('correct position changing #7', function() {
 });
 
 test('correct position changing #8', function() {
-  var tiler = createTiler({capture: 2});
+  var tiler = createTiler({margin: 2});
   
   tiler.refresh();
 
@@ -751,7 +751,7 @@ test('tiles are synced and inserted after viewport size is increased', function(
 
   var calls = 0;
   var tiler = createTiler({
-    capture: 1,
+    margin: 1,
     sync: function() {
       if (++calls == 1) {
         tiler.showTiles(dummyTiles());
