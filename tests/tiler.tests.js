@@ -103,7 +103,6 @@ test('"sync" callback is called with correct arguments', function() {
   tiler.refresh();
   
   var expRemoved = [];
-  var expCoords = {x: 0, y: 0};
   var expToSync = [[-1, -1], [0, -1], [1, -1],
                    [-1,  0], [0,  0], [1,  0],
                    [-1,  1], [0,  1], [1,  1]];
@@ -111,7 +110,6 @@ test('"sync" callback is called with correct arguments', function() {
   
   deepEqual(spy.args[0][0], expToSync);
   deepEqual(spy.args[0][1], expRemoved);
-  deepEqual(spy.args[0][2], expCoords);
 
   tiler.element.remove();
 });

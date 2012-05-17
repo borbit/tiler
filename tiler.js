@@ -316,7 +316,7 @@ Proto.syncTiles = function(tosync, removed) {
     this.showHolders(tosync)
   }
   if ($.isFunction(this.options.sync)) {
-    this.options.sync(tosync, removed, {x: this.x, y: this.y});
+    this.options.sync(tosync, removed);
   }
 }
 
