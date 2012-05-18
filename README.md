@@ -64,34 +64,51 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 - *element*
     
-    A viewport element is saved as a property.
+    A viewport element. Automatically wrapped in a `jQuery` object if you pass it as a `DOM` element.
     
 - *grid*
 
-    A `jQuery` element used as a tiles container (it is appended to the viewport element).
+    A grid element used as a tiles container. Wrapped in a `jQuery` object and appended to the viewport element.
 
 ### Methods
 
 - *refresh()*
 
-    Removes tiles that don't fall within the current grid coordinates and syncs absent tiles.
-    This method is called automatically after the `dragstop` event triggered by the grid element.
-    Call this method if grid was dragged in a way that doesn't trigger `dragstop` event or viewport
-    size is changed, also in case unless all tiles are present after the sync and you have to sync
-    absent tiles only.
+    Removes tiles that don't fall within the current grid coordinates and syncs absent tiles. Call this
+    method if the grid was dragged/moved or viewport size is changed, also in case unless all tiles
+    are present after the sync and you have to sync absent tiles only.
     
-- *reload([options])*
+- *reload()*
 
-    Removes and than resyncs all present tiles.
+    Resyncs all tiles that fall within the grid coordinates.
 
-- *showTile(x, y, tile)*
+- *show()*
 
-- *showTiles(tiles)*
+    `show(x, y, tile)`
+    
+    Shows a `tile` in passed coordinates. `tile` can be both `jQuery` or `DOM` element. Tile wont be
+    shown if passed coordinates don't fall within the current grid coordinates. If there is already a
+    tile in passed coordinates on a grid it will be removed.
+    
+    `show(tiles)`
+    
+    As the same behavior as in previous but for array of tiles `[[x1, y1, tile1], [x2, y2, tile2], ...]`
 
-- *position(x, y)*
+- *remove()*
 
-    Changes current grid position (top left visible tile). Renders grid regarding the new position
-    and syncs tiles. Returns current postition if arguments aren't passed.
+    `remove(x, y)`
+    
+    Removes a `tile` in passed coordinates. Does nothing if there is no tile in passed coordinates.
+    
+    `remove(coords)`
+    
+    As the same behavior as in previous but for array of coordinates `[[x1, y1], [x2, y2], ...]`
+
+- *coords([x, y])*
+    
+    If arguments are passed - changes current grid coordinates (top left visible tile) and syncs/removes
+    tiles as in the same way as `refresh` method does. If method is called without arguments - returns
+    current grid coordinates `{x: {Number}, y: {Number}}`.
 
 ## Using Tiler
 
@@ -131,7 +148,7 @@ Like this:
           var y = tile[1];
           
           img.onload = function() {
-            tiler.showTile(x, y, $('<img/>').attr('src', img.src));
+            tiler.show(x, y, $('<img/>').attr('src', img.src));
           };
           
           img.src = 'image_' + x + '_' + y + '.png';

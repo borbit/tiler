@@ -28,7 +28,7 @@ function createTiler(options) {
     margin: 1,
     sync: function() {
       if (syncs++ == 0) {
-        tiler.showTiles(dummyTiles());
+        tiler.show(dummyTiles());
       }
     }
   }, options));
@@ -131,7 +131,7 @@ test('"grid" is filled by tiles #1', function() {
 test('"grid" is filled by tiles #2', function() {
   var tiler = createTiler({
     sync: function() {
-      tiler.showTiles([
+      tiler.show([
         [-1, -1, $('<div class="tile _0"></div>').get(0)],
         [ 0,  0, $('<div class="tile _1"></div>').get(0)],
         [ 1,  1, $('<div class="tile _2"></div>').get(0)]
@@ -151,7 +151,7 @@ test('"grid" is filled by tiles #2', function() {
 test('"grid" is filled by tiles #3', function() {
   var tiler = createTiler({
     sync: function() {
-      tiler.showTiles([
+      tiler.show([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 0,  0, $('<div class="tile _1"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
@@ -171,7 +171,7 @@ test('"grid" is filled by tiles #3', function() {
 test('"grid" is filled by tiles #4', 2, function() {
   var tiler = createTiler({
     sync: function(options, callback) {
-      tiler.showTiles([
+      tiler.show([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
       ]);
@@ -356,7 +356,7 @@ test('tiles are removed #2', function() {
     sync: function(options, callback) {
       if (synced) { return };
 
-      tiler.showTiles([
+      tiler.show([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 0,  0, $('<div class="tile _1"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
@@ -387,7 +387,7 @@ test('tiles are removed #2', function() {
     sync: function(options, callback) {
       if (synced) { return };
 
-      tiler.showTiles([
+      tiler.show([
         [-1, 0, $('<div class="tile _0"></div>')],
         [ 0, 0, $('<div class="tile _1"></div>')],
         [ 1, 0, $('<div class="tile _2"></div>')]
@@ -437,7 +437,7 @@ test('tiles are removed #4', function() {
     sync: function(options, callback) {
       if (synced) { return };
 
-      tiler.showTiles([
+      tiler.show([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 0,  0, $('<div class="tile _1"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
@@ -468,7 +468,7 @@ test('tiles are removed #5', function() {
     sync: function(options, callback) {
       if (synced) { return };
 
-      tiler.showTiles([
+      tiler.show([
         [-1, 0, $('<div class="tile _0"></div>')],
         [ 0, 0, $('<div class="tile _1"></div>')],
         [ 1, 0, $('<div class="tile _2"></div>')]
@@ -533,7 +533,7 @@ test('coordinates of removed tiles are passed (top and left)', function() {
   var tiler = createTiler({
     sync: function(tosync, removed) {
       if (++calls == 1) {
-        tiler.showTiles(dummyTiles());
+        tiler.show(dummyTiles());
       }
       if (calls == 2) {
         deepEqual(removed, [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]);
@@ -555,7 +555,7 @@ test('coordinates of removed tiles are passed (bottom and right)', function() {
   var tiler = createTiler({
     sync: function(tosync, removed) {
       if (++calls == 1) {
-        tiler.showTiles(dummyTiles());
+        tiler.show(dummyTiles());
       }
       if (calls == 2) {
         deepEqual(removed, [[1,-1],[1, 0],[-1, 1],[0, 1],[1, 1]]);
@@ -603,10 +603,10 @@ test('tiles are synced and inserted after viewport size is increased', function(
     margin: 1,
     sync: function() {
       if (++calls == 1) {
-        tiler.showTiles(dummyTiles());
+        tiler.show(dummyTiles());
       }
       if (calls == 2) {
-        tiler.showTiles(newDummyTiles);
+        tiler.show(newDummyTiles);
       }
     }
   });
@@ -651,7 +651,7 @@ test('tiles are removed after viewport size is decreased', function() {
     sync: function(options, callback) {
       calls++;
       if (calls == 1) {
-        tiler.showTiles(dummyTiles);
+        tiler.show(dummyTiles);
       }
     }
   });
@@ -679,7 +679,7 @@ test('"sync" method is called with correct "tosync" data after viewport size is 
   var tiler = createTiler({
     sync: function(tosync) {
       if (++calls == 1) {
-        tiler.showTiles(dummyTiles());
+        tiler.show(dummyTiles());
       }
       if (calls == 2) {
         deepEqual(tosync, expected);
@@ -695,7 +695,7 @@ test('"sync" method is called with correct "tosync" data after viewport size is 
   tiler.element.remove();
 });
 
-module('"position" method');
+module('"coords" method');
 
 test('resets grid position', function() {
   var tiler = createTiler();
@@ -704,7 +704,7 @@ test('resets grid position', function() {
 
   tiler.grid.css('left', -150);
   tiler.grid.css('top', -150);
-  tiler.position(0, 0);
+  tiler.coords(0, 0);
 
   deepEqual(tiler.grid.position(), {top: -100, left: -100});
 
@@ -716,7 +716,7 @@ test('syncs missing tiles', 1, function() {
   var tiler = createTiler({
     sync: function(tosync) {
       if (++calls == 1) {
-        tiler.showTiles(dummyTiles());
+        tiler.show(dummyTiles());
       }
       if (calls == 2) {
         deepEqual(tosync, [[2, 0],[2, 1],[0, 2],[1, 2],[2, 2]]);
@@ -725,7 +725,7 @@ test('syncs missing tiles', 1, function() {
   });
   
   tiler.refresh();
-  tiler.position(1, 1);
+  tiler.coords(1, 1);
   tiler.element.remove();
 });
 
@@ -734,7 +734,7 @@ test('removes unnecessary tiles', 1, function() {
   var tiler = createTiler({
     sync: function(tosync, removed) {
       if (++calls == 1) {
-        tiler.showTiles(dummyTiles());
+        tiler.show(dummyTiles());
       }
       if (calls == 2) {
         deepEqual(removed, [[-1, -1],[0, -1],[1, -1],[-1, 0],[-1, 1]]);
@@ -743,7 +743,7 @@ test('removes unnecessary tiles', 1, function() {
   });
 
   tiler.refresh();
-  tiler.position(1, 1);
+  tiler.coords(1, 1);
   tiler.element.remove();
 });
 
@@ -755,10 +755,10 @@ test('returns current position if arguments are not passed', function() {
   , y: expectedY
   });
 
-  var position = tiler.position();
+  var coords = tiler.coords();
 
-  equal(position.x, expectedX);
-  equal(position.y, expectedY);
+  equal(coords.x, expectedX);
+  equal(coords.y, expectedY);
 
   tiler.element.remove();
 });
@@ -770,7 +770,7 @@ test('syncs all tiles #1', 1, function() {
   var tiler = createTiler({
     sync: function(tosync) {
       if (++calls == 1) {
-        tiler.showTiles(dummyTiles());
+        tiler.show(dummyTiles());
       }
       if (calls == 2) {
         deepEqual(tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
@@ -790,7 +790,7 @@ test('syncs all tiles #2', 1, function() {
   var tiler = createTiler({
     sync: function(tosync) {
       if (++calls == 1) {
-        tiler.showTiles([]);
+        tiler.show([]);
       }
       if (calls == 2) {
         deepEqual(tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
@@ -805,67 +805,14 @@ test('syncs all tiles #2', 1, function() {
   tiler.element.remove();
 });
 
-test('removes all tiles', function() {
-  var tiler = createTiler();
-  tiler.refresh();
-  tiler.reload();
-  
-  equal(tiler.element.find('.tile').length, 0);
-  
-  tiler.element.remove();
-});
-
-test('doesn\'t remove old tiles if "silent" option is passed', function() {
-  var tiler = createTiler();
-  
-  tiler.refresh();
-  tiler.reload({silent: true});
-  
-  equal(tiler.element.find('.tile').length, 9);
-  
-  tiler.element.remove();
-});
-
-test('replaces old tiles with new if "silent" option is passed', function() {
-  var calls = 0;
-  var tiler = createTiler({
-    sync: function() {
-      if (++calls == 1) {
-        tiler.showTiles(dummyTiles());
-      }
-      if (calls == 2) {
-        tiler.showTiles([
-          [-1, -1, $('<div class="newTile">0</div>')],
-          [ 0, -1, $('<div class="newTile">1</div>')],
-          [ 1, -1, $('<div class="newTile">2</div>')],
-          [-1,  0, $('<div class="newTile">3</div>')],
-          [ 0,  0, $('<div class="newTile">4</div>')],
-          [ 1,  0, $('<div class="newTile">5</div>')],
-          [-1,  1, $('<div class="newTile">6</div>')],
-          [ 0,  1, $('<div class="newTile">7</div>')],
-          [ 1,  1, $('<div class="newTile">8</div>')]
-        ]);
-      }
-    }
-  });
-
-  tiler.refresh();
-  tiler.reload();
-
-  equal(tiler.element.find('.tile').length, 0);
-  equal(tiler.element.find('.newTile').length, 9);
-
-  tiler.element.remove();
-});
-
-module('"showTile" method');
+module('"show" method');
 
 test('grid is filled by tiles', function() {
   var tiler = createTiler({
     sync: function(tosync) {
-      tiler.showTile(-1, 0, $('<div class="tile _1">1</div>'));
-      tiler.showTile( 0, 0, $('<div class="tile _2">2</div>'));
-      tiler.showTile( 1, 0, $('<div class="tile _3">3</div>'));
+      tiler.show(-1, 0, $('<div class="tile _1">1</div>'));
+      tiler.show( 0, 0, $('<div class="tile _2">2</div>'));
+      tiler.show( 1, 0, $('<div class="tile _3">3</div>'));
     }
   });
   

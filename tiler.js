@@ -75,16 +75,16 @@ Proto.setGridPosition = function() {
 }
 
 /**
- * Changes current grid position (top left visible tile).
- * Rerenders grid regarding the new position and syncs tiles.
- * Returns current postition if arguments aren't passed.
+ * If arguments are passed - changes current grid coordinates (top left visible tile)
+ * and syncs/removes tiles as in the same way as `refresh` method does. If method
+ * is called without arguments - returns current grid coordinates.
  *
  * @param {Number} x
  * @param {Number} y
  * @return {Object}
  * @api public
  */
-Proto.position = function(x, y) {
+Proto.coords = function(x, y) {
   if (!arguments.length) {
     return {x: this.x, y: this.y}
   }
@@ -105,10 +105,10 @@ Proto.position = function(x, y) {
   this.setGridPosition()
   this.setGridSize()
 
-  var toRemove = this.getHiddenTilesCoords()
-    , removed = this.removeTiles(toRemove)
+  var removed = this.getHiddenTilesCoords()
     , toSync = this.getTilesCoordsToSync()
-
+  
+  this.remove(removed)
   this.syncTiles(toSync, removed)
 }
 
@@ -176,30 +176,22 @@ Proto.refresh = function() {
   this.calcCornersCoords()
   this.setGridSize()
 
-  var toRemove = this.getHiddenTilesCoords()
-    , removed = this.removeTiles(toRemove)
+  var removed = this.getHiddenTilesCoords()
     , tosync = this.getTilesCoordsToSync()
 
+  this.remove(removed)
   this.shiftGridPosition(offset)
   this.shiftTilesPosition(offset)
   this.syncTiles(tosync, removed)
 }
 
 /**
- * Removes and than resyncs all present tiles
+ * Resyncs all tiles that fall within the grid coordinates
  *
  * @api public
  */
-Proto.reload = function(options) {
-  var all = this.getAllTilesCoords()
-    , existing = this.tiles.coords()
-
-  if (options && options.silent) {
-    this.syncTiles(all)
-  } else {
-    this.removeTiles(existing)
-    this.syncTiles(all, existing)
-  }
+Proto.reload = function() {
+  this.syncTiles(this.getAllTilesCoords(), []);
 }
 
 /**
@@ -208,16 +200,19 @@ Proto.reload = function(options) {
  * @param {Array} coords [[x1, y1], [x2, y2], ...]
  * @api private
  */
-Proto.removeTiles = function(coords) {
+Proto.remove = function(x, y) {
+  var coords = $.isArray(x) ? x : [[x, y]]
   var removed = []
 
   for (var i = 0, l = coords.length; i < l; i++) {
-    var x = coords[i][0]
-      , y = coords[i][1]
+    x = coords[i][0]
+    y = coords[i][1]
 
-    this.tiles.get(x, y).remove()
-    this.tiles.remove(x, y)
-    removed.push([x, y])
+    if (this.tiles.get(x, y)) {
+      this.tiles.get(x, y).remove()
+      this.tiles.remove(x, y)
+      removed.push([x, y])
+    }
   }
 
   return removed
@@ -320,13 +315,14 @@ Proto.syncTiles = function(tosync, removed) {
  * @param {Array} tiles - array of coordinates [[x1, y1, elem1], [x2, y2, elem2], ...]
  * @api public
  */
-Proto.showTiles = function(tiles) {
+Proto.show = function(x, y, tile) {
+  var tiles = $.isArray(x) ? x : [[x, y, tile]];
   var fragment = document.createDocumentFragment()
 
   for(var i = 0, l = tiles.length; i < l; i++) {
-    var x = tiles[i][0]
-      , y = tiles[i][1]
-      , tile = tiles[i][2]
+    var tile = tiles[i][2]
+    x = tiles[i][0]
+    y = tiles[i][1]
     
     !tile.jquery && (tile = $(tile))
     
@@ -346,18 +342,6 @@ Proto.showTiles = function(tiles) {
   this.grid.append(fragment)
   this.arrangeTiles()
 }
-
-/**
- * Shows tile
- *
- * @param {Number} x
- * @param {Number} y
- * @param {jQuery|DOM} tile
- * @api public
- */
-Proto.showTile = function(x, y, tile) {
-  this.showTiles([[x, y, tile]]);
-};
 
 /**
  * Arranges tiles position
