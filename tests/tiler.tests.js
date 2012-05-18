@@ -195,7 +195,7 @@ test('correct position changing #1', function() {
   
   tiler.grid.css('left', -100);
   tiler.grid.css('top', -100);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.css('left'), '-200px');
   equal(tiler.grid.css('top'), '-200px');
@@ -210,7 +210,7 @@ test('correct position changing #2', function() {
 
   tiler.grid.css('left', -150);
   tiler.grid.css('top', -100);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.css('left'), '-150px');
   equal(tiler.grid.css('top'), '-200px');
@@ -225,7 +225,7 @@ test('correct position changing #3', function() {
 
   tiler.grid.css('left', -100);
   tiler.grid.css('top', -150);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.css('left'), '-200px');
   equal(tiler.grid.css('top'), '-150px');
@@ -240,7 +240,7 @@ test('correct position changing #4', function() {
 
   tiler.grid.css('left', -300);
   tiler.grid.css('top', -300);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.css('left'), '-200px');
   equal(tiler.grid.css('top'), '-200px');
@@ -255,7 +255,7 @@ test('correct position changing #5', function() {
 
   tiler.grid.css('left', -250);
   tiler.grid.css('top', -300);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.css('left'), '-250px');
   equal(tiler.grid.css('top'), '-200px');
@@ -270,7 +270,7 @@ test('correct position changing #6', function() {
 
   tiler.grid.css('left', -300);
   tiler.grid.css('top', -250);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.css('left'), '-200px');
   equal(tiler.grid.css('top'), '-250px');
@@ -283,9 +283,9 @@ test('correct position changing #7', function() {
   
   tiler.refresh();
 
-  tiler.grid.css('left', -230).css('top', -230).trigger('dragstop');
-  tiler.grid.css('left', -270).css('top', -270).trigger('dragstop');
-  tiler.grid.css('left', -300).css('top', -300).trigger('dragstop');
+  tiler.grid.css('left', -230).css('top', -230); tiler.refresh();
+  tiler.grid.css('left', -270).css('top', -270); tiler.refresh();
+  tiler.grid.css('left', -300).css('top', -300); tiler.refresh();
 
   equal(tiler.grid.css('left'), '-200px');
   equal(tiler.grid.css('top'), '-200px');
@@ -300,14 +300,14 @@ test('correct position changing #8', function() {
 
   tiler.grid.css('left', -320);
   tiler.grid.css('top', -320);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.css('left'), '-220px');
   equal(tiler.grid.css('top'), '-220px');
 
   tiler.grid.css('left', -300);
   tiler.grid.css('top', -300);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.css('left'), '-200px');
   equal(tiler.grid.css('top'), '-200px');
@@ -322,7 +322,7 @@ test('correct position changing #9', function() {
   
   tiler.grid.css('left', -1000);
   tiler.grid.css('top', -1000);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
   
   deepEqual(tiler.grid.position(), {left: -100, top: -100});
   
@@ -337,7 +337,7 @@ test('tiles are removed #1', function() {
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.find('.tile').length, 4);
   equal(tiler.grid.find('.tile._2').length, 0);
@@ -370,7 +370,7 @@ test('tiles are removed #2', function() {
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.find('.tile').length, 2);
   equal(tiler.grid.find('.tile._2').length, 0);
@@ -401,7 +401,7 @@ test('tiles are removed #2', function() {
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.find('.tile').length, 2);
   equal(tiler.grid.find('.tile._2').length, 0);
@@ -418,7 +418,7 @@ test('tiles are removed #3', function() {
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.find('.tile').length, 4);
   equal(tiler.grid.find('.tile._0').length, 0);
@@ -451,7 +451,7 @@ test('tiles are removed #4', function() {
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.find('.tile').length, 2);
   equal(tiler.grid.find('.tile._0').length, 0);
@@ -482,7 +482,7 @@ test('tiles are removed #5', function() {
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   equal(tiler.grid.find('.tile').length, 2);
   equal(tiler.grid.find('.tile._0').length, 0);
@@ -499,7 +499,7 @@ test('tiles are moved (top and left)', function() {
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   deepEqual(tiler.grid.find('.tile._0').position(), {left: 100, top: 100});
   deepEqual(tiler.grid.find('.tile._1').position(), {left: 200, top: 100});
@@ -516,7 +516,7 @@ test('tiles are moved (bottom and right)', function() {
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   deepEqual(tiler.grid.find('.tile._4').position(), {left: 0, top: 0});
   deepEqual(tiler.grid.find('.tile._5').position(), {left: 100, top: 0});
@@ -545,7 +545,7 @@ test('coordinates of removed tiles are passed (top and left)', function() {
 
   tiler.grid.css('left', -200);
   tiler.grid.css('top', -200);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   tiler.element.remove();
 });
@@ -567,7 +567,7 @@ test('coordinates of removed tiles are passed (bottom and right)', function() {
 
   tiler.grid.css('left', 0);
   tiler.grid.css('top', 0);
-  tiler.grid.trigger('dragstop');
+  tiler.refresh();
 
   tiler.element.remove();
 });

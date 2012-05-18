@@ -2,7 +2,7 @@
 
 Library for working with infinite grid of tiles.
 
-[Demo](http://borbit.github.com/tiler/)
+[See the Live Demo here](http://borbit.github.com/tiler/)
 
 ## Dependencies
 
@@ -171,6 +171,14 @@ Like this:
 
     ```js
     tiler.grid.draggable();
+    ```
+    
+6. Refresh grid after the dragging:
+
+    ```js
+    tiler.grid.bind('dragstop', function() {
+        tiler.refresh();
+    });
     ```
 
 ## Tests

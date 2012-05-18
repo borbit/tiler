@@ -32,13 +32,8 @@ function Tiler(element, options) {
   this.x = this.options.x
   this.y = this.options.y
 
-  // Creating the grid element that will contain tiles. Appending it
-  // to the viewport element. Binding 'dragstop' event to the 'refresh'
-  // method to fetch tiles each time grid was dragged.
-  this.grid = $('<div/>')
-      .bind('dragstop', $.proxy(this, 'refresh'))
-      .css('position', 'absolute')
-      .appendTo(element)
+  // Creating the grid element that will contain tiles. Appending it to the viewport element. 
+  this.grid = $('<div/>').css('position', 'absolute').appendTo(element)
 
   this.calcRowsColsCount()
   this.calcCornersCoords()
@@ -75,44 +70,6 @@ Proto.setGridPosition = function() {
 }
 
 /**
- * If arguments are passed - changes current grid coordinates (top left visible tile)
- * and fetches/removes tiles as in the same way as `refresh` method does. If method
- * is called without arguments - returns current grid coordinates.
- *
- * @param {Number} x
- * @param {Number} y
- * @return {Object}
- * @api public
- */
-Proto.coords = function(x, y) {
-  if (!arguments.length) {
-    return {x: this.x, y: this.y}
-  }
-  
-  var offset = {
-    x: this.x - x
-  , y: this.y - y
-  }
-
-  this.x = x
-  this.y = y
-
-  this.shiftTilesPosition(offset)
-
-  this.calcRowsColsCount()
-  this.calcCornersCoords()
-
-  this.setGridPosition()
-  this.setGridSize()
-
-  var removed = this.getHiddenTilesCoords()
-    , tofetch = this.getTilesCoordsToFetch()
-  
-  this.remove(removed)
-  this.fetchTiles(tofetch, removed)
-}
-
-/**
  * Calculates grid offset (how many tiles were hidden by x/y coords)
  * regarding the initial and new (absolute) position of the grid element
  *
@@ -144,16 +101,10 @@ Proto.setGridSize = function() {
  * @api private
  */
 Proto.shiftGridPosition = function(offset) {
-  var position = this.grid.position()
-
-  if (offset.y != 0) {
-    position.top -= offset.y * this.options.tileSize
-  }
-  if (offset.x != 0) {
-    position.left -= offset.x * this.options.tileSize
-  }
-
-  this.grid.css(position)
+  this.grid.css({
+    top: '-=' + offset.y * this.options.tileSize,
+    left: '-=' + offset.x * this.options.tileSize
+  })
 }
 
 /**
@@ -166,7 +117,7 @@ Proto.shiftGridPosition = function(offset) {
  */
 Proto.refresh = function() {
   var offset = this.calcGridOffset(this.grid.position())
-
+  
   this.x -= offset.x
   this.y -= offset.y
 
@@ -177,10 +128,16 @@ Proto.refresh = function() {
   var removed = this.getHiddenTilesCoords()
     , tofetch = this.getTilesCoordsToFetch()
 
-  this.remove(removed)
-  this.shiftGridPosition(offset)
-  this.shiftTilesPosition(offset)
-  this.fetchTiles(tofetch, removed)
+  if (removed.length) {
+    this.remove(removed)
+  }
+  if (offset.x || offset.y) {
+    this.shiftGridPosition(offset)
+    this.shiftTilesPosition(offset)
+  }
+  if (tofetch.length || removed.length) {
+    this.fetchTiles(tofetch, removed)
+  }
 }
 
 /**
@@ -190,6 +147,77 @@ Proto.refresh = function() {
  */
 Proto.reload = function() {
   this.fetchTiles(this.getAllTilesCoords(), []);
+}
+
+/**
+ * If arguments are passed - changes current grid coordinates (top left visible tile)
+ * and fetches/removes tiles as in the same way as `refresh` method does. If method
+ * is called without arguments - returns current grid coordinates.
+ *
+ * @param {Number} x
+ * @param {Number} y
+ * @return {Object}
+ * @api public
+ */
+Proto.coords = function(x, y) {
+  if (!arguments.length) {
+    return {x: this.x, y: this.y}
+  }
+  
+  var offset = {
+    x: this.x - x
+  , y: this.y - y
+  }
+
+  this.x = x
+  this.y = y
+
+  this.calcRowsColsCount()
+  this.calcCornersCoords()
+
+  this.setGridPosition()
+  this.setGridSize()
+
+  var removed = this.getHiddenTilesCoords()
+    , tofetch = this.getTilesCoordsToFetch()
+    
+  this.remove(removed)
+  this.shiftTilesPosition(offset)
+  this.fetchTiles(tofetch, removed)
+}
+
+/**
+ * Shows tiles
+ *
+ * @param {Array} tiles - array of coordinates [[x1, y1, elem1], [x2, y2, elem2], ...]
+ * @api public
+ */
+Proto.show = function(x, y, tile) {
+  var tiles = $.isArray(x) ? x : [[x, y, tile]];
+  var fragment = document.createDocumentFragment()
+
+  for(var i = 0, l = tiles.length; i < l; i++) {
+    var tile = tiles[i][2]
+    x = tiles[i][0]
+    y = tiles[i][1]
+    
+    !tile.jquery && (tile = $(tile))
+    
+    if (y < this.corners.y1 || y > this.corners.y2 ||
+        x < this.corners.x1 || x > this.corners.x2) {
+      continue
+    }
+
+    fragment.appendChild(tile.get(0))
+
+    if (this.tiles.get(x, y)) {
+      this.tiles.get(x, y).remove()
+    }
+    this.tiles.set(x, y, tile)
+  }
+
+  this.grid.append(fragment)
+  this.arrangeTiles()
 }
 
 /**
@@ -218,13 +246,14 @@ Proto.remove = function(x, y) {
  * @api private
  */
 Proto.shiftTilesPosition = function(offset) {
+  var tileSize = this.options.tileSize;
+  
   this.tiles.each(function(tile) {
-    var position = tile.position()
     tile.css({
-      'left': position.left + this.options.tileSize * offset.x
-    , 'top': position.top + this.options.tileSize * offset.y
+      left: '+=' + (tileSize * offset.x)
+    , top: '+=' + (tileSize * offset.y)
     })
-  }, this)
+  })
 }
 
 /**
@@ -303,53 +332,20 @@ Proto.fetchTiles = function(tofetch, removed) {
 }
 
 /**
- * Shows tiles
- *
- * @param {Array} tiles - array of coordinates [[x1, y1, elem1], [x2, y2, elem2], ...]
- * @api public
- */
-Proto.show = function(x, y, tile) {
-  var tiles = $.isArray(x) ? x : [[x, y, tile]];
-  var fragment = document.createDocumentFragment()
-
-  for(var i = 0, l = tiles.length; i < l; i++) {
-    var tile = tiles[i][2]
-    x = tiles[i][0]
-    y = tiles[i][1]
-    
-    !tile.jquery && (tile = $(tile))
-    
-    if (y < this.corners.y1 || y > this.corners.y2 ||
-        x < this.corners.x1 || x > this.corners.x2) {
-      continue
-    }
-
-    fragment.appendChild(tile.get(0))
-
-    if (this.tiles.get(x, y)) {
-      this.tiles.get(x, y).remove()
-    }
-    this.tiles.set(x, y, tile)
-  }
-
-  this.grid.append(fragment)
-  this.arrangeTiles()
-}
-
-/**
  * Arranges tiles position
  *
  * @api private
  */
 Proto.arrangeTiles = function() {
-  var size = this.options.tileSize
-    , corners = this.corners
+  var tileSize = this.options.tileSize
+    , cx1 = this.corners.x1
+    , cy1 = this.corners.y1
 
   this.tiles.each(function(tile, x, y) {
     tile.css({
-      'position': 'absolute'
-    , 'left': (x - corners.x1) * size
-    , 'top': (y - corners.y1) * size
+      position: 'absolute'
+    , left: (x - cx1) * tileSize
+    , top: (y - cy1) * tileSize
     })
   })
 }
