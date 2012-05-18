@@ -91,7 +91,7 @@
           var y = tile[1];
           
           img.onload = function() {
-            tiler.showTile(x, y, $('<img/>').attr('src', img.src));
+            tiler.show(x, y, $('<img/>').attr('src', img.src));
           };
           img.src = host + 'tile_' + x + '_' + y + '.jpg';
         });
