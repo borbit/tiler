@@ -98,13 +98,17 @@
       }
     });
     
-    $(window).resize(function() {
-      tiler.refresh();
-    });
-      
     tiler.grid.draggable();
     tiler.grid.scraggable();
     tiler.refresh();
+    
+    tiler.grid.bind('dragstop', function(e, ui) {
+      tiler.refresh();
+    });
+    
+    $(window).resize(function() {
+      tiler.refresh();
+    });
   });
 </script>
 
