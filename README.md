@@ -24,41 +24,41 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 #### options
 
-##### `fetch(tofetch, removed)`
+- ##### `fetch(tofetch, removed)`
 
-This method is called each time the grid is ready to be refreshed or reloaded.
+    This method is called each time the grid is ready to be refreshed or reloaded.
+    
+    Arguments:
+    
+    `tofetch` - array of tiles coordinates to show on the grid 
+    
+    ```js
+    [[x1, y1], [x2, y2], [x3, y3], ...]
+    ```
+    
+    `removed` - array of tiles coordinates that were removed from the grid
+    
+    ```js
+    [[x1, y1], [x2, y2], [x3, y3], ...]
+    ```
 
-Arguments:
+- ##### `tileSize`
 
-`tofetch` - array of tiles coordinates to show on the grid 
+    Tile size in pixels, considering that tile is a square
 
-```js
-[[x1, y1], [x2, y2], [x3, y3], ...]
-```
+- ##### `margin`
 
-`removed` - array of tiles coordinates that were removed from the grid
+    Count of extra rows of tiles to be shown behind the viewport perimeter.
+    
+    Default: `2`
 
-```js
-[[x1, y1], [x2, y2], [x3, y3], ...]
-```
+- ##### `x,y`
 
-##### `tileSize`
-
-Tile size in pixels, considering that tile is a square
-
-##### `margin`
-
-Count of extra rows of tiles to be shown behind the viewport perimeter.
-
-Default: `2`
-
-##### `x,y`
-
-Initial coordinates of the top left visible tile which coordinates are also current
-coordinates of the grid. Tiler fetches tiles that do fall within the grid area depending
-on this coordinates.
-
-Default: `0`
+    Initial coordinates of the top left visible tile which coordinates are also current
+    coordinates of the grid. Tiler fetches tiles that do fall within the grid area depending
+    on this coordinates.
+    
+    Default: `0`
     
 ### Properties
 
