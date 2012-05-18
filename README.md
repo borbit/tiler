@@ -44,7 +44,7 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 - ##### `tileSize`
 
-    Tile size in pixels, considering that tile is a square
+    Tile size in pixels, considering that tile is a square.
 
 - ##### `margin`
 
@@ -62,31 +62,31 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     
 ### Properties
 
-- *element*
+- ##### `element`
     
     A viewport element. Automatically wrapped in a `jQuery` object if you pass it as a `DOM` element.
     
-- *grid*
+- ##### `grid`
 
     A grid element used as a tiles container. Wrapped in a `jQuery` object and appended to the viewport element.
 
 ### Methods
 
-- *refresh()*
+- ##### `refresh()`
 
     Removes tiles that don't fall within the current grid coordinates and fetches absent tiles. Call this
     method if the grid was dragged/moved or viewport size is changed, also in case unless all tiles
     are present after the fetch and you have to fetch absent tiles only.
     
-- *reload()*
+- ##### `reload()`
 
     Refetches all tiles that fall within the grid coordinates.
 
-- *show()*
+- ##### `show()`
 
     `show(x, y, tile)`
     
-    Shows tile in passed coordinates. `tile` can be both `jQuery` or `DOM` element. Tile wont be
+    Shows tile in passed coordinates. Tile can be both `jQuery` or `DOM` element. Tile wont be
     shown if passed coordinates don't fall within the current grid coordinates. If there is already a
     tile in passed coordinates on a grid it will be removed.
     
@@ -98,7 +98,7 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     [[x1, y1, tile1], [x2, y2, tile2], [x3, y3, tile3], ...]
     ```
 
-- *remove()*
+- ##### `remove()`
 
     `remove(x, y)`
     
@@ -112,7 +112,7 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     [[x1, y1], [x2, y2], [x3, y3], ...]
     ```
 
-- *coords([x, y])*
+- ##### `coords([x, y])`
     
     If arguments are passed - changes current grid coordinates (top left visible tile) and fetches/removes
     tiles as in the same way as `refresh` method does. If method is called without arguments - returns
