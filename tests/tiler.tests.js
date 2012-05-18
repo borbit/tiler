@@ -432,10 +432,10 @@ test('tiles are removed #3', function() {
 
 // dragging from bottom to top and from right to left
 test('tiles are removed #4', function() {
-  var synced = false;
+  var fetched = false;
   var tiler = createTiler({
-    sync: function(options, callback) {
-      if (synced) { return };
+    fetch: function(options, callback) {
+      if (fetched) { return };
 
       tiler.show([
         [-1, -1, $('<div class="tile _0"></div>')],
@@ -443,7 +443,7 @@ test('tiles are removed #4', function() {
         [ 1,  1, $('<div class="tile _2"></div>')]
       ]);
 
-      synced = true;
+      fetched = true;
     }
   });
   
@@ -463,10 +463,10 @@ test('tiles are removed #4', function() {
 
 // dragging from bottom to top and from right to left
 test('tiles are removed #5', function() {
-  var synced = false;
+  var fetched = false;
   var tiler = createTiler({
-    sync: function(options, callback) {
-      if (synced) { return };
+    fetch: function(options, callback) {
+      if (fetched) { return };
 
       tiler.show([
         [-1, 0, $('<div class="tile _0"></div>')],
@@ -474,7 +474,7 @@ test('tiles are removed #5', function() {
         [ 1, 0, $('<div class="tile _2"></div>')]
       ]);
 
-      synced = true;
+      fetched = true;
     }
   });
   
@@ -526,12 +526,12 @@ test('tiles are moved (bottom and right)', function() {
   tiler.element.remove();
 });
 
-module('"sync" callback');
+module('"fetch" callback');
 
 test('coordinates of removed tiles are passed (top and left)', function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(tosync, removed) {
+    fetch: function(tofetch, removed) {
       if (++calls == 1) {
         tiler.show(dummyTiles());
       }
@@ -553,7 +553,7 @@ test('coordinates of removed tiles are passed (top and left)', function() {
 test('coordinates of removed tiles are passed (bottom and right)', function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(tosync, removed) {
+    fetch: function(tofetch, removed) {
       if (++calls == 1) {
         tiler.show(dummyTiles());
       }
@@ -575,7 +575,7 @@ test('coordinates of removed tiles are passed (bottom and right)', function() {
 module('"refresh" method');
 
 test('grid is resized after viewport is resized', function() {
-  var tiler = createTiler({sync: $.noop});
+  var tiler = createTiler({fetch: $.noop});
   
   tiler.element.height(200);
   tiler.element.width(200);
@@ -587,7 +587,7 @@ test('grid is resized after viewport is resized', function() {
   tiler.element.remove();
 });
 
-test('tiles are synced and inserted after viewport size is increased', function() {
+test('tiles are fetched and inserted after viewport size is increased', function() {
   var newDummyTiles = [
     [ 2, -1, $('<div class="tile _9">9</div>')],
     [ 2,  0, $('<div class="tile _10">10</div>')],
@@ -601,7 +601,7 @@ test('tiles are synced and inserted after viewport size is increased', function(
   var calls = 0;
   var tiler = createTiler({
     margin: 1,
-    sync: function() {
+    fetch: function() {
       if (++calls == 1) {
         tiler.show(dummyTiles());
       }
@@ -648,7 +648,7 @@ test('tiles are removed after viewport size is decreased', function() {
 
   var calls = 0;
   var tiler = createTiler({
-    sync: function(options, callback) {
+    fetch: function(options, callback) {
       calls++;
       if (calls == 1) {
         tiler.show(dummyTiles);
@@ -672,17 +672,17 @@ test('tiles are removed after viewport size is decreased', function() {
   tiler.element.remove();
 });
 
-test('"sync" method is called with correct "tosync" data after viewport size is increased', 1, function() {
+test('"fetch" method is called with correct "tofetch" data after viewport size is increased', 1, function() {
   var expected = [[2, -1], [2, 0], [2, 1], [-1, 2], [0, 2], [1, 2], [2, 2]];
 
   var calls = 0;
   var tiler = createTiler({
-    sync: function(tosync) {
+    fetch: function(tofetch) {
       if (++calls == 1) {
         tiler.show(dummyTiles());
       }
       if (calls == 2) {
-        deepEqual(tosync, expected);
+        deepEqual(tofetch, expected);
       }
     }
   });
@@ -711,15 +711,15 @@ test('resets grid position', function() {
   tiler.element.remove();
 });
 
-test('syncs missing tiles', 1, function() {
+test('fetches missing tiles', 1, function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(tosync) {
+    fetch: function(tofetch) {
       if (++calls == 1) {
         tiler.show(dummyTiles());
       }
       if (calls == 2) {
-        deepEqual(tosync, [[2, 0],[2, 1],[0, 2],[1, 2],[2, 2]]);
+        deepEqual(tofetch, [[2, 0],[2, 1],[0, 2],[1, 2],[2, 2]]);
       }
     }
   });
@@ -732,7 +732,7 @@ test('syncs missing tiles', 1, function() {
 test('removes unnecessary tiles', 1, function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(tosync, removed) {
+    fetch: function(tofetch, removed) {
       if (++calls == 1) {
         tiler.show(dummyTiles());
       }
@@ -765,15 +765,15 @@ test('returns current position if arguments are not passed', function() {
 
 module('"reload" method');
 
-test('syncs all tiles #1', 1, function() {
+test('fetches all tiles #1', 1, function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(tosync) {
+    fetch: function(tofetch) {
       if (++calls == 1) {
         tiler.show(dummyTiles());
       }
       if (calls == 2) {
-        deepEqual(tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
+        deepEqual(tofetch, [[-1, -1], [0, -1], [1, -1], [-1,  0],
           [0,  0], [1,  0], [-1,  1], [0,  1], [1,  1]]);
       }
     }
@@ -785,15 +785,15 @@ test('syncs all tiles #1', 1, function() {
   tiler.element.remove();
 });
 
-test('syncs all tiles #2', 1, function() {
+test('fetches all tiles #2', 1, function() {
   var calls = 0;
   var tiler = createTiler({
-    sync: function(tosync) {
+    fetch: function(tofetch) {
       if (++calls == 1) {
         tiler.show([]);
       }
       if (calls == 2) {
-        deepEqual(tosync, [[-1, -1], [0, -1], [1, -1], [-1,  0],
+        deepEqual(tofetch, [[-1, -1], [0, -1], [1, -1], [-1,  0],
           [0,  0], [1,  0], [-1,  1], [0,  1], [1,  1]]);
       }
     }
@@ -809,7 +809,7 @@ module('"show" method');
 
 test('grid is filled by tiles', function() {
   var tiler = createTiler({
-    sync: function(tosync) {
+    fetch: function(tofetch) {
       tiler.show(-1, 0, $('<div class="tile _1">1</div>'));
       tiler.show( 0, 0, $('<div class="tile _2">2</div>'));
       tiler.show( 1, 0, $('<div class="tile _3">3</div>'));
