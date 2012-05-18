@@ -15,7 +15,7 @@ function dummyTiles() {
 }
 
 function createTiler(options) {
-  var syncs = 0;
+  var fetches = 0;
   var hNumber = 0;
   var element = $('<div/>').appendTo(document.body);
 
@@ -26,8 +26,8 @@ function createTiler(options) {
     x: 0, y: 0,
     tileSize: 100,
     margin: 1,
-    sync: function() {
-      if (syncs++ == 0) {
+    fetch: function() {
+      if (fetches++ == 0) {
         tiler.show(dummyTiles());
       }
     }
@@ -80,7 +80,7 @@ module('Options');
 
 test('initial values', function() {
   ok(Tiler.defaults.tileSize === null);
-  ok(Tiler.defaults.sync === null);
+  ok(Tiler.defaults.fetch === null);
   equals(Tiler.defaults.margin, 2);
   equals(Tiler.defaults.x, 0);
   equals(Tiler.defaults.y, 0);
@@ -88,19 +88,19 @@ test('initial values', function() {
 
 module('Behavior');
 
-test('"sync" callback is called with correct arguments', function() {
+test('"fetch" callback is called with correct arguments', function() {
   var spy = sinon.spy();
-  var tiler = createTiler({sync: spy});
+  var tiler = createTiler({fetch: spy});
   
   tiler.refresh();
   
   var expRemoved = [];
-  var expToSync = [[-1, -1], [0, -1], [1, -1],
+  var expToFetch = [[-1, -1], [0, -1], [1, -1],
                    [-1,  0], [0,  0], [1,  0],
                    [-1,  1], [0,  1], [1,  1]];
   
   
-  deepEqual(spy.args[0][0], expToSync);
+  deepEqual(spy.args[0][0], expToFetch);
   deepEqual(spy.args[0][1], expRemoved);
 
   tiler.element.remove();
@@ -130,7 +130,7 @@ test('"grid" is filled by tiles #1', function() {
 // Tiles are provided as DOM elements
 test('"grid" is filled by tiles #2', function() {
   var tiler = createTiler({
-    sync: function() {
+    fetch: function() {
       tiler.show([
         [-1, -1, $('<div class="tile _0"></div>').get(0)],
         [ 0,  0, $('<div class="tile _1"></div>').get(0)],
@@ -150,7 +150,7 @@ test('"grid" is filled by tiles #2', function() {
 
 test('"grid" is filled by tiles #3', function() {
   var tiler = createTiler({
-    sync: function() {
+    fetch: function() {
       tiler.show([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 0,  0, $('<div class="tile _1"></div>')],
@@ -170,7 +170,7 @@ test('"grid" is filled by tiles #3', function() {
 
 test('"grid" is filled by tiles #4', 2, function() {
   var tiler = createTiler({
-    sync: function(options, callback) {
+    fetch: function(options, callback) {
       tiler.show([
         [-1, -1, $('<div class="tile _0"></div>')],
         [ 1,  1, $('<div class="tile _2"></div>')]
@@ -351,10 +351,10 @@ test('tiles are removed #1', function() {
 
 // dragging from top to bottom and from left to right
 test('tiles are removed #2', function() {
-  var synced = false;
+  var fetched = false;
   var tiler = createTiler({
-    sync: function(options, callback) {
-      if (synced) { return };
+    fetch: function(options, callback) {
+      if (fetched) { return };
 
       tiler.show([
         [-1, -1, $('<div class="tile _0"></div>')],
@@ -362,7 +362,7 @@ test('tiles are removed #2', function() {
         [ 1,  1, $('<div class="tile _2"></div>')]
       ]);
 
-      synced = true;
+      fetched = true;
     }
   });
   
@@ -382,10 +382,10 @@ test('tiles are removed #2', function() {
 
 // dragging from top to bottom and from left to right
 test('tiles are removed #2', function() {
-  var synced = false;
+  var fetched = false;
   var tiler = createTiler({
-    sync: function(options, callback) {
-      if (synced) { return };
+    fetch: function(options, callback) {
+      if (fetched) { return };
 
       tiler.show([
         [-1, 0, $('<div class="tile _0"></div>')],
@@ -393,7 +393,7 @@ test('tiles are removed #2', function() {
         [ 1, 0, $('<div class="tile _2"></div>')]
       ]);
 
-      synced = true;
+      fetched = true;
     }
   });
   

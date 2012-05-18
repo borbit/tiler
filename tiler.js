@@ -34,7 +34,7 @@ function Tiler(element, options) {
 
   // Creating the grid element that will contain tiles. Appending it
   // to the viewport element. Binding 'dragstop' event to the 'refresh'
-  // method to sync tiles each time grid was dragged.
+  // method to fetch tiles each time grid was dragged.
   this.grid = $('<div/>')
       .bind('dragstop', $.proxy(this, 'refresh'))
       .css('position', 'absolute')
@@ -52,7 +52,7 @@ function Tiler(element, options) {
  * Default options
  */
 Tiler.defaults = {
-  sync: null
+  fetch: null
 , tileSize: null
 , margin: 2
 , x: 0, y: 0
@@ -76,7 +76,7 @@ Proto.setGridPosition = function() {
 
 /**
  * If arguments are passed - changes current grid coordinates (top left visible tile)
- * and syncs/removes tiles as in the same way as `refresh` method does. If method
+ * and fetches/removes tiles as in the same way as `refresh` method does. If method
  * is called without arguments - returns current grid coordinates.
  *
  * @param {Number} x
@@ -106,10 +106,10 @@ Proto.coords = function(x, y) {
   this.setGridSize()
 
   var removed = this.getHiddenTilesCoords()
-    , toSync = this.getTilesCoordsToSync()
+    , tofetch = this.getTilesCoordsToFetch()
   
   this.remove(removed)
-  this.syncTiles(toSync, removed)
+  this.fetchTiles(tofetch, removed)
 }
 
 /**
@@ -157,12 +157,10 @@ Proto.shiftGridPosition = function(offset) {
 }
 
 /**
- * Removes tiles that don't fall within the current grid coordinates
- * and syncs absent tiles. This method is called automatically after the
- * `dragstop` event triggered by the grid element. You should call this
- * method if grid was dragged in a way that doesn't trigger `dragstop`
- * event or viewport size is changed, also in case unless all tiles are
- * present after the sync and you have to sync absent tiles only.
+ * Removes tiles that don't fall within the current grid coordinates and fetches absent
+ * tiles. Call this method if the grid was dragged/moved or viewport size is changed,
+ * also in case unless all tiles are present after the fetch and you have to fetch
+ * absent tiles only.
  * 
  * @api public
  */
@@ -177,32 +175,30 @@ Proto.refresh = function() {
   this.setGridSize()
 
   var removed = this.getHiddenTilesCoords()
-    , tosync = this.getTilesCoordsToSync()
+    , tofetch = this.getTilesCoordsToFetch()
 
   this.remove(removed)
   this.shiftGridPosition(offset)
   this.shiftTilesPosition(offset)
-  this.syncTiles(tosync, removed)
+  this.fetchTiles(tofetch, removed)
 }
 
 /**
- * Resyncs all tiles that fall within the grid coordinates
+ * Refetches all tiles that fall within the grid coordinates
  *
  * @api public
  */
 Proto.reload = function() {
-  this.syncTiles(this.getAllTilesCoords(), []);
+  this.fetchTiles(this.getAllTilesCoords(), []);
 }
 
 /**
- * Removes tiles by passed coordinates
+ * Removes tiles in passed coordinates
  *
- * @param {Array} coords [[x1, y1], [x2, y2], ...]
  * @api private
  */
 Proto.remove = function(x, y) {
   var coords = $.isArray(x) ? x : [[x, y]]
-  var removed = []
 
   for (var i = 0, l = coords.length; i < l; i++) {
     x = coords[i][0]
@@ -211,11 +207,8 @@ Proto.remove = function(x, y) {
     if (this.tiles.get(x, y)) {
       this.tiles.get(x, y).remove()
       this.tiles.remove(x, y)
-      removed.push([x, y])
     }
   }
-
-  return removed
 }
 
 /**
@@ -240,8 +233,8 @@ Proto.shiftTilesPosition = function(offset) {
  * @return {Array} [[x1, y1], [x2, y2], ...]
  * @api private
  */
-Proto.getTilesCoordsToSync = function() {
-  var toSync = []
+Proto.getTilesCoordsToFetch = function() {
+  var tofetch = []
     , all = this.getAllTilesCoords()
     , x, y
 
@@ -250,10 +243,10 @@ Proto.getTilesCoordsToSync = function() {
     y = all[i][1]
 
     if (!this.tiles.get(x, y)) {
-      toSync.push([x, y])
+      tofetch.push([x, y])
     }
   }
-  return toSync
+  return tofetch
 }
 
 /**
@@ -294,18 +287,18 @@ Proto.getAllTilesCoords = function() {
 }
 
 /**
- * Syncs tiles
+ * Fetches tiles
  *
- * @param {Array} tosync Array of tiles coordinates that should be synced
+ * @param {Array} tofetch Array of tiles coordinates that should be fetched
  * @param {Array} removed Array of tiles coordinates that were removed/hidden from the grid
  * @api private
  */
-Proto.syncTiles = function(tosync, removed) {
-  if (tosync.length == 0) {
+Proto.fetchTiles = function(tofetch, removed) {
+  if (tofetch.length == 0) {
     return
   }
-  if ($.isFunction(this.options.sync)) {
-    this.options.sync(tosync, removed);
+  if ($.isFunction(this.options.fetch)) {
+    this.options.fetch(tofetch, removed);
   }
 }
 

@@ -24,41 +24,41 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 #### options
 
-- *sync(tosync, removed)*
+##### `fetch(tofetch, removed)`
 
-    This method is called each time the grid is ready to be refreshed or reloaded.
+This method is called each time the grid is ready to be refreshed or reloaded.
 
-    Arguments:
-    
-    `tosync` - array of tiles coordinates to show on the grid 
-    
-    ```js
-    [[x1, y1], [x2, y2], [x3, y3], ...]
-    ```
-    
-    `removed` - array of tiles coordinates that were removed from the grid
-    
-    ```js
-    [[x1, y1], [x2, y2], [x3, y3], ...]
-    ```
+Arguments:
 
-- *tileSize*
+`tofetch` - array of tiles coordinates to show on the grid 
 
-    Tile size in pixels, considering that tile is a square
+```js
+[[x1, y1], [x2, y2], [x3, y3], ...]
+```
 
-- *margin*
+`removed` - array of tiles coordinates that were removed from the grid
 
-    Count of extra rows of tiles to be shown behind the viewport perimeter.
+```js
+[[x1, y1], [x2, y2], [x3, y3], ...]
+```
 
-    Default: `2`
+##### `tileSize`
 
-- *x,y*
+Tile size in pixels, considering that tile is a square
 
-    Initial coordinates of the top left visible tile which coordinates are also current
-    coordinates of the grid. Tiler syncs tiles that do fall within the grid area depending
-    on this coordinates.
+##### `margin`
 
-    Default: `0`
+Count of extra rows of tiles to be shown behind the viewport perimeter.
+
+Default: `2`
+
+##### `x,y`
+
+Initial coordinates of the top left visible tile which coordinates are also current
+coordinates of the grid. Tiler fetches tiles that do fall within the grid area depending
+on this coordinates.
+
+Default: `0`
     
 ### Properties
 
@@ -74,39 +74,47 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 - *refresh()*
 
-    Removes tiles that don't fall within the current grid coordinates and syncs absent tiles. Call this
+    Removes tiles that don't fall within the current grid coordinates and fetches absent tiles. Call this
     method if the grid was dragged/moved or viewport size is changed, also in case unless all tiles
-    are present after the sync and you have to sync absent tiles only.
+    are present after the fetch and you have to fetch absent tiles only.
     
 - *reload()*
 
-    Resyncs all tiles that fall within the grid coordinates.
+    Refetches all tiles that fall within the grid coordinates.
 
 - *show()*
 
     `show(x, y, tile)`
     
-    Shows a `tile` in passed coordinates. `tile` can be both `jQuery` or `DOM` element. Tile wont be
+    Shows tile in passed coordinates. `tile` can be both `jQuery` or `DOM` element. Tile wont be
     shown if passed coordinates don't fall within the current grid coordinates. If there is already a
     tile in passed coordinates on a grid it will be removed.
     
     `show(tiles)`
     
-    As the same behavior as in previous but for array of tiles `[[x1, y1, tile1], [x2, y2, tile2], ...]`
+    As the same behavior as in previous but for array of tiles. Array structure:
+    
+    ```js
+    [[x1, y1, tile1], [x2, y2, tile2], [x3, y3, tile3], ...]
+    ```
 
 - *remove()*
 
     `remove(x, y)`
     
-    Removes a `tile` in passed coordinates. Does nothing if there is no tile in passed coordinates.
+    Removes tile in passed coordinates. Does nothing if there is no tile in passed coordinates.
     
     `remove(coords)`
     
-    As the same behavior as in previous but for array of coordinates `[[x1, y1], [x2, y2], ...]`
+    As the same behavior as in previous but for array of coordinates. Array structure:
+    
+    ```js
+    [[x1, y1], [x2, y2], [x3, y3], ...]
+    ```
 
 - *coords([x, y])*
     
-    If arguments are passed - changes current grid coordinates (top left visible tile) and syncs/removes
+    If arguments are passed - changes current grid coordinates (top left visible tile) and fetches/removes
     tiles as in the same way as `refresh` method does. If method is called without arguments - returns
     current grid coordinates `{x: {Number}, y: {Number}}`.
 
@@ -133,16 +141,16 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     ```
 
 4. Create an instance of `Tiler` passing the element you have to make as a viewport by
-first argument and options by second. Don't forget to pass required options `tileSize` and `sync`.
+first argument and options by second. Don't forget to pass required options `tileSize` and `fetch`.
 Like this:
 
     ```js
     var tiler = new Tiler($('#viewport'), {
       tileSize: 200,
       
-      sync: function(tosync) {
+      fetch: function(tofetch) {
         
-        tosync.forEach(function(tile) {
+        tofetch.forEach(function(tile) {
           var img = new Image();
           var x = tile[0];
           var y = tile[1];
