@@ -79,8 +79,8 @@ Proto.setGridPosition = function() {
  */
 Proto.calcGridOffset = function(newPosition) {
   return {
-    x: parseInt((newPosition.left - this.initialGridPosition.left) / this.options.tileSize, 10)
-  , y: parseInt((newPosition.top - this.initialGridPosition.top) / this.options.tileSize, 10)
+    x: ~~((newPosition.left - this.initialGridPosition.left) / this.options.tileSize)
+  , y: ~~((newPosition.top - this.initialGridPosition.top) / this.options.tileSize)
   }
 }
 
@@ -90,8 +90,10 @@ Proto.calcGridOffset = function(newPosition) {
  * @api private
  */
 Proto.setGridSize = function() {
-  this.grid.height(this.rowsCount * this.options.tileSize)
-  this.grid.width(this.colsCount * this.options.tileSize)
+  this.grid.css({
+    height: this.rowsCount * this.options.tileSize
+  , width: this.colsCount * this.options.tileSize
+  });
 }
 
 /**
@@ -108,7 +110,7 @@ Proto.shiftGridPosition = function(offset) {
 }
 
 /**
- * Removes tiles that don't fall within the current grid coordinates and fetches absent
+ * Removes tiles that don't fall within the current grid area and fetches absent
  * tiles. Call this method if the grid was dragged/moved or viewport size is changed,
  * also in case unless all tiles are present after the fetch and you have to fetch
  * absent tiles only.
@@ -141,7 +143,7 @@ Proto.refresh = function() {
 }
 
 /**
- * Refetches all tiles that fall within the grid coordinates
+ * Refetches all tiles that fall within the grid area
  *
  * @api public
  */
@@ -189,7 +191,14 @@ Proto.coords = function(x, y) {
 /**
  * Shows tiles
  *
- * @param {Array} tiles - array of coordinates [[x1, y1, elem1], [x2, y2, elem2], ...]
+ * show(x, y, tile)
+ * @param {Number} x
+ * @param {Number} y
+ * @param {jQuery|DOM} tile
+ * 
+ * show(tiles)
+ * @param {Array} tiles [[x1, y1, elem1], [x2, y2, elem2], ...]
+ * 
  * @api public
  */
 Proto.show = function(x, y, tile) {
@@ -222,6 +231,13 @@ Proto.show = function(x, y, tile) {
 
 /**
  * Removes tiles in passed coordinates
+ *
+ * remove(x, y)
+ * @param {Number} x
+ * @param {Number} y
+ * 
+ * remove(coords)
+ * @param {Array} coords [[x1, y1], [x2, y2], ...]
  *
  * @api private
  */

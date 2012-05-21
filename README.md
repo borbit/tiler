@@ -74,20 +74,20 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 - ##### `refresh()`
 
-    Removes tiles that don't fall within the current grid coordinates and fetches absent tiles. Call this
+    Removes tiles that don't fall within the current grid area and fetches absent tiles. Call this
     method if the grid was dragged/moved or viewport size is changed, also in case unless all tiles
     are present after the fetch and you have to fetch absent tiles only.
     
 - ##### `reload()`
 
-    Refetches all tiles that fall within the grid coordinates.
+    Refetches all tiles that fall within the grid area.
 
 - ##### `show()`
 
     `show(x, y, tile)`
     
     Shows tile in passed coordinates. Tile can be both `jQuery` or `DOM` element. Tile wont be
-    shown if passed coordinates don't fall within the current grid coordinates. If there is already a
+    shown if passed coordinates don't fall within the current grid area. If there is already a
     tile in passed coordinates on a grid it will be removed.
     
     `show(tiles)`
@@ -116,7 +116,11 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     
     If arguments are passed - changes current grid coordinates (top left visible tile) and fetches/removes
     tiles as in the same way as `refresh` method does. If method is called without arguments - returns
-    current grid coordinates `{x: {Number}, y: {Number}}`.
+    current grid coordinates:
+    
+    ```js
+    {x: {Number}, y: {Number}}
+    ```
 
 ## Using Tiler
 
