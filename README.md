@@ -202,7 +202,7 @@ I will be very appreciated for any contribution.
     
 ## Contributors
 
-[Yehor Lvivsky](https://github.com/lvivski) &lt;lvivski@gmail.com&gt;
+- [Yehor Lvivsky](https://github.com/lvivski) &lt;lvivski@gmail.com&gt;
 
 ## License 
 
