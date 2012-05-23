@@ -192,17 +192,17 @@ just open the `tests/index.html` in a browser.
 
 ## TODO
 
-    - Possibility to refresh the grid during the dragging.
-    - Option `bounds` to specify the boundaries of the grid.
-    - Option `repeat` to repeat tiles if the boundaries are reached.
-    - Write tests for the new functionality.
-    - Refactor old tests.
+- Possibility to refresh the grid during the dragging.
+- Option `bounds` to specify the boundaries of the grid.
+- Option `repeat` to repeat tiles if the boundaries are reached.
+- Write tests for the new functionality.
+- Refactor old tests.
 
-    I will be very appreciated for any contribution.
+I will be very appreciated for any contribution.
     
 ## Contributors
 
-    [Yehor Lvivsky](https://github.com/lvivski) &lt;lvivski@gmail.com&gt;
+[Yehor Lvivsky](https://github.com/lvivski) &lt;lvivski@gmail.com&gt;
 
 ## License 
 
