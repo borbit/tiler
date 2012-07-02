@@ -15,22 +15,12 @@ function dummyTiles() {
 }
 
 function createTiler(options) {
-  var fetches = 0;
-  var hNumber = 0;
   var element = $('<div/>').appendTo(document.body);
-
-  element.css('width', 100);
-  element.css('height', 100);
+  element.css('height', (options && options.height) || 100);
+  element.css('width', (options && options.width) || 100);
 
   var tiler = new Tiler(element, $.extend({}, {
-    x: 0, y: 0,
-    tileSize: 100,
-    margin: 1,
-    fetch: function() {
-      if (fetches++ == 0) {
-        tiler.show(dummyTiles());
-      }
-    }
+    x: 0, y: 0, tileSize: 100, margin: 1
   }, options));
 
   return tiler;
@@ -86,9 +76,9 @@ test('initial values', function() {
   equals(Tiler.defaults.y, 0);
 });
 
-module('Behavior');
+module('"fetch" callback');
 
-test('"fetch" callback is called with correct arguments', function() {
+test('is called with correct arguments #1', function() {
   var spy = sinon.spy();
   var tiler = createTiler({fetch: spy});
   
@@ -106,222 +96,278 @@ test('"fetch" callback is called with correct arguments', function() {
   tiler.element.remove();
 });
 
+// grid is dragged (top and left)
+test('is called with correct arguments #2', function() {
+  var spy = sinon.spy();
+  var tiler = createTiler({fetch: spy});
+
+  tiler.refresh();
+  tiler.show(dummyTiles());
+  tiler.grid.css({top: -200, left: -200});
+  tiler.refresh();
+
+  var expRemoved = [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]];
+  var expToFetch = [[2, 0], [2, 1], [0, 2], [1, 2], [2, 2]];
+
+  deepEqual(spy.args[1][0], expToFetch);
+  deepEqual(spy.args[1][1], expRemoved);
+
+  tiler.element.remove();
+});
+
+// grid is dragged (bottom and right)
+test('is called with correct arguments #3', function() {
+  var spy = sinon.spy();
+  var tiler = createTiler({fetch: spy});
+  
+  tiler.refresh();
+  tiler.show(dummyTiles());
+  tiler.grid.css({top: 0, left: 0});
+  tiler.refresh();
+
+  var expRemoved = [[1, -1], [1, 0], [-1, 1], [0, 1], [1, 1]];
+  var expToFetch = [[-2, -2], [-1, -2], [0, -2], [-2, -1], [-2, 0]];
+
+  deepEqual(spy.args[1][0], expToFetch);
+  deepEqual(spy.args[1][1], expRemoved);
+
+  tiler.element.remove();
+});
+
+test('is called with correct arguments after viewport size is increased', function() {
+  var spy = sinon.spy();
+  var tiler = createTiler({fetch: spy});
+  
+  tiler.refresh();
+  tiler.show(dummyTiles());
+  tiler.element.height(200);
+  tiler.element.width(200);
+  tiler.refresh();
+
+  var expRemoved = [];
+  var expToFetch = [[2, -1], [2, 0], [2, 1], [-1, 2], [0, 2], [1, 2], [2, 2]];
+
+  deepEqual(spy.args[1][0], expToFetch);
+  deepEqual(spy.args[1][1], expRemoved);
+
+  tiler.element.remove();
+});
+
+test('is called with correct arguments after viewport size is reduced', function() {
+  var spy = sinon.spy();
+  var tiles = dummyTiles();
+  var tiler = createTiler({height: 200, width: 200, fetch: spy});
+  
+
+  tiles.push([2, -1, $('<div/>')]);
+  tiles.push([2,  0, $('<div/>')]);
+  tiles.push([2,  1, $('<div/>')]);
+  tiles.push([-1, 2, $('<div/>')]);
+  tiles.push([0,  2, $('<div/>')]);
+  tiles.push([1,  2, $('<div/>')]);
+  tiles.push([2,  2, $('<div/>')]);
+  
+  tiler.refresh();
+  tiler.show(tiles);
+  tiler.element.height(100);
+  tiler.element.width(100);
+  tiler.refresh();
+
+  var expRemoved = [[2, -1], [2, 0], [2, 1], [-1, 2], [0, 2], [1, 2], [2, 2]];
+  var expToFetch = [];
+
+  deepEqual(spy.args[1][0], expToFetch);
+  deepEqual(spy.args[1][1], expRemoved);
+
+  tiler.element.remove();
+});
+
+module('"show" method');
+
 // Tiles are provided as jQuery objects
 test('"grid" is filled by tiles #1', function() {
   var tiler = createTiler();
   
   tiler.refresh();  
+  tiler.show(dummyTiles());
 
   deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.tile._1').position(), {top: 0, left: 100});
   deepEqual(tiler.element.find('.tile._2').position(), {top: 0, left: 200});
-
   deepEqual(tiler.element.find('.tile._3').position(), {top: 100, left: 0});
   deepEqual(tiler.element.find('.tile._4').position(), {top: 100, left: 100});
   deepEqual(tiler.element.find('.tile._5').position(), {top: 100, left: 200});
-
   deepEqual(tiler.element.find('.tile._6').position(), {top: 200, left: 0});
   deepEqual(tiler.element.find('.tile._7').position(), {top: 200, left: 100});
   deepEqual(tiler.element.find('.tile._8').position(), {top: 200, left: 200});
+  deepEqual(tiler.element.find('.tile').length, 9);
 
   tiler.element.remove();
 });
 
 // Tiles are provided as DOM elements
 test('"grid" is filled by tiles #2', function() {
-  var tiler = createTiler({
-    fetch: function() {
-      tiler.show([
-        [-1, -1, $('<div class="tile _0"></div>').get(0)],
-        [ 0,  0, $('<div class="tile _1"></div>').get(0)],
-        [ 1,  1, $('<div class="tile _2"></div>').get(0)]
-      ]);
-    }
-  });
+  var tiler = createTiler();
   
   tiler.refresh();
+  tiler.show([
+    [-1, -1, $('<div class="tile _0"></div>').get(0)],
+    [ 0,  0, $('<div class="tile _1"></div>').get(0)],
+    [ 1,  1, $('<div class="tile _2"></div>').get(0)]
+  ]);
   
   deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
   deepEqual(tiler.element.find('.tile._1').position(), {top: 100, left: 100});
   deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
+  deepEqual(tiler.element.find('.tile').length, 3);
 
   tiler.element.remove();
 });
 
 test('"grid" is filled by tiles #3', function() {
-  var tiler = createTiler({
-    fetch: function() {
-      tiler.show([
-        [-1, -1, $('<div class="tile _0"></div>')],
-        [ 0,  0, $('<div class="tile _1"></div>')],
-        [ 1,  1, $('<div class="tile _2"></div>')]
-      ]);
-    }
-  });
-  
-  tiler.refresh();
-  
-  deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
-  deepEqual(tiler.element.find('.tile._1').position(), {top: 100, left: 100});
-  deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
-
-  tiler.element.remove();
-});
-
-test('"grid" is filled by tiles #4', 2, function() {
-  var tiler = createTiler({
-    fetch: function(options, callback) {
-      tiler.show([
-        [-1, -1, $('<div class="tile _0"></div>')],
-        [ 1,  1, $('<div class="tile _2"></div>')]
-      ]);
-    }
-  });
-  
-  tiler.refresh();
-  
-  deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
-  deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
-
-  tiler.element.remove();
-});
-
-module('"grid" dragging');
-
-test('correct position changing #1', function() {
-  var tiler = createTiler({margin: 2});
-  
-  tiler.refresh();
-  
-  tiler.grid.css('left', -100);
-  tiler.grid.css('top', -100);
-  tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-200px');
-  equal(tiler.grid.css('top'), '-200px');
-
-  tiler.element.remove();
-});
-
-test('correct position changing #2', function() {
-  var tiler = createTiler({margin: 2});
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -150);
-  tiler.grid.css('top', -100);
-  tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-150px');
-  equal(tiler.grid.css('top'), '-200px');
-
-  tiler.element.remove();
-});
-
-test('correct position changing #3', function() {
-  var tiler = createTiler({margin: 2});
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -100);
-  tiler.grid.css('top', -150);
-  tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-200px');
-  equal(tiler.grid.css('top'), '-150px');
-
-  tiler.element.remove();
-});
-
-test('correct position changing #4', function() {
-  var tiler = createTiler({margin: 2});
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -300);
-  tiler.grid.css('top', -300);
-  tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-200px');
-  equal(tiler.grid.css('top'), '-200px');
-
-  tiler.element.remove();
-});
-
-test('correct position changing #5', function() {
-  var tiler = createTiler({margin: 2});
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -250);
-  tiler.grid.css('top', -300);
-  tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-250px');
-  equal(tiler.grid.css('top'), '-200px');
-
-  tiler.element.remove();
-});
-
-test('correct position changing #6', function() {
-  var tiler = createTiler({margin: 2});
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -300);
-  tiler.grid.css('top', -250);
-  tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-200px');
-  equal(tiler.grid.css('top'), '-250px');
-
-  tiler.element.remove();
-});
-
-test('correct position changing #7', function() {
-  var tiler = createTiler({margin: 2});
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -230).css('top', -230); tiler.refresh();
-  tiler.grid.css('left', -270).css('top', -270); tiler.refresh();
-  tiler.grid.css('left', -300).css('top', -300); tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-200px');
-  equal(tiler.grid.css('top'), '-200px');
-
-  tiler.element.remove();
-});
-
-test('correct position changing #8', function() {
-  var tiler = createTiler({margin: 2});
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -320);
-  tiler.grid.css('top', -320);
-  tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-220px');
-  equal(tiler.grid.css('top'), '-220px');
-
-  tiler.grid.css('left', -300);
-  tiler.grid.css('top', -300);
-  tiler.refresh();
-
-  equal(tiler.grid.css('left'), '-200px');
-  equal(tiler.grid.css('top'), '-200px');
-
-  tiler.element.remove();
-});
-
-test('correct position changing #9', function() {
   var tiler = createTiler();
   
   tiler.refresh();
+  tiler.show([
+    [-1, -1, $('<div class="tile _0"></div>')],
+    [ 0,  0, $('<div class="tile _1"></div>')],
+    [ 1,  1, $('<div class="tile _2"></div>')]
+  ]);
+
+  deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
+  deepEqual(tiler.element.find('.tile._1').position(), {top: 100, left: 100});
+  deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
+  deepEqual(tiler.element.find('.tile').length, 3);
+
+  tiler.element.remove();
+});
+
+test('"grid" is filled by tiles #4',  function() {
+  var tiler = createTiler();
   
-  tiler.grid.css('left', -1000);
-  tiler.grid.css('top', -1000);
+  tiler.refresh();
+  tiler.show([
+    [-1, -1, $('<div class="tile _0"></div>')],
+    [ 1,  1, $('<div class="tile _2"></div>')]
+  ]);
+
+  deepEqual(tiler.element.find('.tile._0').position(), {top: 0, left: 0});
+  deepEqual(tiler.element.find('.tile._2').position(), {top: 200, left: 200});
+  deepEqual(tiler.element.find('.tile').length, 2);
+
+  tiler.element.remove();
+});
+
+module('"refresh" method');
+
+test('grid position changed #1', function() {
+  var tiler = createTiler({margin: 2});
+  
+  tiler.refresh();
+  tiler.grid.css({top: -100, left: -100});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -200, left: -200});
+
+  tiler.element.remove();
+});
+
+test('grid position changed #2', function() {
+  var tiler = createTiler({margin: 2});
+  
+  tiler.refresh();
+  tiler.grid.css({top: -100, left: -150});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -200, left: -150});
+
+  tiler.element.remove();
+});
+
+test('grid position changed #3', function() {
+  var tiler = createTiler({margin: 2});
+  
+  tiler.refresh();
+  tiler.grid.css({top: -150, left: -100});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -150, left: -200});
+
+  tiler.element.remove();
+});
+
+test('grid position changed #4', function() {
+  var tiler = createTiler({margin: 2});
+  
+  tiler.refresh();
+  tiler.grid.css({top: -300, left: -300});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -200, left: -200});
+
+  tiler.element.remove();
+});
+
+test('grid position changed #5', function() {
+  var tiler = createTiler({margin: 2});
+  
+  tiler.refresh();
+  tiler.grid.css({top: -300, left: -250});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -200, left: -250});
+
+  tiler.element.remove();
+});
+
+test('grid position changed #6', function() {
+  var tiler = createTiler({margin: 2});
+  
+  tiler.refresh();
+  tiler.grid.css({top: -250, left: -300});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -250, left: -200});
+
+  tiler.element.remove();
+});
+
+test('grid position changed #7', function() {
+  var tiler = createTiler({margin: 2});
+  
+  tiler.refresh();
+
+  tiler.grid.css({left: -230, top: -230}); tiler.refresh();
+  tiler.grid.css({left: -270, top: -270}); tiler.refresh();
+  tiler.grid.css({left: -300, top: -300}); tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -200, left: -200});
+
+  tiler.element.remove();
+});
+
+test('grid position changed #8', function() {
+  var tiler = createTiler({margin: 2});
+  
+  tiler.refresh();
+  tiler.grid.css({left: -320, top: -320});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -220, left: -220});
+
+  tiler.grid.css({left: -300, top: -300});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.position(), {top: -200, left: -200});
+
+  tiler.element.remove();
+});
+
+test('grid position changed #9', function() {
+  var tiler = createTiler();
+  
+  tiler.refresh();
+  tiler.grid.css({left: -1000, top: -1000});
   tiler.refresh();
   
   deepEqual(tiler.grid.position(), {left: -100, top: -100});
@@ -330,13 +376,12 @@ test('correct position changing #9', function() {
 });
 
 // dragging from top to bottom and from left to right
-test('tiles are removed #1', function() {
+test('unnecessary tiles are removed #1', function() {
   var tiler = createTiler();
   
   tiler.refresh();
-
-  tiler.grid.css('left', 0);
-  tiler.grid.css('top', 0);
+  tiler.show(dummyTiles());
+  tiler.grid.css({left: 0, top: 0});
   tiler.refresh();
 
   equal(tiler.grid.find('.tile').length, 4);
@@ -350,284 +395,114 @@ test('tiles are removed #1', function() {
 });
 
 // dragging from top to bottom and from left to right
-test('tiles are removed #2', function() {
-  var fetched = false;
-  var tiler = createTiler({
-    fetch: function(options, callback) {
-      if (fetched) { return };
-
-      tiler.show([
-        [-1, -1, $('<div class="tile _0"></div>')],
-        [ 0,  0, $('<div class="tile _1"></div>')],
-        [ 1,  1, $('<div class="tile _2"></div>')]
-      ]);
-
-      fetched = true;
-    }
-  });
+test('unnecessary tiles are removed #2', function() {
+  var tiler = createTiler();
   
   tiler.refresh();
+  tiler.show([
+    [-1, -1, $('<div class="tile _0"></div>')],
+    [ 0,  0, $('<div class="tile _1"></div>')],
+    [ 1,  1, $('<div class="tile _2"></div>')]
+  ]);
 
-  tiler.grid.css('left', 0);
-  tiler.grid.css('top', 0);
+  tiler.grid.css({left: 0, top: 0});
   tiler.refresh();
 
-  equal(tiler.grid.find('.tile').length, 2);
   equal(tiler.grid.find('.tile._2').length, 0);
   equal(tiler.grid.find('.tile._0').length, 1);
   equal(tiler.grid.find('.tile._1').length, 1);
+  equal(tiler.grid.find('.tile').length, 2);
 
   tiler.element.remove();
 });
 
 // dragging from top to bottom and from left to right
-test('tiles are removed #2', function() {
-  var fetched = false;
-  var tiler = createTiler({
-    fetch: function(options, callback) {
-      if (fetched) { return };
-
-      tiler.show([
-        [-1, 0, $('<div class="tile _0"></div>')],
-        [ 0, 0, $('<div class="tile _1"></div>')],
-        [ 1, 0, $('<div class="tile _2"></div>')]
-      ]);
-
-      fetched = true;
-    }
-  });
+test('unnecessary tiles are removed #3', function() {
+  var tiler = createTiler();
   
   tiler.refresh();
+  tiler.show([
+    [-1, 0, $('<div class="tile _0"></div>')],
+    [ 0, 0, $('<div class="tile _1"></div>')],
+    [ 1, 0, $('<div class="tile _2"></div>')]
+  ]);
 
-  tiler.grid.css('left', 0);
-  tiler.grid.css('top', 0);
+  tiler.grid.css({left: 0, top: 0});
   tiler.refresh();
 
-  equal(tiler.grid.find('.tile').length, 2);
   equal(tiler.grid.find('.tile._2').length, 0);
   equal(tiler.grid.find('.tile._0').length, 1);
   equal(tiler.grid.find('.tile._1').length, 1);
+  equal(tiler.grid.find('.tile').length, 2);
 
   tiler.element.remove();
 });
 
 // dragging from bottom to top and from right to left
-test('tiles are removed #3', function() {
+test('unnecessary tiles are removed #4', function() {
   var tiler = createTiler();
+  
+  tiler.refresh();
+  tiler.show(dummyTiles());
+  tiler.grid.css({left: -200, top: -200});
   tiler.refresh();
 
-  tiler.grid.css('left', -200);
-  tiler.grid.css('top', -200);
-  tiler.refresh();
-
-  equal(tiler.grid.find('.tile').length, 4);
   equal(tiler.grid.find('.tile._0').length, 0);
   equal(tiler.grid.find('.tile._1').length, 0);
   equal(tiler.grid.find('.tile._2').length, 0);
   equal(tiler.grid.find('.tile._3').length, 0);
   equal(tiler.grid.find('.tile._6').length, 0);
+  equal(tiler.grid.find('.tile').length, 4);
 
   tiler.element.remove();
 });
 
 // dragging from bottom to top and from right to left
-test('tiles are removed #4', function() {
-  var fetched = false;
-  var tiler = createTiler({
-    fetch: function(options, callback) {
-      if (fetched) { return };
-
-      tiler.show([
-        [-1, -1, $('<div class="tile _0"></div>')],
-        [ 0,  0, $('<div class="tile _1"></div>')],
-        [ 1,  1, $('<div class="tile _2"></div>')]
-      ]);
-
-      fetched = true;
-    }
-  });
+test('unnecessary tiles are removed #5', function() {
+  var tiler = createTiler();
   
   tiler.refresh();
+  tiler.show([
+    [-1, -1, $('<div class="tile _0"></div>')],
+    [ 0,  0, $('<div class="tile _1"></div>')],
+    [ 1,  1, $('<div class="tile _2"></div>')]
+  ]);
 
-  tiler.grid.css('left', -200);
-  tiler.grid.css('top', -200);
+  tiler.grid.css({left: -200, top: -200});
   tiler.refresh();
 
-  equal(tiler.grid.find('.tile').length, 2);
   equal(tiler.grid.find('.tile._0').length, 0);
   equal(tiler.grid.find('.tile._1').length, 1);
   equal(tiler.grid.find('.tile._2').length, 1);
+  equal(tiler.grid.find('.tile').length, 2);
 
   tiler.element.remove();
 });
 
 // dragging from bottom to top and from right to left
-test('tiles are removed #5', function() {
+test('unnecessary tiles are removed #6', function() {
   var fetched = false;
-  var tiler = createTiler({
-    fetch: function(options, callback) {
-      if (fetched) { return };
-
-      tiler.show([
-        [-1, 0, $('<div class="tile _0"></div>')],
-        [ 0, 0, $('<div class="tile _1"></div>')],
-        [ 1, 0, $('<div class="tile _2"></div>')]
-      ]);
-
-      fetched = true;
-    }
-  });
+  var tiler = createTiler();
   
   tiler.refresh();
+  tiler.show([
+    [-1, 0, $('<div class="tile _0"></div>')],
+    [ 0, 0, $('<div class="tile _1"></div>')],
+    [ 1, 0, $('<div class="tile _2"></div>')]
+  ]);
 
-  tiler.grid.css('left', -200);
-  tiler.grid.css('top', -200);
+  tiler.grid.css({left: -200, top: -200});
   tiler.refresh();
 
-  equal(tiler.grid.find('.tile').length, 2);
   equal(tiler.grid.find('.tile._0').length, 0);
   equal(tiler.grid.find('.tile._1').length, 1);
   equal(tiler.grid.find('.tile._2').length, 1);
+  equal(tiler.grid.find('.tile').length, 2);
 
   tiler.element.remove();
 });
 
-test('tiles are moved (top and left)', function() {
-  var tiler = createTiler();
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', 0);
-  tiler.grid.css('top', 0);
-  tiler.refresh();
-
-  deepEqual(tiler.grid.find('.tile._0').position(), {left: 100, top: 100});
-  deepEqual(tiler.grid.find('.tile._1').position(), {left: 200, top: 100});
-  deepEqual(tiler.grid.find('.tile._3').position(), {left: 100, top: 200});
-  deepEqual(tiler.grid.find('.tile._4').position(), {left: 200, top: 200});
-
-  tiler.element.remove();
-});
-
-test('tiles are moved (bottom and right)', function() {
-  var tiler = createTiler();
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -200);
-  tiler.grid.css('top', -200);
-  tiler.refresh();
-
-  deepEqual(tiler.grid.find('.tile._4').position(), {left: 0, top: 0});
-  deepEqual(tiler.grid.find('.tile._5').position(), {left: 100, top: 0});
-  deepEqual(tiler.grid.find('.tile._7').position(), {left: 0, top: 100});
-  deepEqual(tiler.grid.find('.tile._8').position(), {left: 100, top: 100});
-
-  tiler.element.remove();
-});
-
-module('"fetch" callback');
-
-test('coordinates of removed tiles are passed (top and left)', function() {
-  var calls = 0;
-  var tiler = createTiler({
-    fetch: function(tofetch, removed) {
-      if (++calls == 1) {
-        tiler.show(dummyTiles());
-      }
-      if (calls == 2) {
-        deepEqual(removed, [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]);
-      }
-    }
-  });
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', -200);
-  tiler.grid.css('top', -200);
-  tiler.refresh();
-
-  tiler.element.remove();
-});
-
-test('coordinates of removed tiles are passed (bottom and right)', function() {
-  var calls = 0;
-  var tiler = createTiler({
-    fetch: function(tofetch, removed) {
-      if (++calls == 1) {
-        tiler.show(dummyTiles());
-      }
-      if (calls == 2) {
-        deepEqual(removed, [[1,-1],[1, 0],[-1, 1],[0, 1],[1, 1]]);
-      }
-    }
-  });
-  
-  tiler.refresh();
-
-  tiler.grid.css('left', 0);
-  tiler.grid.css('top', 0);
-  tiler.refresh();
-
-  tiler.element.remove();
-});
-
-module('"refresh" method');
-
-test('grid is resized after viewport is resized', function() {
-  var tiler = createTiler({fetch: $.noop});
-  
-  tiler.element.height(200);
-  tiler.element.width(200);
-  tiler.refresh();
-
-  equal(tiler.grid.height(), 400);
-  equal(tiler.grid.width(), 400);
-
-  tiler.element.remove();
-});
-
-test('tiles are fetched and inserted after viewport size is increased', function() {
-  var newDummyTiles = [
-    [ 2, -1, $('<div class="tile _9">9</div>')],
-    [ 2,  0, $('<div class="tile _10">10</div>')],
-    [ 2,  1, $('<div class="tile _11">11</div>')],
-    [-1,  2, $('<div class="tile _12">12</div>')],
-    [ 0,  2, $('<div class="tile _13">13</div>')],
-    [ 1,  2, $('<div class="tile _14">14</div>')],
-    [ 2,  2, $('<div class="tile _15">15</div>')]
-  ];
-
-  var calls = 0;
-  var tiler = createTiler({
-    margin: 1,
-    fetch: function() {
-      if (++calls == 1) {
-        tiler.show(dummyTiles());
-      }
-      if (calls == 2) {
-        tiler.show(newDummyTiles);
-      }
-    }
-  });
-  
-  tiler.refresh();
-  tiler.element.height(200);
-  tiler.element.width(200);
-  tiler.refresh();
-
-  deepEqual(tiler.grid.find('.tile._9').position(), {left: 300, top: 0});
-  deepEqual(tiler.grid.find('.tile._10').position(), {left: 300, top: 100});
-  deepEqual(tiler.grid.find('.tile._11').position(), {left: 300, top: 200});
-  deepEqual(tiler.grid.find('.tile._12').position(), {left: 0, top: 300});
-  deepEqual(tiler.grid.find('.tile._13').position(), {left: 100, top: 300});
-  deepEqual(tiler.grid.find('.tile._14').position(), {left: 200, top: 300});
-  deepEqual(tiler.grid.find('.tile._15').position(), {left: 300, top: 300});
-
-  tiler.element.remove();
-});
-
-test('tiles are removed after viewport size is decreased', function() {
+test('unnecessary tiles are removed #7', function() {
   var dummyTiles = [
     [-1, -1, $('<div class="tile _0">1</div>')],
     [ 0, -1, $('<div class="tile _1">2</div>')],
@@ -644,19 +519,14 @@ test('tiles are removed after viewport size is decreased', function() {
     [-1,  2, $('<div class="tile _12">13</div>')],
     [ 0,  2, $('<div class="tile _13">14</div>')],
     [ 1,  2, $('<div class="tile _14">15</div>')],
-    [ 2,  2, $('<div class="tile _15">16</div>')]];
+    [ 2,  2, $('<div class="tile _15">16</div>')]
+  ];
 
-  var calls = 0;
-  var tiler = createTiler({
-    fetch: function(options, callback) {
-      calls++;
-      if (calls == 1) {
-        tiler.show(dummyTiles);
-      }
-    }
-  });
+  var tiler = createTiler();
 
   tiler.refresh();
+  tiler.show(dummyTiles);
+
   tiler.element.height(100);
   tiler.element.width(100);
   tiler.refresh();
@@ -672,26 +542,128 @@ test('tiles are removed after viewport size is decreased', function() {
   tiler.element.remove();
 });
 
-test('"fetch" method is called with correct "tofetch" data after viewport size is increased', 1, function() {
-  var expected = [[2, -1], [2, 0], [2, 1], [-1, 2], [0, 2], [1, 2], [2, 2]];
+test('visible tiles are moved (top and left)', function() {
+  var tiler = createTiler();
+  
+  tiler.refresh();
+  tiler.show(dummyTiles());
+  tiler.grid.css({left: 0, top: 0});
+  tiler.refresh();
 
-  var calls = 0;
-  var tiler = createTiler({
-    fetch: function(tofetch) {
-      if (++calls == 1) {
-        tiler.show(dummyTiles());
-      }
-      if (calls == 2) {
-        deepEqual(tofetch, expected);
-      }
-    }
-  });
+  deepEqual(tiler.grid.find('.tile._0').position(), {left: 100, top: 100});
+  deepEqual(tiler.grid.find('.tile._1').position(), {left: 200, top: 100});
+  deepEqual(tiler.grid.find('.tile._3').position(), {left: 100, top: 200});
+  deepEqual(tiler.grid.find('.tile._4').position(), {left: 200, top: 200});
+
+  tiler.element.remove();
+});
+
+test('visible tiles are moved (bottom and right)', function() {
+  var tiler = createTiler();
+  
+  tiler.refresh();
+  
+  tiler.show(dummyTiles());
+  tiler.grid.css({left: -200, top: -200});
+  tiler.refresh();
+
+  deepEqual(tiler.grid.find('.tile._4').position(), {left: 0, top: 0});
+  deepEqual(tiler.grid.find('.tile._5').position(), {left: 100, top: 0});
+  deepEqual(tiler.grid.find('.tile._7').position(), {left: 0, top: 100});
+  deepEqual(tiler.grid.find('.tile._8').position(), {left: 100, top: 100});
+
+  tiler.element.remove();
+});
+
+test('grid is increased after the viewport is increased', function() {
+  var tiler = createTiler();
   
   tiler.refresh();
   tiler.element.height(200);
   tiler.element.width(200);
   tiler.refresh();
+
+  equal(tiler.grid.height(), 400);
+  equal(tiler.grid.width(), 400);
+
+  tiler.element.remove();
+});
+
+test('grid is reduced after the viewport is reduced', function() {
+  var tiler = createTiler({
+    height: 200
+  , width: 200
+  });
   
+  tiler.refresh();
+  tiler.element.height(100);
+  tiler.element.width(100);
+  tiler.refresh();
+
+  equal(tiler.grid.height(), 300);
+  equal(tiler.grid.width(), 300);
+
+  tiler.element.remove();
+});
+
+test('new tiles are shown if they fall within the grid area', function() {
+  var newDummyTiles = [
+    [ 2, -1, $('<div class="tile _9">9</div>')],
+    [ 2,  0, $('<div class="tile _10">10</div>')],
+    [ 2,  1, $('<div class="tile _11">11</div>')],
+    [-1,  2, $('<div class="tile _12">12</div>')],
+    [ 0,  2, $('<div class="tile _13">13</div>')],
+    [ 1,  2, $('<div class="tile _14">14</div>')],
+    [ 2,  2, $('<div class="tile _15">15</div>')]
+  ];
+
+  var tiler = createTiler();
+  
+  tiler.refresh();
+  tiler.show(dummyTiles());
+
+  tiler.element.height(200);
+  tiler.element.width(200);
+
+  tiler.refresh();
+  tiler.show(newDummyTiles);
+
+  deepEqual(tiler.grid.find('.tile._9').position(), {left: 300, top: 0});
+  deepEqual(tiler.grid.find('.tile._10').position(), {left: 300, top: 100});
+  deepEqual(tiler.grid.find('.tile._11').position(), {left: 300, top: 200});
+  deepEqual(tiler.grid.find('.tile._12').position(), {left: 0, top: 300});
+  deepEqual(tiler.grid.find('.tile._13').position(), {left: 100, top: 300});
+  deepEqual(tiler.grid.find('.tile._14').position(), {left: 200, top: 300});
+  deepEqual(tiler.grid.find('.tile._15').position(), {left: 300, top: 300});
+
+  tiler.element.remove();
+});
+
+test('new tiles are not shown if they don\'t fall within the grid area', function() {
+  var newDummyTiles = [
+    [ 2, -1, $('<div class="tile _9">9</div>')],
+    [ 2,  0, $('<div class="tile _10">10</div>')],
+    [ 2,  1, $('<div class="tile _11">11</div>')],
+    [-1,  2, $('<div class="tile _12">12</div>')],
+    [ 0,  2, $('<div class="tile _13">13</div>')],
+    [ 1,  2, $('<div class="tile _14">14</div>')],
+    [ 2,  2, $('<div class="tile _15">15</div>')]
+  ];
+
+  var tiler = createTiler();
+  
+  tiler.refresh();
+  tiler.show(dummyTiles());
+  tiler.show(newDummyTiles);
+
+  ok(!tiler.grid.find('.tile._9').length);
+  ok(!tiler.grid.find('.tile._10').length);
+  ok(!tiler.grid.find('.tile._11').length);
+  ok(!tiler.grid.find('.tile._12').length);
+  ok(!tiler.grid.find('.tile._13').length);
+  ok(!tiler.grid.find('.tile._14').length);
+  ok(!tiler.grid.find('.tile._15').length);
+
   tiler.element.remove();
 });
 
@@ -701,9 +673,7 @@ test('resets grid position', function() {
   var tiler = createTiler();
   
   tiler.refresh();
-
-  tiler.grid.css('left', -150);
-  tiler.grid.css('top', -150);
+  tiler.grid.css({left: -150, top: -150});
   tiler.coords(0, 0);
 
   deepEqual(tiler.grid.position(), {top: -100, left: -100});
@@ -711,39 +681,20 @@ test('resets grid position', function() {
   tiler.element.remove();
 });
 
-test('fetches missing tiles', 1, function() {
-  var calls = 0;
-  var tiler = createTiler({
-    fetch: function(tofetch) {
-      if (++calls == 1) {
-        tiler.show(dummyTiles());
-      }
-      if (calls == 2) {
-        deepEqual(tofetch, [[2, 0],[2, 1],[0, 2],[1, 2],[2, 2]]);
-      }
-    }
-  });
+test('fetches missing and removes unnecessary tiles', function() {
+  var spy = sinon.spy();
+  var tiler = createTiler({fetch: spy});
   
   tiler.refresh();
+  tiler.show(dummyTiles());
   tiler.coords(1, 1);
-  tiler.element.remove();
-});
 
-test('removes unnecessary tiles', 1, function() {
-  var calls = 0;
-  var tiler = createTiler({
-    fetch: function(tofetch, removed) {
-      if (++calls == 1) {
-        tiler.show(dummyTiles());
-      }
-      if (calls == 2) {
-        deepEqual(removed, [[-1, -1],[0, -1],[1, -1],[-1, 0],[-1, 1]]);
-      }
-    }
-  });
+  var expRemoved = [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]];
+  var expToFetch = [[2, 0], [2, 1], [0, 2], [1, 2], [2, 2]];
 
-  tiler.refresh();
-  tiler.coords(1, 1);
+  deepEqual(spy.args[1][0], expToFetch);
+  deepEqual(spy.args[1][1], expRemoved);
+
   tiler.element.remove();
 });
 
@@ -765,63 +716,35 @@ test('returns current position if arguments are not passed', function() {
 
 module('"reload" method');
 
-test('fetches all tiles #1', 1, function() {
-  var calls = 0;
-  var tiler = createTiler({
-    fetch: function(tofetch) {
-      if (++calls == 1) {
-        tiler.show(dummyTiles());
-      }
-      if (calls == 2) {
-        deepEqual(tofetch, [[-1, -1], [0, -1], [1, -1], [-1,  0],
-          [0,  0], [1,  0], [-1,  1], [0,  1], [1,  1]]);
-      }
-    }
-  });
+test('fetches all tiles #1', function() {
+  var spy = sinon.spy();
+  var tiler = createTiler({fetch: spy});
+
+  tiler.refresh();
+  tiler.show(dummyTiles());
+  tiler.reload();
+
+  var expToFetch = [[-1, -1], [0, -1], [1, -1], [-1, 0], [0, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
+  var expRemoved = [];
+
+  deepEqual(spy.args[1][0], expToFetch);
+  deepEqual(spy.args[1][1], expRemoved);
+  
+  tiler.element.remove();
+});
+
+test('fetches all tiles #2', function() {
+  var spy = sinon.spy();
+  var tiler = createTiler({fetch: spy});
 
   tiler.refresh();
   tiler.reload();
+
+  var expToFetch = [[-1, -1], [0, -1], [1, -1], [-1, 0], [0, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
+  var expRemoved = [];
+
+  deepEqual(spy.args[1][0], expToFetch);
+  deepEqual(spy.args[1][1], expRemoved);
   
   tiler.element.remove();
 });
-
-test('fetches all tiles #2', 1, function() {
-  var calls = 0;
-  var tiler = createTiler({
-    fetch: function(tofetch) {
-      if (++calls == 1) {
-        tiler.show([]);
-      }
-      if (calls == 2) {
-        deepEqual(tofetch, [[-1, -1], [0, -1], [1, -1], [-1,  0],
-          [0,  0], [1,  0], [-1,  1], [0,  1], [1,  1]]);
-      }
-    }
-  });
-
-  tiler.refresh();
-  tiler.reload();
-  
-  tiler.element.remove();
-});
-
-module('"show" method');
-
-test('grid is filled by tiles', function() {
-  var tiler = createTiler({
-    fetch: function(tofetch) {
-      tiler.show(-1, 0, $('<div class="tile _1">1</div>'));
-      tiler.show( 0, 0, $('<div class="tile _2">2</div>'));
-      tiler.show( 1, 0, $('<div class="tile _3">3</div>'));
-    }
-  });
-  
-  tiler.refresh();  
-
-  deepEqual(tiler.element.find('.tile._1').position(), {top: 100, left: 0});
-  deepEqual(tiler.element.find('.tile._2').position(), {top: 100, left: 100});
-  deepEqual(tiler.element.find('.tile._3').position(), {top: 100, left: 200});
-
-  tiler.element.remove();
-});
-
