@@ -84,9 +84,9 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
 
 - ##### `show()`
 
-    `show(x, y, tile)`
+    `show(x, y, elem|[elem1, elem2, ...])`
     
-    Shows tile in passed coordinates. Tile can be both `jQuery` or `DOM` element. Tile wont be
+    Shows a tile (some content) in passed coordinates. The tile can be both `jQuery` or `DOM` element, or an `array` of `jQuery` or `DOM` elements. The tile want be
     shown if passed coordinates don't fall within the current grid area. If there is already a
     tile in passed coordinates on a grid it will be removed.
     
@@ -95,7 +95,12 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     As the same behavior as in previous but for array of tiles. Array structure:
     
     ```js
-    [[x1, y1, tile1], [x2, y2, tile2], [x3, y3, tile3], ...]
+    [
+    	[x1, y1, elem|[elem1,elem2,...]]
+      , [x2, y2, elem|[elem1,elem2,...]]
+      , [x3, y3, elem|[elem1,elem2,...]]
+      , ...
+    ]
     ```
 
 - ##### `remove()`
@@ -195,8 +200,6 @@ just open the `tests/index.html` in a browser.
 - Possibility to refresh the grid during the dragging.
 - Option `bounds` to specify the boundaries of the grid.
 - Option `repeat` to repeat tiles if the boundaries are reached.
-- Write tests for the new functionality.
-- Refactor old tests.
 
 I will be very appreciated for any contribution.
     
