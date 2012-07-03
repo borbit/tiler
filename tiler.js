@@ -194,35 +194,42 @@ Proto.coords = function(x, y) {
  * show(x, y, tile)
  * @param {Number} x
  * @param {Number} y
- * @param {jQuery|DOM} tile
+ * @param {jQuery|DOM|Array} elems
  * 
  * show(tiles)
- * @param {Array} tiles [[x1, y1, elem1], [x2, y2, elem2], ...]
+ * @param {Array} tiles [
+ *   [x1, y1, el1|[el1,e2]]
+ * , [x2, y2, el2|[el3,e4]]
+ * , ...]
  * 
  * @api public
  */
-Proto.show = function(x, y, tile) {
-  var tiles = $.isArray(x) ? x : [[x, y, tile]];
+Proto.show = function(x, y, elems) {
+  var tiles = $.isArray(x) ? x : [[x, y, elems]]
   var fragment = document.createDocumentFragment()
+  var elems
 
   for(var i = 0, l = tiles.length; i < l; i++) {
-    var tile = tiles[i][2]
     x = tiles[i][0]
     y = tiles[i][1]
-    
-    !tile.jquery && (tile = $(tile))
-    
+
     if (y < this.corners.y1 || y > this.corners.y2 ||
         x < this.corners.x1 || x > this.corners.x2) {
       continue
     }
 
-    fragment.appendChild(tile.get(0))
+    elems = tiles[i][2]
+    elems = $.isArray(elems) ? elems : [elems];
+    elems = $.map(elems, function(elem) {
+      return elem.jquery ? elem : $(elem)
+    })
 
-    if (this.tiles.get(x, y)) {
-      this.tiles.get(x, y).remove()
-    }
-    this.tiles.set(x, y, tile)
+    $.each(elems, function(i, elem) {
+      fragment.appendChild(elem.get(0))
+    })
+
+    this.remove(x, y)
+    this.tiles.set(x, y, elems)
   }
 
   this.grid.append(fragment)
@@ -248,9 +255,13 @@ Proto.remove = function(x, y) {
     x = coords[i][0]
     y = coords[i][1]
 
-    if (this.tiles.get(x, y)) {
-      this.tiles.get(x, y).remove()
+    var present = this.tiles.get(x, y)
+
+    if (present) {
       this.tiles.remove(x, y)
+      $.each(present, function(i, elem) {
+        elem.remove()
+      })
     }
   }
 }
@@ -264,10 +275,12 @@ Proto.remove = function(x, y) {
 Proto.shiftTilesPosition = function(offset) {
   var tileSize = this.options.tileSize;
   
-  this.tiles.each(function(tile) {
-    tile.css({
-      left: '+=' + (tileSize * offset.x)
-    , top: '+=' + (tileSize * offset.y)
+  this.tiles.each(function(elems) {
+    $.each(elems, function(i, elem){
+      elem.css({
+        left: '+=' + (tileSize * offset.x)
+      , top: '+=' + (tileSize * offset.y)
+      })
     })
   })
 }
@@ -354,11 +367,13 @@ Proto.arrangeTiles = function() {
     , cx1 = this.corners.x1
     , cy1 = this.corners.y1
 
-  this.tiles.each(function(tile, x, y) {
-    tile.css({
-      position: 'absolute'
-    , left: (x - cx1) * tileSize
-    , top: (y - cy1) * tileSize
+  this.tiles.each(function(elems, x, y) {
+    $.each(elems, function(i, elem) {
+      elem.css({
+        position: 'absolute'
+      , left: (x - cx1) * tileSize
+      , top: (y - cy1) * tileSize
+      })
     })
   })
 }
