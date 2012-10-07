@@ -68,7 +68,7 @@
 <div id="viewport"></div>
 
 <script src="http://code.jquery.com/jquery.min.js"></script>
-<script src="http://code.jquery.com/ui/1.8.19/jquery-ui.min.js"></script>
+<script src="http://code.jquery.com/ui/1.8.24/jquery-ui.min.js"></script>
 
 <script src="https://raw.github.com/borbit/jquery.scraggable/master/jquery.scraggable.min.js"></script>
 <script src="https://raw.github.com/furf/jquery-ui-touch-punch/master/jquery.ui.touch-punch.min.js"></script>
@@ -98,11 +98,11 @@
       }
     });
     
-    tiler.grid.draggable();
-    tiler.grid.scraggable();
+    tiler.binder.draggable();
+    tiler.binder.scraggable();
     tiler.refresh();
     
-    tiler.grid.bind('dragstop', function(e, ui) {
+    tiler.binder.bind('drag', function(e, ui) {
       tiler.refresh();
     });
     
