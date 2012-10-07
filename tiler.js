@@ -32,13 +32,23 @@ function Tiler(element, options) {
   this.x = this.options.x
   this.y = this.options.y
 
+  // Current offset of the binder element (in tiles)
+  this.binderOffsetX = 0
+  this.binderOffsetY = 0
+
+  // Creating the binder element that will contain the grid element
+  // and will be used as a linking block for the moving (dragging).
+  // Appending it to the viewport element. 
+  this.binder = $('<div/>').css('position', 'absolute').appendTo(element)
+
   // Creating the grid element that will contain tiles. Appending it to the viewport element. 
-  this.grid = $('<div/>').css('position', 'absolute').appendTo(element)
+  this.grid = $('<div/>').css({'position': 'absolute'}).appendTo(this.binder)
 
   this.calcRowsColsCount()
   this.calcCornersCoords()
 
-  // Arrange grid element
+  // Arrange elements
+  this.setBinderPosition()
   this.setGridPosition()
   this.setGridSize()
 }
@@ -56,31 +66,43 @@ Tiler.defaults = {
 var Proto = Tiler.prototype
 
 /**
+ * Sets the initial binder position
+ *
+ * @api private
+ */
+Proto.setBinderPosition = function() {
+  this.binder.css({left: 0, top: 0})
+}
+
+/**
  * Sets the initial grid position
  *
  * @api private
  */
 Proto.setGridPosition = function() {
-  this.initialGridPosition = {
+  this.grid.css({
     left: -(this.options.tileSize * this.options.margin)
   , top: -(this.options.tileSize * this.options.margin)
-  }
-
-  this.grid.css(this.initialGridPosition)
+  })
 }
 
 /**
- * Calculates grid offset (how many tiles were hidden by x/y coords)
- * regarding the initial and new (absolute) position of the grid element
+ * Calculates binder offset in tiles regarding the initial and
+ * new (absolute) position of the binder element
  *
- * @param {Object} newPosition {top: {Number}, left: {Number}}
  * @return {Object} offset {x: {Number}, y: {Number}}
  * @api private
  */
-Proto.calcGridOffset = function(newPosition) {
+Proto.calcBinderOffset = function() {
+  var pos = this.binder.position()
+  var tileSize = this.options.tileSize
+
+  var offsetLeft = pos.left - this.binderOffsetX * tileSize
+  var offsetTop = pos.top - this.binderOffsetY * tileSize
+
   return {
-    x: ~~((newPosition.left - this.initialGridPosition.left) / this.options.tileSize)
-  , y: ~~((newPosition.top - this.initialGridPosition.top) / this.options.tileSize)
+    x: Math.abs(offsetLeft) >= tileSize ? ~~(offsetLeft / tileSize) : 0
+  , y: Math.abs(offsetTop) >= tileSize ? ~~(offsetTop / tileSize) : 0
   }
 }
 
@@ -93,7 +115,7 @@ Proto.setGridSize = function() {
   this.grid.css({
     height: this.rowsCount * this.options.tileSize
   , width: this.colsCount * this.options.tileSize
-  });
+  })
 }
 
 /**
@@ -111,17 +133,20 @@ Proto.shiftGridPosition = function(offset) {
 
 /**
  * Removes tiles that don't fall within the current grid area and fetches absent
- * tiles. Call this method if the grid was dragged/moved or viewport size is changed,
+ * tiles. Call this method if the binder was dragged/moved or viewport size is changed,
  * also in case unless all tiles are present after the fetch and you have to fetch
  * absent tiles only.
  * 
  * @api public
  */
 Proto.refresh = function() {
-  var offset = this.calcGridOffset(this.grid.position())
+  var offset = this.calcBinderOffset()
   
   this.x -= offset.x
   this.y -= offset.y
+
+  this.binderOffsetX += offset.x
+  this.binderOffsetY += offset.y
 
   this.calcRowsColsCount()
   this.calcCornersCoords()
@@ -148,7 +173,7 @@ Proto.refresh = function() {
  * @api public
  */
 Proto.reload = function() {
-  this.fetchTiles(this.getAllTilesCoords(), []);
+  this.fetchTiles(this.getAllTilesCoords(), [])
 }
 
 /**
@@ -177,6 +202,7 @@ Proto.coords = function(x, y) {
   this.calcRowsColsCount()
   this.calcCornersCoords()
 
+  this.setBinderPosition()
   this.setGridPosition()
   this.setGridSize()
 
@@ -219,7 +245,7 @@ Proto.show = function(x, y, elems) {
     }
 
     elems = tiles[i][2]
-    elems = $.isArray(elems) ? elems : [elems];
+    elems = $.isArray(elems) ? elems : [elems]
     elems = $.map(elems, function(elem) {
       return elem.jquery ? elem : $(elem)
     })
@@ -273,7 +299,7 @@ Proto.remove = function(x, y) {
  * @api private
  */
 Proto.shiftTilesPosition = function(offset) {
-  var tileSize = this.options.tileSize;
+  var tileSize = this.options.tileSize
   
   this.tiles.each(function(elems) {
     $.each(elems, function(i, elem){
@@ -353,7 +379,7 @@ Proto.getAllTilesCoords = function() {
  */
 Proto.fetchTiles = function(tofetch, removed) {
   if ($.isFunction(this.options.fetch)) {
-    this.options.fetch(tofetch, removed);
+    this.options.fetch(tofetch, removed)
   }
 }
 
