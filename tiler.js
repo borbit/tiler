@@ -1,11 +1,10 @@
 /**
- * Tiler 0.1.0
+ * Tiler 0.2.0
  *
- * Library for the displaying of a content as an
- * infinite grid of tiles. For more info visit:
- * https://github.com/borbit/tiler/
+ * JavaScript library for creating tile-based endless grid.
+ * For more info visit: https://github.com/borbit/tiler/
  *
- * Copyright (c) 2011-2012 Serge Borbit <serge.borbit@gmail.com>
+ * (c) 2011-2012 Serge Borbit <serge.borbit@gmail.com>
  *
  * Licensed under the MIT license
  */

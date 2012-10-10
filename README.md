@@ -1,8 +1,8 @@
 # Tiler.JS
 
-Library for working with infinite grid of tiles.
+JavaScript library for creating tile-based endless grid. Initially written for my pet project [Minefield](http://mienfield.com).
 
-[See the Live Demo here](http://borbit.github.com/tiler/)
+[See the simple demo here](http://borbit.github.com/tiler/)
 
 ## Dependencies
 
@@ -59,16 +59,6 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     on this coordinates.
     
     Default: `0`
-    
-### Properties
-
-- ##### `element`
-    
-    A viewport element. Automatically wrapped in a `jQuery` object if you pass it as a `DOM` element.
-    
-- ##### `grid`
-
-    A grid element used as a tiles container. Wrapped in a `jQuery` object and appended to the viewport element.
 
 ### Methods
 
@@ -182,10 +172,10 @@ Like this:
     tiler.grid.draggable();
     ```
     
-6. Refresh grid after the dragging:
+6. Refresh grid during the dragging:
 
     ```js
-    tiler.grid.bind('dragstop', function() {
+    tiler.grid.bind('drag', function() {
         tiler.refresh();
     });
     ```
@@ -194,18 +184,12 @@ Like this:
 
 Tiler is fully covered by [QUnit](http://docs.jquery.com/QUnit) tests. To run tests
 just open the `tests/index.html` in a browser.
-
-## TODO
-
-- Possibility to refresh the grid during the dragging.
-- Option `bounds` to specify the boundaries of the grid.
-- Option `repeat` to repeat tiles if the boundaries are reached.
-
-I will be very appreciated for any contribution.
     
 ## Contributors
 
 - [Yehor Lvivsky](https://github.com/lvivski) &lt;lvivski@gmail.com&gt;
+
+I will be very appreciated for any contribution.
 
 ## License 
 
