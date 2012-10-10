@@ -28,11 +28,11 @@ function Tiler(element, options) {
   // Saving the viewport element as a property
   this.element = element.jquery ? element : $(element)
 
-  // Current coordinates of the top left visible tile
-  this.x = this.options.x
-  this.y = this.options.y
+  // Current and initial (starting) coordinates of the top left visible tile
+  this.x = this.initX = this.options.x
+  this.y = this.initY = this.options.y
 
-  // Current offset of the binder element (in tiles)
+  // Offset of the binder element (in tiles) from the latest refresh
   this.binderOffsetX = 0
   this.binderOffsetY = 0
 
@@ -50,7 +50,6 @@ function Tiler(element, options) {
   // Arrange elements
   this.setBinderPosition()
   this.setGridPosition()
-  this.setGridSize()
 }
 
 /**
@@ -80,10 +79,7 @@ Proto.setBinderPosition = function() {
  * @api private
  */
 Proto.setGridPosition = function() {
-  this.grid.css({
-    left: -(this.options.tileSize * this.options.margin)
-  , top: -(this.options.tileSize * this.options.margin)
-  })
+  this.grid.css({left: 0, top: 0})
 }
 
 /**
@@ -107,31 +103,6 @@ Proto.calcBinderOffset = function() {
 }
 
 /**
- * Sets grid size regarding the grid size and tile size
- *
- * @api private
- */
-Proto.setGridSize = function() {
-  this.grid.css({
-    height: this.rowsCount * this.options.tileSize
-  , width: this.colsCount * this.options.tileSize
-  })
-}
-
-/**
- * Shifts grid position (absolute) regarding the passed offset
- *
- * @param {Object} offset {x: {Number}, y: {Number}}
- * @api private
- */
-Proto.shiftGridPosition = function(offset) {
-  this.grid.css({
-    top: '-=' + offset.y * this.options.tileSize,
-    left: '-=' + offset.x * this.options.tileSize
-  })
-}
-
-/**
  * Removes tiles that don't fall within the current grid area and fetches absent
  * tiles. Call this method if the binder was dragged/moved or viewport size is changed,
  * also in case unless all tiles are present after the fetch and you have to fetch
@@ -150,17 +121,12 @@ Proto.refresh = function() {
 
   this.calcRowsColsCount()
   this.calcCornersCoords()
-  this.setGridSize()
 
   var removed = this.getHiddenTilesCoords()
-    , tofetch = this.getTilesCoordsToFetch()
+  var tofetch = this.getTilesCoordsToFetch()
 
   if (removed.length) {
     this.remove(removed)
-  }
-  if (offset.x || offset.y) {
-    this.shiftGridPosition(offset)
-    this.shiftTilesPosition(offset)
   }
   if (tofetch.length || removed.length) {
     this.fetchTiles(tofetch, removed)
@@ -191,11 +157,6 @@ Proto.coords = function(x, y) {
     return {x: this.x, y: this.y}
   }
   
-  var offset = {
-    x: this.x - x
-  , y: this.y - y
-  }
-
   this.x = x
   this.y = y
 
@@ -204,13 +165,11 @@ Proto.coords = function(x, y) {
 
   this.setBinderPosition()
   this.setGridPosition()
-  this.setGridSize()
 
   var removed = this.getHiddenTilesCoords()
-    , tofetch = this.getTilesCoordsToFetch()
+  var tofetch = this.getTilesCoordsToFetch()
     
   this.remove(removed)
-  this.shiftTilesPosition(offset)
   this.fetchTiles(tofetch, removed)
 }
 
@@ -231,8 +190,12 @@ Proto.coords = function(x, y) {
  * @api public
  */
 Proto.show = function(x, y, elems) {
-  var tiles = $.isArray(x) ? x : [[x, y, elems]]
   var fragment = document.createDocumentFragment()
+  var tiles = $.isArray(x) ? x : [[x, y, elems]]
+
+  var tileSize = this.options.tileSize
+  var initX = this.initX
+  var initY = this.initY
   var elems
 
   for(var i = 0, l = tiles.length; i < l; i++) {
@@ -252,6 +215,12 @@ Proto.show = function(x, y, elems) {
 
     $.each(elems, function(i, elem) {
       fragment.appendChild(elem.get(0))
+
+      elem.css({
+        position: 'absolute'
+      , left: (x - initX) * tileSize
+      , top: (y - initY) * tileSize
+      })
     })
 
     this.remove(x, y)
@@ -259,7 +228,6 @@ Proto.show = function(x, y, elems) {
   }
 
   this.grid.append(fragment)
-  this.arrangeTiles()
 }
 
 /**
@@ -290,25 +258,6 @@ Proto.remove = function(x, y) {
       })
     }
   }
-}
-
-/**
- * Shifts tiles position (absolute) regarding the passed offset
- *
- * @param {Object} offset {x: {Number}, y: {Number}}
- * @api private
- */
-Proto.shiftTilesPosition = function(offset) {
-  var tileSize = this.options.tileSize
-  
-  this.tiles.each(function(elems) {
-    $.each(elems, function(i, elem){
-      elem.css({
-        left: '+=' + (tileSize * offset.x)
-      , top: '+=' + (tileSize * offset.y)
-      })
-    })
-  })
 }
 
 /**
@@ -381,27 +330,6 @@ Proto.fetchTiles = function(tofetch, removed) {
   if ($.isFunction(this.options.fetch)) {
     this.options.fetch(tofetch, removed)
   }
-}
-
-/**
- * Arranges tiles position
- *
- * @api private
- */
-Proto.arrangeTiles = function() {
-  var tileSize = this.options.tileSize
-    , cx1 = this.corners.x1
-    , cy1 = this.corners.y1
-
-  this.tiles.each(function(elems, x, y) {
-    $.each(elems, function(i, elem) {
-      elem.css({
-        position: 'absolute'
-      , left: (x - cx1) * tileSize
-      , top: (y - cy1) * tileSize
-      })
-    })
-  })
 }
 
 /**
