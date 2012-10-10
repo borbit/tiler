@@ -1,8 +1,8 @@
 # Tiler.JS
 
-JavaScript library for creating tile-based endless grid. Initially written for my pet project [Minefield](http://mienfield.com).
+Library for creating of endless tile-based grid. Initially written for the [Minefield](http://mienfield.com).
 
-[See the simple demo here](http://borbit.github.com/tiler/)
+[Demo](http://borbit.github.com/tiler/)
 
 ## Dependencies
 
@@ -169,13 +169,13 @@ Like this:
 5. To make grid draggable just:
 
     ```js
-    tiler.grid.draggable();
+    tiler.binder.draggable();
     ```
     
 6. Refresh grid during the dragging:
 
     ```js
-    tiler.grid.bind('drag', function() {
+    tiler.binder.bind('drag', function() {
         tiler.refresh();
     });
     ```

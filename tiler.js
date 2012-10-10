@@ -1,7 +1,7 @@
 /**
  * Tiler 0.2.0
  *
- * JavaScript library for creating tile-based endless grid.
+ * Library for creating of endless tile-based grid.
  * For more info visit: https://github.com/borbit/tiler/
  *
  * (c) 2011-2012 Serge Borbit <serge.borbit@gmail.com>
