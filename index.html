@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0;"/>
-<title>Tiler.JS</title>
+<title>Tiler.JS (0.2.0)</title>
 <style>
   body {
     display:block;
@@ -57,6 +57,7 @@
 <header>
   <section class="title">
     <a href="https://github.com/borbit/tiler/">TILER.JS</a>
+    <span>0.2.0</span>
   </section>
   <section class="buttons">
     <iframe src="http://ghbtns.com/github-btn.html?user=borbit&repo=tiler&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="92px" height="20px"></iframe>
@@ -102,7 +103,7 @@
     tiler.binder.scraggable();
     tiler.refresh();
     
-    tiler.binder.bind('drag', function(e, ui) {
+    tiler.binder.bind('drag', function() {
       tiler.refresh();
     });
     
