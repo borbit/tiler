@@ -99,11 +99,11 @@
       }
     });
     
-    tiler.binder.draggable();
-    tiler.binder.scraggable();
+    tiler.grid.draggable();
+    tiler.grid.scraggable();
     tiler.refresh();
     
-    tiler.binder.bind('drag', function() {
+    tiler.grid.bind('drag', function() {
       tiler.refresh();
     });
     
