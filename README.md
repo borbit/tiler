@@ -169,13 +169,13 @@ Like this:
 5. To make grid draggable just:
 
     ```js
-    tiler.binder.draggable();
+    tiler.grid.draggable();
     ```
     
 6. Refresh grid during the dragging:
 
     ```js
-    tiler.binder.bind('drag', function() {
+    tiler.grid.bind('drag', function() {
         tiler.refresh();
     });
     ```

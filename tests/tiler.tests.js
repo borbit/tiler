@@ -30,34 +30,21 @@ function createTiler(options) {
 module('Initialization');
 
 // "element" passed as a jQuery element
-test('"binder" is appended to the element #1', function() {
+test('"grid" is appended to the element #1', function() {
   var element = $('<div/>');
   var tiler = new Tiler(element);
   
-  ok($.contains(element[0], tiler.binder[0]));
+  ok(tiler.grid.is(element.children()[0]));
   equals(element.children().length, 1);
 });
 
 // "element" passed as a DOM element
-test('"binder" is appended to the binder #2', function() {
+test('"grid" is appended to the element #2', function() {
   var element = document.createElement('div');
   var tiler = new Tiler(element);
   
-  ok($.contains(element, tiler.binder[0]));
+  ok(tiler.grid.is($(element).children()[0]));
   equals($(element).children().length, 1);
-});
-
-test('"binder" position is absolute', function() {
-  var tiler = createTiler();
-  equals(tiler.binder.css('position'), 'absolute');
-  tiler.element.remove();
-});
-
-test('"grid" is appended to the binder', function() {
-  var tiler = createTiler();
-  ok($.contains(tiler.binder[0], tiler.grid[0]));
-  equals(tiler.binder.children().length, 1);
-  tiler.element.remove();
 });
 
 test('"grid" position is absolute', function() {
@@ -113,14 +100,14 @@ test('is called with correct arguments #2', function() {
   tiler.element.remove();
 });
 
-// binder is dragged (top and left)
+// grid is dragged (top and left)
 test('is called with correct arguments #3', function() {
   var spy = sinon.spy();
   var tiler = createTiler({fetch: spy});
 
   tiler.refresh();
   tiler.show(dummyTiles());
-  tiler.binder.css({top: -100, left: -100});
+  tiler.grid.css({top: -100, left: -100});
   tiler.refresh();
 
   var expRemoved = [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]];
@@ -132,14 +119,14 @@ test('is called with correct arguments #3', function() {
   tiler.element.remove();
 });
 
-// binder is dragged (bottom and right)
+// grid is dragged (bottom and right)
 test('is called with correct arguments #4', function() {
   var spy = sinon.spy();
   var tiler = createTiler({fetch: spy});
   
   tiler.refresh();
   tiler.show(dummyTiles());
-  tiler.binder.css({top: 100, left: 100});
+  tiler.grid.css({top: 100, left: 100});
   tiler.refresh();
 
   var expRemoved = [[1, -1], [1, 0], [-1, 1], [0, 1], [1, 1]];
@@ -345,7 +332,7 @@ test('"grid" is filled by tiles #8',  function() {
   deepEqual(tiler.element.find('.tile._2').position(), {top:  100, left: -100});
   deepEqual(tiler.element.find('.tile').length, 3);
 
-  tiler.binder.css({left: 100, top: 0});
+  tiler.grid.css({left: 100, top: 0});
 
   tiler.refresh();
   tiler.show(-2, -1, $('<div class="tile _3"></div>'));
@@ -429,7 +416,7 @@ test('unnecessary tiles are removed #1', function() {
   
   tiler.refresh();
   tiler.show(dummyTiles());
-  tiler.binder.css({left: 100, top: 100});
+  tiler.grid.css({left: 100, top: 100});
   tiler.refresh();
 
   equal(tiler.grid.find('.tile').length, 4);
@@ -453,7 +440,7 @@ test('unnecessary tiles are removed #2', function() {
     [ 1,  1, $('<div class="tile _2"></div>')]
   ]);
 
-  tiler.binder.css({left: 100, top: 100});
+  tiler.grid.css({left: 100, top: 100});
   tiler.refresh();
 
   equal(tiler.grid.find('.tile._2').length, 0);
@@ -475,7 +462,7 @@ test('unnecessary tiles are removed #3', function() {
     [ 1, 0, $('<div class="tile _2"></div>')]
   ]);
 
-  tiler.binder.css({left: 100, top: 100});
+  tiler.grid.css({left: 100, top: 100});
   tiler.refresh();
 
   equal(tiler.grid.find('.tile._2').length, 0);
@@ -492,7 +479,7 @@ test('unnecessary tiles are removed #4', function() {
   
   tiler.refresh();
   tiler.show(dummyTiles());
-  tiler.binder.css({left: -100, top: -100});
+  tiler.grid.css({left: -100, top: -100});
   tiler.refresh();
 
   equal(tiler.grid.find('.tile._0').length, 0);
@@ -516,7 +503,7 @@ test('unnecessary tiles are removed #5', function() {
     [ 1,  1, $('<div class="tile _2"></div>')]
   ]);
 
-  tiler.binder.css({left: -100, top: -100});
+  tiler.grid.css({left: -100, top: -100});
   tiler.refresh();
 
   equal(tiler.grid.find('.tile._0').length, 0);
@@ -539,7 +526,7 @@ test('unnecessary tiles are removed #6', function() {
     [ 1, 0, $('<div class="tile _2"></div>')]
   ]);
 
-  tiler.binder.css({left: -100, top: -100});
+  tiler.grid.css({left: -100, top: -100});
   tiler.refresh();
 
   equal(tiler.grid.find('.tile._0').length, 0);
@@ -562,7 +549,7 @@ test('unnecessary tiles are removed #7', function() {
     [ 1, 0, [$('<div class="t _20"></div>'), $('<div class="t _21"></div>')]]
   ]);
 
-  tiler.binder.css({left: -100, top: -100});
+  tiler.grid.css({left: -100, top: -100});
   tiler.refresh();
 
   equal(tiler.grid.find('._00').length, 0);
@@ -619,14 +606,14 @@ test('unnecessary tiles are removed #8', function() {
 
 module('"coords" method');
 
-test('resets binder position', function() {
+test('resets grid position', function() {
   var tiler = createTiler();
   
   tiler.refresh();
-  tiler.binder.css({left: -150, top: -150});
+  tiler.grid.css({left: -150, top: -150});
   tiler.coords(0, 0);
 
-  deepEqual(tiler.binder.position(), {top: 0, left: 0});
+  deepEqual(tiler.grid.position(), {top: 0, left: 0});
 
   tiler.element.remove();
 });
