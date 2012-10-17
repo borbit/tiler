@@ -60,6 +60,16 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     
     Default: `0`
 
+### Properties
+
+- ##### `element`
+    
+    A viewport element. Automatically wrapped in a `jQuery` object if you pass it as a `DOM` element.
+    
+- ##### `grid`
+
+    A grid element used as a tiles container. Wrapped in a `jQuery` object and appended to the viewport element.
+
 ### Methods
 
 - ##### `refresh()`
