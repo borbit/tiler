@@ -651,6 +651,22 @@ test('returns current position if arguments are not passed', function() {
   tiler.element.remove();
 });
 
+test('returns correct coordiantes', function() {
+  var tiler = createTiler();
+  
+  tiler.grid.css({left: 110, top: 110});
+  tiler.refresh();
+
+  deepEqual(tiler.coords(), {x: -1, y: -1});
+
+  tiler.grid.css({left: 90, top: 90});
+  tiler.refresh();
+
+  deepEqual(tiler.coords(), {x: 0, y: 0});
+
+  tiler.element.remove();
+});
+
 module('"reload" method');
 
 test('fetches all tiles #1', function() {

@@ -73,14 +73,11 @@ Proto.setGridPosition = function() {
  */
 Proto.calcGridOffset = function() {
   var pos = this.grid.position()
-  var tileSize = this.options.tileSize
-
-  var offsetLeft = pos.left - this.gridOffsetX * tileSize
-  var offsetTop = pos.top - this.gridOffsetY * tileSize
+  var ts = this.options.tileSize
 
   return {
-    x: Math.abs(offsetLeft) >= tileSize ? ~~(offsetLeft / tileSize) : 0
-  , y: Math.abs(offsetTop) >= tileSize ? ~~(offsetTop / tileSize) : 0
+    x: ~~(pos.left / ts) - this.gridOffsetX
+  , y: ~~(pos.top / ts) - this.gridOffsetY
   }
 }
 
