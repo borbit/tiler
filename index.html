@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0;"/>
-<title>Tiler.JS (0.2.0)</title>
+<title>Tiler.JS (0.2.2)</title>
 <style>
   body {
     display:block;
@@ -57,7 +57,7 @@
 <header>
   <section class="title">
     <a href="https://github.com/borbit/tiler/">TILER.JS</a>
-    <span>0.2.0</span>
+    <span>0.2.2</span>
   </section>
   <section class="buttons">
     <iframe src="http://ghbtns.com/github-btn.html?user=borbit&repo=tiler&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="92px" height="20px"></iframe>
@@ -80,6 +80,7 @@
 
 <script>        
   $(function() {
+    var fetched = new Grid();
     var host = 'https://s3.amazonaws.com/serge.borb.it/tiler/';
     var tiler = new Tiler($('#viewport'), {
       tileSize: 150,
@@ -87,13 +88,22 @@
       
       fetch: function(tofecth) {
         tofecth.forEach(function(tile) {
-          var img = new Image();
           var x = tile[0];
           var y = tile[1];
+
+          if (fetched.get(x, y)) {
+            return tiler.show(x, y, fetched.get(x, y));
+          }
+
+          var img = new Image();
           
           img.onload = function() {
-            tiler.show(x, y, $('<img/>').attr('src', img.src));
+            var tile = $('<img/>').attr('src', img.src);
+            
+            tiler.show(x, y, tile);
+            fetched.set(x, y, tile);
           };
+
           img.src = host + 'tile_' + x + '_' + y + '.jpg';
         });
       }
