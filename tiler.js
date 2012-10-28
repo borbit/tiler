@@ -1,5 +1,5 @@
 /**
- * Tiler 0.2.1
+ * Tiler 0.2.2
  *
  * Library for creating of endless tile-based grid.
  * For more info visit: https://github.com/borbit/tiler/
