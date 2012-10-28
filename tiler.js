@@ -75,6 +75,9 @@ Proto.calcGridOffset = function() {
   var pos = this.grid.position()
   var ts = this.options.tileSize
 
+  pos.left > 0 && (pos.left += ts)
+  pos.top > 0 && (pos.top += ts)
+
   return {
     x: ~~(pos.left / ts) - this.gridOffsetX
   , y: ~~(pos.top / ts) - this.gridOffsetY
@@ -136,8 +139,8 @@ Proto.coords = function(x, y) {
     return {x: this.x, y: this.y}
   }
   
-  this.x = x
-  this.y = y
+  this.x = this.initX = x
+  this.y = this.initY = y
 
   this.calcRowsColsCount()
   this.calcCornersCoords()
@@ -145,8 +148,10 @@ Proto.coords = function(x, y) {
 
   var removed = this.getHiddenTilesCoords()
   var tofetch = this.getTilesCoordsToFetch()
-    
+
   this.remove(removed)
+  this.arrangeAll()
+
   this.fetchTiles(tofetch, removed)
 }
 
@@ -169,10 +174,6 @@ Proto.coords = function(x, y) {
 Proto.show = function(x, y, elems) {
   var fragment = document.createDocumentFragment()
   var tiles = $.isArray(x) ? x : [[x, y, elems]]
-
-  var tileSize = this.options.tileSize
-  var initX = this.initX
-  var initY = this.initY
   var elems
 
   for(var i = 0, l = tiles.length; i < l; i++) {
@@ -192,19 +193,49 @@ Proto.show = function(x, y, elems) {
 
     $.each(elems, function(i, elem) {
       fragment.appendChild(elem.get(0))
-
-      elem.css({
-        position: 'absolute'
-      , left: (x - initX) * tileSize
-      , top: (y - initY) * tileSize
-      })
     })
 
     this.remove(x, y)
     this.tiles.set(x, y, elems)
+    this.arrange(x, y)
   }
 
   this.grid.append(fragment)
+}
+
+/**
+ * Arranges tile position
+ *
+ * @param {Number} x
+ * @param {Number} y
+ * 
+ * @api private
+ */
+Proto.arrange = function(x, y) {
+  var elems = this.tiles.get(x, y)
+    , ts = this.options.tileSize
+    , ix = this.initX
+    , iy = this.initY
+
+  $.each(elems, function(i, elem) {
+    elem.css({
+      position: 'absolute'
+    , left: (x - ix) * ts
+    , top: (y - iy) * ts
+    })
+  })
+}
+
+/**
+ * Arranges position of all tiles
+ *
+ * @api private
+ */
+Proto.arrangeAll = function() {
+  var coords = this.tiles.coords()
+  for (var i = coords.length; i--;) {
+    this.arrange(coords[i][0], coords[i][1])
+  }
 }
 
 /**
