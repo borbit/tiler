@@ -142,6 +142,9 @@ Proto.coords = function(x, y) {
   this.x = this.initX = x
   this.y = this.initY = y
 
+  this.gridOffsetX = 0
+  this.gridOffsetY = 0
+
   this.calcRowsColsCount()
   this.calcCornersCoords()
   this.setGridPosition()
