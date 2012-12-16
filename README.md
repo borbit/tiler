@@ -127,6 +127,10 @@ A `jQuery` or `DOM` element will be used as a viewport for a tiles grid.
     {x: {Number}, y: {Number}}
     ```
 
+- ##### `inGrid(x, y)`
+    
+    Returns `true` if the coordinates fall within the current square of the grid, otherwise returns `false`.
+
 ## Using Tiler
 
 1. Include main dependencies on your page.

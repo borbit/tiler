@@ -788,3 +788,14 @@ test('fetches all tiles #2', function() {
   
   tiler.element.remove();
 });
+
+module('"inGrid" method');
+
+test('fetches all tiles #2', function() {
+  var tiler = createTiler();
+
+  tiler.refresh();
+
+  equal(tiler.inGrid(0, 0), true);
+  equal(tiler.inGrid(100, 100), false);
+});

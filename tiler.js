@@ -183,8 +183,7 @@ Proto.show = function(x, y, elems) {
     x = tiles[i][0]
     y = tiles[i][1]
 
-    if (y < this.corners.y1 || y > this.corners.y2 ||
-        x < this.corners.x1 || x > this.corners.x2) {
+    if (!this.inGrid(x, y)) {
       continue
     }
 
@@ -306,8 +305,7 @@ Proto.getHiddenTilesCoords = function() {
     , self = this
 
   this.tiles.each(function(tile, x, y) {
-    if (y < self.corners.y1 || y > self.corners.y2 ||
-        x < self.corners.x1 || x > self.corners.x2) {
+    if (!self.inGrid(x, y)) {
       coords.push([x, y])
     }
   })
@@ -399,6 +397,17 @@ Proto.calcCornersCoords = function() {
   , x2: x1 + this.colsCount - 1
   , y2: y1 + this.rowsCount - 1
   }
+}
+
+/**
+ *
+ */
+Proto.inGrid = function(x, y) {
+  if (y < this.corners.y1 || y > this.corners.y2 ||
+      x < this.corners.x1 || x > this.corners.x2) {
+    return false;
+  }
+  return true;
 }
 
 window.Tiler = Tiler
