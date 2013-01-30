@@ -1,5 +1,5 @@
 /**
- * Tiler 0.2.0
+ * Tiler 0.2.3
  *
  * Library for creating of endless tile-based grid.
  * For more info visit: https://github.com/borbit/tiler/
@@ -73,14 +73,14 @@ Proto.setGridPosition = function() {
  */
 Proto.calcGridOffset = function() {
   var pos = this.grid.position()
-  var tileSize = this.options.tileSize
+  var ts = this.options.tileSize
 
-  var offsetLeft = pos.left - this.gridOffsetX * tileSize
-  var offsetTop = pos.top - this.gridOffsetY * tileSize
+  pos.left > 0 && (pos.left += ts)
+  pos.top > 0 && (pos.top += ts)
 
   return {
-    x: Math.abs(offsetLeft) >= tileSize ? ~~(offsetLeft / tileSize) : 0
-  , y: Math.abs(offsetTop) >= tileSize ? ~~(offsetTop / tileSize) : 0
+    x: ~~(pos.left / ts) - this.gridOffsetX
+  , y: ~~(pos.top / ts) - this.gridOffsetY
   }
 }
 
@@ -139,8 +139,11 @@ Proto.coords = function(x, y) {
     return {x: this.x, y: this.y}
   }
   
-  this.x = x
-  this.y = y
+  this.x = this.initX = x
+  this.y = this.initY = y
+
+  this.gridOffsetX = 0
+  this.gridOffsetY = 0
 
   this.calcRowsColsCount()
   this.calcCornersCoords()
@@ -148,8 +151,10 @@ Proto.coords = function(x, y) {
 
   var removed = this.getHiddenTilesCoords()
   var tofetch = this.getTilesCoordsToFetch()
-    
+
   this.remove(removed)
+  this.arrangeAll()
+
   this.fetchTiles(tofetch, removed)
 }
 
@@ -172,18 +177,13 @@ Proto.coords = function(x, y) {
 Proto.show = function(x, y, elems) {
   var fragment = document.createDocumentFragment()
   var tiles = $.isArray(x) ? x : [[x, y, elems]]
-
-  var tileSize = this.options.tileSize
-  var initX = this.initX
-  var initY = this.initY
   var elems
 
   for(var i = 0, l = tiles.length; i < l; i++) {
     x = tiles[i][0]
     y = tiles[i][1]
 
-    if (y < this.corners.y1 || y > this.corners.y2 ||
-        x < this.corners.x1 || x > this.corners.x2) {
+    if (!this.inGrid(x, y)) {
       continue
     }
 
@@ -195,19 +195,49 @@ Proto.show = function(x, y, elems) {
 
     $.each(elems, function(i, elem) {
       fragment.appendChild(elem.get(0))
-
-      elem.css({
-        position: 'absolute'
-      , left: (x - initX) * tileSize
-      , top: (y - initY) * tileSize
-      })
     })
 
     this.remove(x, y)
     this.tiles.set(x, y, elems)
+    this.arrange(x, y)
   }
 
   this.grid.append(fragment)
+}
+
+/**
+ * Arranges tile position
+ *
+ * @param {Number} x
+ * @param {Number} y
+ * 
+ * @api private
+ */
+Proto.arrange = function(x, y) {
+  var elems = this.tiles.get(x, y)
+    , ts = this.options.tileSize
+    , ix = this.initX
+    , iy = this.initY
+
+  $.each(elems, function(i, elem) {
+    elem.css({
+      position: 'absolute'
+    , left: (x - ix) * ts
+    , top: (y - iy) * ts
+    })
+  })
+}
+
+/**
+ * Arranges position of all tiles
+ *
+ * @api private
+ */
+Proto.arrangeAll = function() {
+  var coords = this.tiles.coords()
+  for (var i = coords.length; i--;) {
+    this.arrange(coords[i][0], coords[i][1])
+  }
 }
 
 /**
@@ -275,8 +305,7 @@ Proto.getHiddenTilesCoords = function() {
     , self = this
 
   this.tiles.each(function(tile, x, y) {
-    if (y < self.corners.y1 || y > self.corners.y2 ||
-        x < self.corners.x1 || x > self.corners.x2) {
+    if (!self.inGrid(x, y)) {
       coords.push([x, y])
     }
   })
@@ -368,6 +397,17 @@ Proto.calcCornersCoords = function() {
   , x2: x1 + this.colsCount - 1
   , y2: y1 + this.rowsCount - 1
   }
+}
+
+/**
+ *
+ */
+Proto.inGrid = function(x, y) {
+  if (y < this.corners.y1 || y > this.corners.y2 ||
+      x < this.corners.x1 || x > this.corners.x2) {
+    return false;
+  }
+  return true;
 }
 
 window.Tiler = Tiler
