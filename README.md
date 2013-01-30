@@ -2,6 +2,8 @@
 
 Library for creating of endless tile-based grid. Initially written for the [Minefield](http://mienfield.com).
 
+[![Build Status](https://secure.travis-ci.org/borbit/tiler.png)](http://travis-ci.org/borbit/tiler)
+
 [Demo](http://borbit.github.com/tiler/)
 
 ## Dependencies
