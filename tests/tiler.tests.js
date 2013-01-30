@@ -35,7 +35,7 @@ test('"grid" is appended to the element #1', function() {
   var tiler = new Tiler(element);
   
   ok(tiler.grid.is(element.children()[0]));
-  equals(element.children().length, 1);
+  equal(element.children().length, 1);
 });
 
 // "element" passed as a DOM element
@@ -44,12 +44,12 @@ test('"grid" is appended to the element #2', function() {
   var tiler = new Tiler(element);
   
   ok(tiler.grid.is($(element).children()[0]));
-  equals($(element).children().length, 1);
+  equal($(element).children().length, 1);
 });
 
 test('"grid" position is absolute', function() {
   var tiler = createTiler();
-  equals(tiler.grid.css('position'), 'absolute');
+  equal(tiler.grid.css('position'), 'absolute');
   tiler.element.remove();
 });
 
@@ -58,9 +58,9 @@ module('Options');
 test('initial values', function() {
   ok(Tiler.defaults.tileSize === null);
   ok(Tiler.defaults.fetch === null);
-  equals(Tiler.defaults.margin, 2);
-  equals(Tiler.defaults.x, 0);
-  equals(Tiler.defaults.y, 0);
+  equal(Tiler.defaults.margin, 2);
+  equal(Tiler.defaults.x, 0);
+  equal(Tiler.defaults.y, 0);
 });
 
 module('"fetch" callback');

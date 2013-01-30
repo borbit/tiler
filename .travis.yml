@@ -1,0 +1,1 @@
+script: phantomjs tests/vendor/runner.js tests/index.html
