@@ -1,1 +1,3 @@
+before_script:
+  - phantomjs --version
 script: phantomjs tests/vendor/runner.js tests/index.html
