@@ -1,22 +1,24 @@
 /**
  * Tiler 0.2.4
  *
- * Library for creating of endless tile-based grid.
- * For more info visit: https://github.com/borbit/tiler/
+ * Endless grid of tiles.
+ * https://github.com/borbit/tiler/
  *
- * (c) 2011-2012 Serge Borbit <serge.borbit@gmail.com>
+ * (c) 2011-2015 Serge Borbit <serge.borbit@gmail.com>
  *
  * Licensed under the MIT license
  */
 
 (function(root) {
 
-// lookup jQuery in "global" scope
+// lookup dependencies "global" scope
 var $ = root.jQuery
-// or require if we are in CommonJS envieronment
+var Grid = root.Grid
+// or require them if we are in CommonJS envieronment
 if (typeof require !== 'undefined' &&
     typeof module !== 'undefined' && module.exports) {
   $ = require('jQuery')
+  Grid = require('grid')
 }
 
 /**
