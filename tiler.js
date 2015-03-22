@@ -1,5 +1,5 @@
 /**
- * Tiler 0.2.3
+ * Tiler 0.2.4
  *
  * Library for creating of endless tile-based grid.
  * For more info visit: https://github.com/borbit/tiler/
@@ -9,7 +9,15 @@
  * Licensed under the MIT license
  */
 
-(function($) {
+(function(root) {
+
+// lookup jQuery in "global" scope
+var $ = root.jQuery
+// or require if we are in CommonJS envieronment
+if (typeof require !== 'undefined' &&
+    typeof module !== 'undefined' && module.exports) {
+  $ = require('jQuery')
+}
 
 /**
  * Constructor
@@ -410,6 +418,22 @@ Proto.inGrid = function(x, y) {
   return true;
 }
 
-window.Tiler = Tiler
+// Export Tiler for CommonJS. If being loaded as an
+// AMD module, define it as such. Otherwise, just add 
+// `Tiler` to the global object
+if (typeof exports !== 'undefined') {
+  if (typeof module !== 'undefined' && module.exports) {
+    exports = module.exports = Tiler
+  }
+  exports.Tiler = Tiler
+} else if (typeof define === 'function' && define.amd) {
+  // Return the Tiler as an AMD module:
+  define([], function() {
+    return Tiler
+  })
+} else {
+  // Declare `Tiler` on the root (global/window) object:
+  root['Tiler'] = Tiler
+}
 
-})(jQuery)
+})(this)
