@@ -4,5 +4,6 @@
   "author": "Serge Borbit",
   "dependencies": {
     "grid": "borbit/grid"
-  }
+  },
+  "main": "tiler.js"
 }
