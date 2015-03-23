@@ -17,7 +17,7 @@ var Grid = root.Grid
 // or require them if we are in CommonJS envieronment
 if (typeof require !== 'undefined' &&
     typeof module !== 'undefined' && module.exports) {
-  $ = require('jQuery')
+  $ = require('jquery')
   Grid = require('grid')
 }
 
