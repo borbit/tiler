@@ -1,0 +1,8 @@
+{
+  "name": "tiler",
+  "version": "0.2.4",
+  "author": "Serge Borbit",
+  "dependencies": {
+    "grid": "borbit/grid"
+  }
+}
